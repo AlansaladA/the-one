@@ -27,9 +27,9 @@ export default function Page() {
   }, [address])
   
   return <Flex height={'full'} flexDirection={'column'}>
-    <Header />
-    <Box as={'main'} flex={1} overflow={'auto'}>
-      <Outlet />
-    </Box>
-  </Flex>
+  <Header />
+  <Box as={'main'} flex={1} overflow={'auto'} px={20}>
+    <Outlet />
+  </Box>
+</Flex>
 }
