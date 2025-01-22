@@ -4,3 +4,8 @@ export function shortenAddress(address: string, len: number = 3): string {
   const shortenedAddress = `${startChars}...${endChars}`;
   return shortenedAddress;
 }
+
+
+
+
+

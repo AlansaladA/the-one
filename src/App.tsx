@@ -7,7 +7,6 @@ import router from './route';
 
 import { system } from './lib/system/index.ts';
 function App() {
-  const [count, setCount] = useState(0)
 
   return (
     <ChakraProvider value={system}>

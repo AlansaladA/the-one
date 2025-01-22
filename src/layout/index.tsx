@@ -6,7 +6,7 @@ import { Box, Flex } from "@chakra-ui/react";
 export default function Page() {
   return <Flex height={'full'} flexDirection={'column'}>
   <Header />
-  <Box as={'main'} flex={1} overflow={'auto'}>
+  <Box as={'main'} flex={1} overflow={'auto'} px={20}>
     <Outlet />
   </Box>
 </Flex>

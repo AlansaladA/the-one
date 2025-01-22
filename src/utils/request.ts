@@ -13,7 +13,7 @@ interface CustomAxiosInstance extends AxiosInstance {
 }
 const request: CustomAxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  timeout: 10000,
+  timeout: 50000,
 })
 
 // request interceptors
@@ -37,7 +37,7 @@ request.interceptors.response.use(
     if (res.success === false) {
       return Promise.reject(Error(res.error || "request error"))
     }
-    return res.data
+    return res
   },
   (error) => {
     if (error.response.data) return Promise.reject(Error(error.response.data.message || "request error"))
