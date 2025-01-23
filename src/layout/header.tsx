@@ -4,28 +4,36 @@ import { useNavigate } from "react-router";
 import { Button } from "@/components/ui/button"
 import useWallet from "@/hooks/useWallet";
 import { shortenAddress } from "@/utils/formatter";
+import TweetImg from "@/assets/tweet.png"
+import DexImg from "@/assets/dexscreener.png"
 export default function Header() {
   const { address, balance, isLogined, login, logout } = useWallet()
   const navigate = useNavigate()
   return <Flex justifyContent={"space-between"} px='8' height={'80px'} alignItems={"center"}>
     <Image cursor={'pointer'} src={Logo} height={'44px'} onClick={() => navigate('/')} />
-    <Flex alignItems={'center'}>
-      <Box mr={4}>
+    <Flex alignItems={'center'} gap={2}>
+      <Button bgColor={"transparent"} onClick={() =>  window.open(`https://x.com/the1aiagent`, '_blank')}>
+        <Image src={TweetImg}></Image>
+      </Button>
+      <Button bgColor={"#000"} onClick={() => window.open(`https://dexscreener.com/solana/FfQ99V4Z74397VZBxz2iPfnZMWGeuobdWXpTfcHjuYno`, '_blank')}>
+        <Image src={DexImg}></Image>
+      </Button>
+      {/* <Box mr={4}>
         {!isLogined ? (
-          <Button variant={'solid'} onClick={() => login()}
+          <Button px={"24px"} borderRadius={"full"} borderColor={"#8181E5"} bgColor={"transparent"} variant={'solid'} onClick={() => login()}
           >
-            Login
+            <Text color={"#8181E5"}>Login</Text>
           </Button>
         ) : <Button variant={'solid'}
           onClick={() => logout()}
         >
-          Logout
+          <Text color={"white"}>Logout</Text>
         </Button>}
       </Box>
       {address && <Flex>
         <Text mr={4}>{shortenAddress(address)}</Text>
         <Text>{balance} $theOne</Text>
-      </Flex>}
+      </Flex>} */}
     </Flex>
   </Flex>
 }

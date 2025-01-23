@@ -21,11 +21,15 @@ import {
   HStack
 } from "@chakra-ui/react";
 import { Tooltip } from "@/components/ui/tooltip";
+import { useParams, useNavigate } from 'react-router'
 // import { FaTwitter } from "react-icons/fa";
 import { Tweet, PriceHistory } from "@/utils/types";
 import { Avatar, AvatarGroup } from "@/components/ui/avatar"
 import Loading from "./loading";
 import { Button } from "@/components/ui/button"
+import { FaTwitter } from "react-icons/fa";
+import Relation from "./relation"
+import { Link } from "react-router";
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
@@ -71,6 +75,7 @@ const CustomDot = ({
   price,
   chartData,
 }: CustomDotProps) => {
+  const navigate = useNavigate()
   if (!tweets?.length) return null;
 
   const calculateImpact = (tweet: Tweet, currentPrice: number) => {
@@ -99,18 +104,22 @@ const CustomDot = ({
       height={24}
       style={{ overflow: "visible" }}
     >
-      <Tooltip contentProps={
-        { p: 0, bg: 'transparent' }
-      } interactive
+      <Tooltip interactive contentProps={
+        {
+          p: 0, bg: 'transparent', maxWidth: 'none', // 让宽度自动适配内容
+          width: '500px'
+        }
+      }
         content={
-          <Box p={2} display={"flex"} flexDirection={"column"} gap={2} bg="#2D2D4FF2" borderRadius="lg" color="gray.300" w={"400px"}>
+          <Box p={4} display={"flex"} flexDirection={"column"} gap={4} bg="#2D2D4FF2" borderRadius="lg" color="gray.300" >
             {tweets.map((tweet: Tweet, i) => {
               const impact = calculateImpact(tweet, price);
               return (
                 <Box
                   key={i}
-                  borderBottom={i !== tweets.length - 1 ? "1px solid" : "none"}
-                  borderColor="#2D2D4FF2"
+                  borderBottomWidth={i !== tweets.length - 1 ? "1px" : "none"}
+                  borderColor="#2D2D4F"
+                // borderBottomWidth="1px"
                 >
                   <Flex justify="space-between" align="center" gap={3}>
                     <Flex align="center" gap={3}>
@@ -131,7 +140,7 @@ const CustomDot = ({
                       </Flex>
                     </Flex>
                     <Flex gap={2}>
-                      <Button borderRadius={"full"} size="sm" bg="gray.800" _hover={{ bg: "gray.700" }} color="white">
+                      <Button onClick={()=>{navigate(`/detail/${tweet.screen_name}`)}} borderRadius={"full"} size="sm" bg="gray.500" _hover={{ bg: "gray.700" }} color="white">
                         <Text fontWeight={"bold"}>Profile</Text>
                       </Button>
                       <Button
@@ -140,9 +149,9 @@ const CustomDot = ({
                         // leftIcon={<FaTwitter />}
                         bg="blue.500"
                         color="white"
-                        onClick={() => console.log('click')
-                        }
+                        onClick={()=>window.open(`https://twitter.com/intent/follow?screen_name=${tweet.screen_name}`,'_blank')}
                       >
+                        <FaTwitter className="text-xs" />
                         <Text fontWeight={"bold"}>Follow</Text>
                       </Button>
                     </Flex>
@@ -151,13 +160,13 @@ const CustomDot = ({
                   <Box mt={2} spaceY={1}>
                     <Flex justify="space-between" fontSize="sm">
                       <Text color="gray.400">Price at Post</Text>
-                      <Text fontFamily="monospace" fontWeight={"bold"}>${price.toFixed(4)}</Text>
+                      <Text color={"white"} fontFamily="monospace" fontWeight={"bold"}>${price.toFixed(4)}</Text>
                     </Flex>
                     {impact && (
                       <>
                         <Flex justify="space-between" fontSize="sm">
                           <Text color="gray.400">Highest After</Text>
-                          <Text fontWeight={"bold"} fontFamily="monospace">${impact.highestPrice.toFixed(4)}</Text>
+                          <Text color={"white"} fontWeight={"bold"} fontFamily="monospace">${impact.highestPrice.toFixed(4)}</Text>
                         </Flex>
                         <Flex justify="space-between" fontSize="sm">
                           <Text color="gray.400">Return After Tweet</Text>
@@ -183,18 +192,23 @@ const CustomDot = ({
           </Box>
         }
       >
-        <Box position={"relative"} display={"flex"} alignItems={"center"}>
+        <Box position={"relative"} display={"flex"} alignItems={"center"} cursor={"pointer"}>
           {tweets.length > 1 ? (
             <AvatarGroup stacking="last-on-top" borderless>
               {
                 tweets.map((tweet: Tweet, i: number) => {
-                  return <Avatar w="15px" h="15px" src={tweet.profile_image_url} key={i}></Avatar>
+                  return  <Link style={{ color: "inherit" }} to={`/detail/${tweet.screen_name}`} key={i}>
+                    <Avatar w="15px" h="15px" src={tweet.profile_image_url} key={i}></Avatar>
+                  </Link>
+                  
                 })
               }
               {/* <Avatar fallback="+3" w="20px" h="20px" fontSize={2}/> */}
             </AvatarGroup>
           ) : (
-            <Avatar w="15px" h="15px" src={tweets[0].profile_image_url}></Avatar>
+            <Link style={{ color: "inherit" }} to={`/detail/${tweets[0].screen_name}`}>
+              <Avatar w="15px" h="15px" src={tweets[0].profile_image_url}></Avatar>
+            </Link>
           )
           }
         </Box>
@@ -261,7 +275,7 @@ const TokenChart = ({
         });
       }
     });
-    console.log(markers, 'markers');
+    // console.log(markers, 'markers');
 
     return markers;
   }, [initialData.tweets, processedChartData, followerRange]);
@@ -282,6 +296,14 @@ const TokenChart = ({
       hour12: false,
     });
   }
+  
+  const relationData = useMemo(()=>{
+    return followerRange.length > 0
+      ? initialData.tweets.filter((tweet) =>
+        followerRange.includes(getFollowerRange(tweet.followers_count))
+      )
+      : initialData.tweets;
+  },[initialData.tweets])
 
   return (
     <Box mb={8}>
@@ -375,6 +397,8 @@ const TokenChart = ({
         </ResponsiveContainer>
         }
       </Box>
+
+      <Relation relationData={relationData}></Relation>
     </Box>
   );
 };

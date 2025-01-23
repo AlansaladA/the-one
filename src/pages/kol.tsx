@@ -22,9 +22,9 @@ import {
   Button,
   // Divider,
   Flex,
-  Text,
   VStack,
   Card,
+  Text
 } from "@chakra-ui/react";
 import { Avatar } from "@/components/ui/avatar"
 import { useEffect, useMemo, useState, Suspense, useRef } from "react";
@@ -49,6 +49,7 @@ export default function kol() {
   const [loadTweet, setLoadTweet] = useState(false)
   const [tweetsList, setTweetsList] = useState<KolDetail[]>()
   const chartRef = useRef<ReactECharts | null>(null);
+  const [hiddenLines, setHiddenLines] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -248,6 +249,15 @@ export default function kol() {
       chartInstance.off('click', onChartClick);
     };
   }, [chartRef.current])
+
+
+
+  const handleLegendClick = (e) => {
+    setHiddenLines((prev) => ({
+      ...prev,
+      [e.dataKey]: !prev[e.dataKey], // 切换折线的隐藏状态
+    }));
+  };
   return <VStack align="stretch" mt={10}>
   {/* Profile Section */}
   <Flex justify="space-between" align="center" mb={4}>
@@ -272,12 +282,14 @@ export default function kol() {
     <Flex direction="column" gap={4} flex="1" maxWidth="60%">
       {/* Token Card */}
       <Card.Root bg="#1f1b23E1" variant="elevated">
-        <Card.Body>
+        <Card.Body pb={2}>
           <Text fontWeight="bold" color="#fff">Token</Text>
-          <Flex gap={3}>
+          <Flex gap={3} overflowX={"auto"} pb={5}>
             {followTokens?.map((token: any, index: number) => (
               <Link style={{ color: "inherit" }} to={`/token/${token.pair_name_1}`} key={index}>
-                <Button bgColor="#3F3F46">{token.pair_name_1}</Button>
+                <Button bgColor="#3F3F46">
+                  <Text color={"#fff"}>{token.pair_name_1}</Text>
+                </Button>
              </Link>
             ))}
           </Flex>
@@ -296,7 +308,7 @@ export default function kol() {
                 data={chartData}
                 margin={{ top: 15, right: 30, left: 20, bottom: 5 }}
               >
-                <Legend />
+                <Legend onClick={handleLegendClick}/>
                 {Xlist?.map((v: string, index: number) => (
                   <Line
                     key={index}
@@ -304,6 +316,7 @@ export default function kol() {
                     dataKey={v}
                     stroke={getColorByIndex(index)}
                     dot={false}
+                    hide={hiddenLines[v]}
                   />
                 ))}
                 <XAxis
@@ -320,7 +333,7 @@ export default function kol() {
                   tickFormatter={(value) => `${value}%`}
                   domain={[-100, 100]}
                 />
-                {/* <Tooltip content={<CustomTooltip />} /> */}
+                <Tooltip content={<CustomTooltip />} />
               </LineChart>
             </ResponsiveContainer>
           )}
@@ -364,3 +377,29 @@ export default function kol() {
   </Flex>
 </VStack>
 }
+
+const CustomTooltip = ({ payload, label }: any) => {
+  if (!payload || payload.length === 0) return null;
+
+  return (
+    <Flex
+      flexDirection={"column"}
+      style={{
+        backgroundColor: "#312d4c",
+        borderRadius: "8px",
+        color: "#fff",
+        padding: "10px",
+      }}
+    >
+      <Text>{label+1+"h"}</Text>
+      {payload.map((entry: any, index: number) => {
+        const value = entry.value;
+        return (
+          <p key={index}>
+            <strong>{entry.name}:</strong> {value}%
+          </p>
+        );
+      })}
+    </Flex>
+  );
+};
