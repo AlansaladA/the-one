@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useMemo, useEffect, memo } from "react";
 import {
   AreaChart,
@@ -104,14 +102,14 @@ const CustomDot = ({
       height={24}
       style={{ overflow: "visible" }}
     >
-      <Tooltip interactive contentProps={
+      <Tooltip closeOnScroll={false} interactive contentProps={
         {
           p: 0, bg: 'transparent', maxWidth: 'none', // 让宽度自动适配内容
           width: '500px'
         }
       }
         content={
-          <Box p={4} display={"flex"} flexDirection={"column"} gap={4} bg="#2D2D4FF2" borderRadius="lg" color="gray.300" >
+          <Box overflowY={"auto"} maxHeight={"300px"}  p={4} display={"flex"} flexDirection={"column"} gap={4} bg="#2D2D4FF2" borderRadius="lg" color="gray.300" >
             {tweets.map((tweet: Tweet, i) => {
               const impact = calculateImpact(tweet, price);
               return (
@@ -205,12 +203,22 @@ const CustomDot = ({
                 </Link>
               ))}
               {tweets.length > 7 && (
-                <Avatar
-                  fallback={`+${tweets.length - 7}`}
-                  w="30px"
-                  h="30px"
-                  fontSize={"xs"}
-                />
+                // <Avatar
+                //   fallback={`+${tweets.length - 7}`}
+                //   w="25px"
+                //   h="25px"
+                //   fontSize={"xs"}
+                // />
+                <Flex
+                  w="25px"
+                  h="25px"
+                  borderRadius={"full"}
+                  bgColor={"#3F3F46"}
+                  justifyContent={"center"}
+                  alignItems={"center"}
+                >
+                  <Text fontSize="xs">{"+"+(tweets.length - 7)}</Text>
+                </Flex>
               )}
             </AvatarGroup>
           ) : (
