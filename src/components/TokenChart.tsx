@@ -16,16 +16,16 @@ import {
   Flex,
   Text,
   Spinner,
-  Button,
+  // Button,
   VStack,
-  HStack,
-  useBreakpointValue,
+  HStack
 } from "@chakra-ui/react";
 import { Tooltip } from "@/components/ui/tooltip";
 // import { FaTwitter } from "react-icons/fa";
 import { Tweet, PriceHistory } from "@/utils/types";
-import { Avatar } from "@/components/ui/avatar"
-
+import { Avatar, AvatarGroup } from "@/components/ui/avatar"
+import Loading from "./loading";
+import { Button } from "@/components/ui/button"
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
@@ -72,7 +72,7 @@ const CustomDot = ({
   chartData,
 }: CustomDotProps) => {
   if (!tweets?.length) return null;
-  
+
   const calculateImpact = (tweet: Tweet, currentPrice: number) => {
     // Find highest price after the tweet
     const tweetTime = new Date(tweet.created_at).getTime();
@@ -174,8 +174,8 @@ const CustomDot = ({
                           </span>
                           <span
                             className={`font-mono font-bold ${impact.priceChange >= 0
-                                ? "text-green-500"
-                                : "text-red-500"
+                              ? "text-green-500"
+                              : "text-red-500"
                               }`}
                           >
                             {impact.priceChange >= 0 ? "+" : ""}
@@ -193,19 +193,21 @@ const CustomDot = ({
           </div>
         }
       >
-        <div className="relative flex items-center scale-75">
+        <Box position={"relative"} display={"flex"} alignItems={"center"}>
           {tweets.length > 1 ? (
-              tweets.map((tweet: Tweet, i: number) => {
-                return <Flex key={i}>
-                     <Avatar w="8px" h="8px" src={tweet.profile_image_url}></Avatar>
-                </Flex>
-              })
-            // </AvatarGroup>
+            <AvatarGroup stacking="first-on-top" size={"md"} borderless>
+              {
+                tweets.map((tweet: Tweet, i: number) => {
+                  return <Avatar w="12px" h="12px" src={tweet.profile_image_url} key={i}></Avatar>
+                })
+              }
+              <Avatar fallback="+3" size={"md"}/>
+            </AvatarGroup>
           ) : (
-             <Flex></Flex>
+            <Avatar w="12px" h="12px" src={tweets[0].profile_image_url}></Avatar>
           )
-        }
-        </div>
+          }
+        </Box>
       </Tooltip>
     </foreignObject>
   );
@@ -240,8 +242,8 @@ const TokenChart = ({
     const filteredTweets =
       followerRange.length > 0
         ? initialData.tweets.filter((tweet) =>
-            followerRange.includes(getFollowerRange(tweet.followers_count))
-          )
+          followerRange.includes(getFollowerRange(tweet.followers_count))
+        )
         : initialData.tweets;
 
     filteredTweets.forEach((tweet) => {
@@ -269,8 +271,8 @@ const TokenChart = ({
         });
       }
     });
-    console.log(markers,'markers');
-    
+    console.log(markers, 'markers');
+
     return markers;
   }, [initialData.tweets, processedChartData, followerRange]);
 
@@ -303,6 +305,7 @@ const TokenChart = ({
               <Button
                 key={range}
                 size="sm"
+                variant="outline"
                 onClick={() => {
                   setFollowerRange((prev) =>
                     prev.includes(range)
@@ -311,7 +314,6 @@ const TokenChart = ({
                   );
                 }}
                 colorScheme={followerRange.includes(range) ? "blue" : "gray"}
-                variant={followerRange.includes(range) ? "solid" : "outline"}
               >
                 {range}
               </Button>
@@ -319,27 +321,12 @@ const TokenChart = ({
           </HStack>
         </VStack>
       </Flex>
-
       <Box position="relative" height="600px">
-        {isLoading && (
-          <Flex
-            position="absolute"
-            top={0}
-            left={0}
-            right={0}
-            bottom={0}
-            align="center"
-            justify="center"
-            bg="gray.800"
-            opacity={0.8}
-          >
-            <Spinner size="lg" />
-          </Flex>
-        )}
-
-        <ResponsiveContainer width="100%" height="100%">
+        {isLoading ? (
+          <Loading></Loading>
+        ) : <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={processedChartData}>
-          <defs>
+            <defs>
               <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
                 <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
@@ -395,6 +382,7 @@ const TokenChart = ({
             </Brush>
           </AreaChart>
         </ResponsiveContainer>
+        }
       </Box>
     </Box>
   );
