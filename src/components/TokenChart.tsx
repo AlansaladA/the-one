@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, memo } from "react";
 import {
   AreaChart,
   Area,
@@ -101,7 +101,7 @@ const CustomDot = ({
     >
       <Tooltip contentProps={
         { p: 0, bg: 'transparent' }
-      }
+      } interactive
         content={
           <Box p={2} display={"flex"} flexDirection={"column"} gap={2} bg="#2D2D4FF2" borderRadius="lg" color="gray.300" w={"400px"}>
             {tweets.map((tweet: Tweet, i) => {
@@ -140,6 +140,8 @@ const CustomDot = ({
                         // leftIcon={<FaTwitter />}
                         bg="blue.500"
                         color="white"
+                        onClick={() => console.log('click')
+                        }
                       >
                         <Text fontWeight={"bold"}>Follow</Text>
                       </Button>
@@ -196,11 +198,11 @@ const CustomDot = ({
           )
           }
         </Box>
-      </Tooltip>
-    </foreignObject>
+      </Tooltip >
+    </foreignObject >
   );
 };
-
+const MemoCustomDot=memo(CustomDot)
 
 
 const TokenChart = ({
@@ -343,7 +345,7 @@ const TokenChart = ({
                 y={marker.price}
                 r={0}
                 shape={(props) => (
-                  <CustomDot
+                  <MemoCustomDot
                     {...props}
                     tweets={marker.tweets}
                     price={marker.price}
