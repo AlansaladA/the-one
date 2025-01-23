@@ -21,7 +21,7 @@ const customConfig = defineConfig({
       // nativeSelect: nativeSelectRecipe,
     },
     recipes: {
-      button: buttonRecipe,
+      // button: buttonRecipe,
       // input: inputRecipe,
       // textarea: textAreaRecipe, 
     },

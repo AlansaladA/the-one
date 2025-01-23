@@ -101,110 +101,96 @@ const CustomDot = ({
     >
       <Tooltip
         content={
-          <div className="bg-gray-900 rounded-lg shadow-lg max-w-sm">
+          <Box display={"flex"} flexDirection={"column"} gap={2}  bg="#2D2D4FF2" borderRadius="lg" color="gray.300" w={"400px"}>
             {tweets.map((tweet: Tweet, i) => {
               const impact = calculateImpact(tweet, price);
               return (
-                <div
+                <Box
                   key={i}
-                  className={`p-3 ${i !== tweets.length - 1 ? "border-b border-gray-800" : ""
-                    }`}
+                  borderBottom={i !== tweets.length - 1 ? "1px solid" : "none"}
+                  borderColor="#2D2D4FF2"
                 >
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      {/* <NextLink
-                        href={`/detail/${tweet.screen_name}`}
-                        target="_blank"
+                  <Flex justify="space-between" align="center" gap={3}>
+                    <Flex align="center" gap={3}>
+                      <Avatar
+                        src={tweet.profile_image_url}
+                        size="sm"
+                        cursor="pointer"
+                        _hover={{ opacity: 0.8 }}
+                      />
+                      <Flex alignItems={"flex-start"} flexDirection={"column"}>
+                        <Text fontSize={"sm"} fontWeight="bold" color="white" _hover={{ textDecor: "underline" }}>
+                          {tweet.user}
+                        </Text>
+                        <Text fontSize="sm" color="gray.400">
+                          @{tweet.screen_name}·{tweet.followers_count.toLocaleString()}
+                        </Text>
+                        <Text color="gray.400">followers</Text>
+                      </Flex>
+                    </Flex>
+                    <Flex gap={2}>
+                      <Button borderRadius={"full"} size="sm" bg="gray.800" _hover={{ bg: "gray.700" }} color="white">
+                        <Text fontWeight={"bold"}>Profile</Text>
+                      </Button>
+                      <Button
+                        borderRadius={"full"}
+                        size="sm"
+                        // leftIcon={<FaTwitter />}
+                        bg="blue.500"
+                        color="white"
                       >
-                        <Avatar
-                          src={tweet.profile_image_url}
-                          className="w-8 h-8 cursor-pointer hover:opacity-80"
-                        />
-                      </NextLink> */}
-                      <div>
-                        {/* <NextLink
-                          href={`https://twitter.com/${tweet.screen_name}`}
-                          target="_blank"
-                          className="hover:underline"
-                        >
-                          <div className="font-bold text-white">
-                            {tweet.user}
-                          </div>
-                          <div className="text-sm text-gray-400">
-                            @{tweet.screen_name} ·{" "}
-                            {tweet.followers_count.toLocaleString()} followers
-                          </div>
-                        </NextLink> */}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {/* <NextLink
-                        href={`/detail/${tweet.screen_name}`}
-                        className="px-3 py-1 text-sm bg-gray-800 hover:bg-gray-700 text-white rounded-full transition-colors"
-                      >
-                        Profile
-                      </NextLink>
-                      <NextLink
-                        href={`https://twitter.com/intent/follow?screen_name=${tweet.screen_name}`}
-                        target="_blank"
-                        className="px-3 py-1 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded-full transition-colors flex items-center gap-1"
-                      >
-                        <FaTwitter className="text-xs" />
-                        Follow
-                      </NextLink> */}
-                    </div>
-                  </div>
+                       <Text fontWeight={"bold"}>Follow</Text>
+                      </Button>
+                    </Flex>
+                  </Flex>
 
-                  <div className="mt-2 space-y-1">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-400">Price at Post</span>
-                      <span className="font-mono">${price.toFixed(4)}</span>
-                    </div>
+                  <Box mt={2} spaceY={1}>
+                    <Flex justify="space-between" fontSize="sm">
+                      <Text color="gray.400">Price at Post</Text>
+                      <Text fontFamily="monospace" fontWeight={"bold"}>${price.toFixed(4)}</Text>
+                    </Flex>
                     {impact && (
                       <>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-400">Highest After</span>
-                          <span className="font-mono">
-                            ${impact.highestPrice.toFixed(4)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-400">
-                            Return After Tweet
-                          </span>
-                          <span
-                            className={`font-mono font-bold ${impact.priceChange >= 0
-                              ? "text-green-500"
-                              : "text-red-500"
-                              }`}
+                        <Flex justify="space-between" fontSize="sm">
+                          <Text color="gray.400">Highest After</Text>
+                          <Text fontWeight={"bold"} fontFamily="monospace">${impact.highestPrice.toFixed(4)}</Text>
+                        </Flex>
+                        <Flex justify="space-between" fontSize="sm">
+                          <Text color="gray.400">Return After Tweet</Text>
+                          <Text
+                            fontWeight={"bold"}
+                            fontFamily="monospace"
+                            color={impact.priceChange >= 0 ? "green.500" : "red.500"}
                           >
                             {impact.priceChange >= 0 ? "+" : ""}
                             {impact.priceChange.toFixed(2)}%
-                          </span>
-                        </div>
+                          </Text>
+                        </Flex>
                       </>
                     )}
-                  </div>
+                  </Box>
 
-                  <p className="mt-2 text-sm text-gray-300">{tweet.text}</p>
-                </div>
+                  <Text mt={2} fontSize="sm" color="white">
+                    {tweet.text}
+                  </Text>
+                </Box>
               );
             })}
-          </div>
+          </Box>
         }
       >
         <Box position={"relative"} display={"flex"} alignItems={"center"}>
           {tweets.length > 1 ? (
-            <AvatarGroup stacking="first-on-top" size={"md"} borderless>
+            <AvatarGroup stacking="last-on-top" borderless>
               {
                 tweets.map((tweet: Tweet, i: number) => {
-                  return <Avatar w="12px" h="12px" src={tweet.profile_image_url} key={i}></Avatar>
+                  return <Avatar w="15px" h="15px" src={tweet.profile_image_url} key={i}></Avatar>
                 })
               }
-              <Avatar fallback="+3" size={"md"}/>
+              {/* <Avatar fallback="+3" w="20px" h="20px" fontSize={2}/> */}
             </AvatarGroup>
           ) : (
-            <Avatar w="12px" h="12px" src={tweets[0].profile_image_url}></Avatar>
+            <Avatar w="15px" h="15px" src={tweets[0].profile_image_url}></Avatar>
           )
           }
         </Box>
@@ -313,7 +299,8 @@ const TokenChart = ({
                       : [...prev, range]
                   );
                 }}
-                colorScheme={followerRange.includes(range) ? "blue" : "gray"}
+                // colorScheme={followerRange.includes(range) ? "blue" : "gray"}
+                bg={followerRange.includes(range) ? "blue.500" : "gray.800"}
               >
                 {range}
               </Button>
