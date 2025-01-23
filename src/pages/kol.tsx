@@ -49,6 +49,7 @@ export default function kol() {
   const [loadTweet, setLoadTweet] = useState(false)
   const [tweetsList, setTweetsList] = useState<KolDetail[]>()
   const chartRef = useRef<ReactECharts | null>(null);
+  const [hiddenLines, setHiddenLines] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -250,7 +251,7 @@ export default function kol() {
   }, [chartRef.current])
 
 
-  const [hiddenLines, setHiddenLines] = useState({});
+
   const handleLegendClick = (e) => {
     setHiddenLines((prev) => ({
       ...prev,

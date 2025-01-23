@@ -104,7 +104,7 @@ const CustomDot = ({
       height={24}
       style={{ overflow: "visible" }}
     >
-      <Tooltip contentProps={
+      <Tooltip interactive contentProps={
         {
           p: 0, bg: 'transparent', maxWidth: 'none', // 让宽度自动适配内容
           width: '500px'
@@ -140,7 +140,7 @@ const CustomDot = ({
                       </Flex>
                     </Flex>
                     <Flex gap={2}>
-                      <Button onClick={()=>{navigate("/detail/${tweet.screen_name}")}} borderRadius={"full"} size="sm" bg="gray.500" _hover={{ bg: "gray.700" }} color="white">
+                      <Button onClick={()=>{navigate(`/detail/${tweet.screen_name}`)}} borderRadius={"full"} size="sm" bg="gray.500" _hover={{ bg: "gray.700" }} color="white">
                         <Text fontWeight={"bold"}>Profile</Text>
                       </Button>
                       <Button

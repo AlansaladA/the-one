@@ -177,7 +177,7 @@ export default function Home() {
             <Flex flex={1} flexDirection={"column"} overflowY={"auto"} gap={4} maxHeight={554}>
             {
               new Array(18).fill(0).map((v, index) => {
-                return <Flex w="full" h={45}>
+                return <Flex w="full" h={45} key={index}>
                   <Flex w={"30%"} alignItems={"center"} gap={8}>
                     <Text fontSize={"xl"}>#1</Text>
                     <Flex alignItems={"center"} gap={2}>
