@@ -140,7 +140,7 @@ const CustomDot = ({
                       </Flex>
                     </Flex>
                     <Flex gap={2}>
-                      <Button onClick={()=>{navigate(`/detail/${tweet.screen_name}`)}} borderRadius={"full"} size="sm" bg="gray.500" _hover={{ bg: "gray.700" }} color="white">
+                      <Button onClick={() => { navigate(`/detail/${tweet.screen_name}`) }} borderRadius={"full"} size="sm" bg="gray.500" _hover={{ bg: "gray.700" }} color="white">
                         <Text fontWeight={"bold"}>Profile</Text>
                       </Button>
                       <Button
@@ -149,7 +149,7 @@ const CustomDot = ({
                         // leftIcon={<FaTwitter />}
                         bg="blue.500"
                         color="white"
-                        onClick={()=>window.open(`https://twitter.com/intent/follow?screen_name=${tweet.screen_name}`,'_blank')}
+                        onClick={() => window.open(`https://twitter.com/intent/follow?screen_name=${tweet.screen_name}`, '_blank')}
                       >
                         <FaTwitter className="text-xs" />
                         <Text fontWeight={"bold"}>Follow</Text>
@@ -195,15 +195,23 @@ const CustomDot = ({
         <Box position={"relative"} display={"flex"} alignItems={"center"} cursor={"pointer"}>
           {tweets.length > 1 ? (
             <AvatarGroup stacking="last-on-top" borderless>
-              {
-                tweets.map((tweet: Tweet, i: number) => {
-                  return  <Link style={{ color: "inherit" }} to={`/detail/${tweet.screen_name}`} key={i}>
-                    <Avatar w="15px" h="15px" src={tweet.profile_image_url} key={i}></Avatar>
-                  </Link>
-                  
-                })
-              }
-              {/* <Avatar fallback="+3" w="20px" h="20px" fontSize={2}/> */}
+              {tweets.slice(0, 7).map((tweet: Tweet, i: number) => (
+                <Link
+                  style={{ color: "inherit" }}
+                  to={`/detail/${tweet.screen_name}`}
+                  key={i}
+                >
+                  <Avatar w="15px" h="15px" src={tweet.profile_image_url}></Avatar>
+                </Link>
+              ))}
+              {tweets.length > 7 && (
+                <Avatar
+                  fallback={`+${tweets.length - 7}`}
+                  w="30px"
+                  h="30px"
+                  fontSize={"xs"}
+                />
+              )}
             </AvatarGroup>
           ) : (
             <Link style={{ color: "inherit" }} to={`/detail/${tweets[0].screen_name}`}>
@@ -296,14 +304,14 @@ const TokenChart = ({
       hour12: false,
     });
   }
-  
-  const relationData = useMemo(()=>{
+
+  const relationData = useMemo(() => {
     return followerRange.length > 0
       ? initialData.tweets.filter((tweet) =>
         followerRange.includes(getFollowerRange(tweet.followers_count))
       )
       : initialData.tweets;
-  },[initialData.tweets])
+  }, [initialData.tweets])
 
   return (
     <Box mb={8}>
@@ -398,7 +406,7 @@ const TokenChart = ({
         }
       </Box>
 
-      <Relation relationData={relationData}></Relation>
+      {/* <Relation relationData={relationData}></Relation> */}
     </Box>
   );
 };

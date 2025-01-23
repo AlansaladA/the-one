@@ -96,7 +96,7 @@ export default function Home() {
     }, 1000)
 
   return (
-    <Flex w={"full"} h={"full"} >
+    <Flex w={"full"} >
       <Flex justifyContent={"center"} w="full" flexDirection={"column"} alignItems={"center"}>
         <Flex position={"relative"} flexDirection={"column"} alignItems={"center"} w={"1160px"}>
           <Image mt={8} src={Title} ></Image>
@@ -163,7 +163,7 @@ export default function Home() {
             )}
           </Flex>
         </Flex>
-        <Flex flex={1} w={"full"} paddingTop={40} px={100}>
+        <Flex w={"full"} paddingTop={40} px={100}>
           <Flex w="full" flexDirection={"column"}>
             <Flex w="full" h={45} mb={5}>
               <Box w={"30%"}>
@@ -174,7 +174,7 @@ export default function Home() {
                 <Text fontSize={"xl"}>{"(peak price increase after call)"}</Text>
               </Flex>
             </Flex> 
-            <Flex flex={1} flexDirection={"column"} overflowY={"auto"} gap={4} maxHeight={554}>
+            <Flex  flexDirection={"column"} overflowY={"auto"} gap={4} maxHeight={554}>
             {
               new Array(18).fill(0).map((v, index) => {
                 return <Flex w="full" h={45} key={index}>
@@ -235,7 +235,6 @@ export default function Home() {
           </Table.Root> */}
         </Flex>
       </Flex>
-
     </Flex>
   );
 }
