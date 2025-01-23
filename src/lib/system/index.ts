@@ -38,7 +38,7 @@ const customConfig = defineConfig({
       padding: 0,
       margin: 0,
       boxSizing: "border-box",
-      fontFamily: "var(--bp-fonts-mono)",
+      fontFamily: "Pixel",
       outline: "none",
     },
     "#root": {

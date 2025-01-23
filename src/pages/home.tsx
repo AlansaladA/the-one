@@ -1,14 +1,33 @@
 "use client";
 import { useEffect, useState } from "react";
 import { getTickers, getKols } from "@/api";
-import { Input, Box, VStack, HStack, Text, Spinner, Flex, Image } from "@chakra-ui/react";
+import { Input, Box, VStack, HStack, Text, Spinner, Flex, Image, Table } from "@chakra-ui/react";
 import useDebounce from "@/hooks/useDebounce";
 import { shortenAddress } from "@/utils/formatter";
 import { TokenList } from "@/utils/types";
-import Bg from "@/assets/bg.png"
-import Title from "@/assets/title.svg"
+// import Bg from "@/assets/bg.png"
+import Title from "@/assets/title1.svg"
 import Loading from "@/components/loading";
 import { Link } from "react-router"
+import { Avatar } from "@/components/ui/avatar";
+const items = [
+  { id: 1, name: "Laptop", category: "Electronics", price: 999.99 },
+  { id: 2, name: "Coffee Maker", category: "Home Appliances", price: 49.99 },
+  { id: 3, name: "Desk Chair", category: "Furniture", price: 150.0 },
+  { id: 4, name: "Smartphone", category: "Electronics", price: 799.99 },
+  { id: 5, name: "Headphones", category: "Accessories", price: 199.99 },
+  { id: 1, name: "Laptop", category: "Electronics", price: 999.99 },
+  { id: 2, name: "Coffee Maker", category: "Home Appliances", price: 49.99 },
+  { id: 3, name: "Desk Chair", category: "Furniture", price: 150.0 },
+  { id: 4, name: "Smartphone", category: "Electronics", price: 799.99 },
+  { id: 5, name: "Headphones", category: "Accessories", price: 199.99 },
+  { id: 1, name: "Laptop", category: "Electronics", price: 999.99 },
+  { id: 2, name: "Coffee Maker", category: "Home Appliances", price: 49.99 },
+  { id: 3, name: "Desk Chair", category: "Furniture", price: 150.0 },
+  { id: 4, name: "Smartphone", category: "Electronics", price: 799.99 },
+  { id: 5, name: "Headphones", category: "Accessories", price: 199.99 },
+]
+
 export default function Home() {
   // const [kolsList, setKolsList] = useState<string[]>([]);
   // const [tokenList, setTokenList] = useState<TokenList[]>([]);
@@ -78,17 +97,18 @@ export default function Home() {
 
   return (
     <Flex w={"full"} h={"full"} >
-      <Flex justifyContent={"center"} alignItems={"center"} bgRepeat={"no-repeat"} bgPos={"center"} bgImage={`url(${Bg})`} w="full" h={"700px"}>
-        <Flex position={"relative"} flexDirection={"column"} alignItems={"center"} w={"1160px"} h={"262px"} borderRadius="full" borderWidth="1px" borderColor="rgba(255,255,255,0.1)">
+      <Flex justifyContent={"center"} w="full" flexDirection={"column"} alignItems={"center"}>
+        <Flex position={"relative"} flexDirection={"column"} alignItems={"center"} w={"1160px"}>
           <Image mt={8} src={Title} ></Image>
-          <Flex borderRadius={30} bgColor={"#292543"} top={"160px"} position={"absolute"} w="70%" flexDirection={"column"} alignItems={"center"}>
+          <Flex top={360} position={"absolute"} mt={-50} borderRadius={30} bgColor={"#292543"} w="70%" flexDirection={"column"} alignItems={"center"}>
             <Input
               value={searchText}
               onChange={handleInputChange}
+              outline={"none"}
               _placeholder={{
                 color: "#8181E5", // Placeholder 的颜色
                 fontSize: "lg",    // Placeholder 的字体大小
-              }} borderWidth="1px" borderColor="#7676E0" fontSize={"lg"} textAlign={"center"} color={"#8181E5"} bgColor="#fff" borderRadius="full" h="70px" w="full" placeholder="Search your interest kol or Token"></Input>
+              }} borderWidth="1px" borderColor="#7676E0" fontSize={"lg"} textAlign={"center"} color={"#8181E5"} bgColor="#fff" borderRadius="full" h="70px" w="full" placeholder="Search KOL or Token"></Input>
             {searchText && (
               <Flex h="300px" w="full" px={5} py={5}>
                 {
@@ -143,7 +163,79 @@ export default function Home() {
             )}
           </Flex>
         </Flex>
+        <Flex flex={1} w={"full"} paddingTop={40} px={100}>
+          <Flex w="full" flexDirection={"column"}>
+            <Flex w="full" h={45} mb={5}>
+              <Box w={"30%"}>
+                <Text fontSize={"3xl"} fontWeight={"bold"}>Top KOLs</Text>
+              </Box>
+              <Flex w={"70%"} alignItems={"center"}>
+                <Text fontSize={"3xl"} mr={2}>Calling</Text>
+                <Text fontSize={"xl"}>{"(peak price increase after call)"}</Text>
+              </Flex>
+            </Flex> 
+            <Flex flex={1} flexDirection={"column"} overflowY={"auto"} gap={4} maxHeight={554}>
+            {
+              new Array(18).fill(0).map((v, index) => {
+                return <Flex w="full" h={45}>
+                  <Flex w={"30%"} alignItems={"center"} gap={8}>
+                    <Text fontSize={"xl"}>#1</Text>
+                    <Flex alignItems={"center"} gap={2}>
+                      <Avatar size={"xl"}></Avatar>
+                      <Flex flexDirection={"column"} >
+                        <Text fontSize={"xl"}>OxWizard</Text>
+                        <Text color={"rgba(255,255,255,.4)"}>@OxWizard</Text>
+                      </Flex>
+                    </Flex>
+                  </Flex>
+                  <Flex w={"70%"} alignItems={"center"} gap={4}>
+                    <Flex >
+                      <Text fontSize={"xl"}>{"$Trump ("}</Text>
+                      <Text fontSize={"xl"} color={"green.400"}>+1709.32%</Text>
+                      <Text fontSize={"xl"}>{"),"}</Text>
+                    </Flex>
+                    <Flex >
+                      <Text fontSize={"xl"}>{"$Trump ("}</Text>
+                      <Text fontSize={"xl"} color={"green.400"}>+1709.32%</Text>
+                      <Text fontSize={"xl"}>{"),"}</Text>
+                    </Flex>
+                    <Flex >
+                      <Text fontSize={"xl"}>{"$Trump ("}</Text>
+                      <Text fontSize={"xl"} color={"green.400"}>+1709.32%</Text>
+                      <Text fontSize={"xl"}>{"),"}</Text>
+                    </Flex>
+                    <Flex >
+                      <Text fontSize={"xl"}>{"$Trump ("}</Text>
+                      <Text fontSize={"xl"} color={"green.400"}>+1709.32%</Text>
+                      <Text fontSize={"xl"}>{"),"}</Text>
+                    </Flex>
+                  </Flex>
+                </Flex>
+              })
+            }
+            </Flex>
+          </Flex>
+          {/* <Table.Root borderCollapse={"unset"} variant="outline"  style={{border:"none"}}  border={"none"} showColumnBorder={false} colorPalette="transparent" striped={false}>
+            <Table.Header bgColor={"transparent"}>
+              <Table.Row>
+                <Table.ColumnHeader>
+                  <Text fontSize={"xl"}>Top KOLs</Text>
+                </Table.ColumnHeader>
+                <Table.ColumnHeader >Calling peak price increase after call</Table.ColumnHeader>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {items.map((item) => (
+                <Table.Row key={item.id}>
+                  <Table.Cell>{item.name}</Table.Cell>
+                  <Table.Cell>{item.category}</Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table.Root> */}
+        </Flex>
       </Flex>
+
     </Flex>
   );
 }
