@@ -99,9 +99,11 @@ const CustomDot = ({
       height={24}
       style={{ overflow: "visible" }}
     >
-      <Tooltip
+      <Tooltip contentProps={
+        { p: 0, bg: 'transparent' }
+      }
         content={
-          <Box display={"flex"} flexDirection={"column"} gap={2}  bg="#2D2D4FF2" borderRadius="lg" color="gray.300" w={"400px"}>
+          <Box p={2} display={"flex"} flexDirection={"column"} gap={2} bg="#2D2D4FF2" borderRadius="lg" color="gray.300" w={"400px"}>
             {tweets.map((tweet: Tweet, i) => {
               const impact = calculateImpact(tweet, price);
               return (
@@ -139,7 +141,7 @@ const CustomDot = ({
                         bg="blue.500"
                         color="white"
                       >
-                       <Text fontWeight={"bold"}>Follow</Text>
+                        <Text fontWeight={"bold"}>Follow</Text>
                       </Button>
                     </Flex>
                   </Flex>
