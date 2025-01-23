@@ -8,23 +8,23 @@ import { useEffect } from "react";
 
 export default function Page() {
   const { updateTokenBalance, address } = useWallet()
-  const { getTokenBalance } = useSolana()
+  // const { getTokenBalance } = useSolana()
 
-  const fetxhBalance = async (addr: string) => {
-    try {
+  // const fetxhBalance = async (addr: string) => {
+  //   try {
 
-      const balance = await getTokenBalance(addr, import.meta.env.VITE_TOKEN_ADDRESS)
-      updateTokenBalance(parseFloat(balance))
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  //     const balance = await getTokenBalance(addr, import.meta.env.VITE_TOKEN_ADDRESS)
+  //     updateTokenBalance(parseFloat(balance))
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }
 
-  useEffect(() => {
-    if (address) {
-      fetxhBalance(address)
-    }
-  }, [address])
+  // useEffect(() => {
+  //   if (address) {
+  //     fetxhBalance(address)
+  //   }
+  // }, [address])
   
   return <Flex height={'full'} flexDirection={'column'}>
   <Header />
