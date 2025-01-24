@@ -40,6 +40,7 @@ const customConfig = defineConfig({
       boxSizing: "border-box",
       fontFamily: "Pixel",
       outline: "none",
+      fontStyle:"initial"
     },
     "#root": {
       height: "100vh",

@@ -10,6 +10,8 @@ import Title from "@/assets/title1.svg"
 import Loading from "@/components/loading";
 import { Link } from "react-router"
 import { Avatar } from "@/components/ui/avatar";
+import HomeBg from "@/assets/homebg1.png"
+
 const items = [
   { id: 1, name: "Laptop", category: "Electronics", price: 999.99 },
   { id: 2, name: "Coffee Maker", category: "Home Appliances", price: 49.99 },
@@ -96,11 +98,11 @@ export default function Home() {
     }, 1000)
 
   return (
-    <Flex w={"full"} >
-      <Flex justifyContent={"center"} w="full" flexDirection={"column"} alignItems={"center"}>
-        <Flex position={"relative"} flexDirection={"column"} alignItems={"center"} w={"1160px"}>
-          <Image mt={8} src={Title} ></Image>
-          <Flex top={360} position={"absolute"} mt={-50} borderRadius={30} bgColor={"#292543"} w="70%" flexDirection={"column"} alignItems={"center"}>
+    <Flex w={"full"} h={"full"}>
+      <Flex  w="full" flexDirection={"column"} alignItems={"center"}>
+        <Image mt={8} src={Title} ></Image>
+        <Flex position={"relative"} flexDirection={"column"} alignItems={"center"} w="full">
+          <Flex minW={"900px"} position={"absolute"} mt={"-70px"} borderRadius={30} bgColor={"#292543"} w="55%" flexDirection={"column"} alignItems={"center"}>
             <Input
               value={searchText}
               onChange={handleInputChange}
@@ -163,8 +165,8 @@ export default function Home() {
             )}
           </Flex>
         </Flex>
-        <Flex w={"full"} paddingTop={40} px={100}>
-          <Flex w="full" flexDirection={"column"}>
+        <Flex minHeight={"550px"} h={"full"} backgroundSize={"cover"} backgroundRepeat={"no-repeat"} backgroundPosition={"bottom"} w={"full"} bgImage={`url(${HomeBg})`}>
+          {/* <Flex w="full" flexDirection={"column"}>
             <Flex w="full" h={45} mb={5}>
               <Box w={"30%"}>
                 <Text fontSize={"3xl"} fontWeight={"bold"}>Top KOLs</Text>
@@ -176,7 +178,7 @@ export default function Home() {
             </Flex> 
             <Flex  flexDirection={"column"} overflowY={"auto"} gap={4} maxHeight={554}>
             {
-              new Array(18).fill(0).map((v, index) => {
+              new Array(1).fill(0).map((v, index) => {
                 return <Flex w="full" h={45} key={index}>
                   <Flex w={"30%"} alignItems={"center"} gap={8}>
                     <Text fontSize={"xl"}>#1</Text>
@@ -214,25 +216,7 @@ export default function Home() {
               })
             }
             </Flex>
-          </Flex>
-          {/* <Table.Root borderCollapse={"unset"} variant="outline"  style={{border:"none"}}  border={"none"} showColumnBorder={false} colorPalette="transparent" striped={false}>
-            <Table.Header bgColor={"transparent"}>
-              <Table.Row>
-                <Table.ColumnHeader>
-                  <Text fontSize={"xl"}>Top KOLs</Text>
-                </Table.ColumnHeader>
-                <Table.ColumnHeader >Calling peak price increase after call</Table.ColumnHeader>
-              </Table.Row>
-            </Table.Header>
-            <Table.Body>
-              {items.map((item) => (
-                <Table.Row key={item.id}>
-                  <Table.Cell>{item.name}</Table.Cell>
-                  <Table.Cell>{item.category}</Table.Cell>
-                </Table.Row>
-              ))}
-            </Table.Body>
-          </Table.Root> */}
+          </Flex> */}
         </Flex>
       </Flex>
     </Flex>
