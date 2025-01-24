@@ -149,10 +149,10 @@ export default function Home() {
     }, 1000)
 
   return (
-    <Flex w={"full"} h={"full"}>
-      <Flex w="full" flexDirection={"column"} alignItems={"center"}>
+    <Flex w={"full"} h={"full"} >
+      <Flex w="full" flexDirection={"column"} alignItems={"center"} >
         <Image mt={8} src={Title} ></Image>
-        <Text fontSize={"3xl"} color={"#9595E5"} mt={"-80px"} mb={50}>Supporting {kolsList.length.toLocaleString()} KOLs and {tokenList.length.toLocaleString()} tokens</Text>
+        <Text fontSize={"3xl"} color={"#fff"} mt={"-80px"} mb={50}>Supporting {kolsList.length.toLocaleString()} KOLs and {tokenList.length.toLocaleString()} tokens</Text>
         <Flex mb={"70px"} position={"relative"} flexDirection={"column"} alignItems={"center"} w="full">
           <Flex minW={"900px"} position={"absolute"} borderRadius={30} bgColor={"#292543"} w="55%" flexDirection={"column"} alignItems={"center"}>
             <Input
@@ -163,6 +163,7 @@ export default function Home() {
                 color: "#8181E5", // Placeholder 的颜色
                 fontSize: "lg",    // Placeholder 的字体大小
               }} borderWidth="1px" borderColor="#7676E0" fontSize={"lg"} textAlign={"center"} color={"#8181E5"} bgColor="#fff" borderRadius="full" h="70px" w="full" placeholder="Search KOL or Token"></Input>
+
             {searchText && (
               <Flex h="300px" w="full" px={5} py={5}>
                 {
@@ -187,9 +188,9 @@ export default function Home() {
                         ) : (
                           <Flex alignItems={"center"} gap={4}>
                             <Text>Oops! Your Token Seems To Be Hiding.</Text>
-                            <Button borderRadius={"full"} onClick={() => { setOpenHow(true), setType("Token") }}>
+                            {/* <Button borderRadius={"full"} onClick={() => { setOpenHow(true), setType("Token") }}>
                               <Text>Request Token</Text>
-                            </Button>
+                            </Button> */}
                           </Flex>
                         )}
                       </Flex>
@@ -212,9 +213,9 @@ export default function Home() {
                         ) : (
                           <Flex alignItems={"center"} gap={4}>
                             <Text>No KOL Found In The1.</Text>
-                            <Button borderRadius={"full"} onClick={() => { setOpenHow(true), setType("KOL") }}>
+                            {/* <Button borderRadius={"full"} onClick={() => { setOpenHow(true), setType("KOL") }}>
                               <Text>Request KOL</Text>
-                            </Button>
+                            </Button> */}
                           </Flex>
                         )}
                       </Flex>
@@ -225,9 +226,10 @@ export default function Home() {
             )}
           </Flex>
         </Flex>
-        <Flex pt="120px" px={20} pb={10} minHeight={"550px"} h={"full"} backgroundSize={"cover"} backgroundRepeat={"no-repeat"} backgroundPosition={"bottom"} bgImage={`url(${HomeBg})`} w={"full"} >
-          <Flex w="full" flexDirection={"column"}>
-            {/* <Flex w="full" h={45} mb={5}>
+        {/* bgImage={`url(${HomeBg})`} backgroundPosition={"center"} backgroundSize={"cover"} */}
+        <Flex pt="120px" px={20} pb={10} minHeight={"550px"} h={"full"} w={"full"} bgImage={`url(${HomeBg})`} backgroundPosition={"center"} backgroundSize={"cover"}>
+          {/* <Flex w="full" flexDirection={"column"}>
+            <Flex w="full" h={45} mb={5}>
               <Box w={"30%"}>
                 <Text fontSize={"3xl"} fontWeight={"bold"}>Top KOLs</Text>
               </Box>
@@ -275,8 +277,8 @@ export default function Home() {
                 </Flex>
               })
             }
-            </Flex> */}
-          </Flex>
+            </Flex>
+          </Flex> */}
         </Flex>
       </Flex>
 
