@@ -217,7 +217,7 @@ export default function kol() {
       if (params.dataType === 'node') {
         const nodeData = params.data as { name: string }
         const userName = nodeData.name as string
-        window.open(`https://x.com/intent/follow?screen_name=${userName}`, '_blank');
+        window.open(`https://twitter.com/intent/follow?screen_name=${userName}`, '_blank');
         // 使用立即执行的异步函数来处理异步操作
         // (async () => {
         //   try {
