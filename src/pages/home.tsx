@@ -187,9 +187,9 @@ export default function Home() {
                         ) : (
                           <Flex alignItems={"center"} gap={4}>
                             <Text>Oops! Your Token Seems To Be Hiding.</Text>
-                            <Button borderRadius={"full"} onClick={() => { setOpenHow(true), setType("Token") }}>
+                            {/* <Button borderRadius={"full"} onClick={() => { setOpenHow(true), setType("Token") }}>
                               <Text>Request Token</Text>
-                            </Button>
+                            </Button> */}
                           </Flex>
                         )}
                       </Flex>
@@ -212,9 +212,9 @@ export default function Home() {
                         ) : (
                           <Flex alignItems={"center"} gap={4}>
                             <Text>No KOL Found In The1.</Text>
-                            <Button borderRadius={"full"} onClick={() => { setOpenHow(true), setType("KOL") }}>
+                            {/* <Button borderRadius={"full"} onClick={() => { setOpenHow(true), setType("KOL") }}>
                               <Text>Request KOL</Text>
-                            </Button>
+                            </Button> */}
                           </Flex>
                         )}
                       </Flex>
