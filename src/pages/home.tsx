@@ -152,7 +152,7 @@ export default function Home() {
     <Flex w={"full"} h={"full"} >
       <Flex w="full" flexDirection={"column"} alignItems={"center"} >
         <Image mt={8} src={Title} ></Image>
-        <Text fontSize={"3xl"} color={"#9595E5"} mt={"-80px"} mb={50}>Supporting {kolsList.length.toLocaleString()} KOLs and {tokenList.length.toLocaleString()} tokens</Text>
+        <Text fontSize={"3xl"} color={"#fff"} mt={"-80px"} mb={50}>Supporting {kolsList.length.toLocaleString()} KOLs and {tokenList.length.toLocaleString()} tokens</Text>
         <Flex mb={"70px"} position={"relative"} flexDirection={"column"} alignItems={"center"} w="full">
           <Flex minW={"900px"} position={"absolute"} borderRadius={30} bgColor={"#292543"} w="55%" flexDirection={"column"} alignItems={"center"}>
             <Input
