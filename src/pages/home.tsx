@@ -149,8 +149,8 @@ export default function Home() {
     }, 1000)
 
   return (
-    <Flex w={"full"} h={"full"}>
-      <Flex w="full" flexDirection={"column"} alignItems={"center"}>
+    <Flex w={"full"} h={"full"} >
+      <Flex w="full" flexDirection={"column"} alignItems={"center"} >
         <Image mt={8} src={Title} ></Image>
         <Text fontSize={"3xl"} color={"#9595E5"} mt={"-80px"} mb={50}>Supporting {kolsList.length.toLocaleString()} KOLs and {tokenList.length.toLocaleString()} tokens</Text>
         <Flex mb={"70px"} position={"relative"} flexDirection={"column"} alignItems={"center"} w="full">
@@ -225,9 +225,9 @@ export default function Home() {
             )}
           </Flex>
         </Flex>
-        <Flex pt="120px" px={20} pb={10} minHeight={"550px"} h={"full"} backgroundSize={"cover"} backgroundRepeat={"no-repeat"} backgroundPosition={"bottom"} bgImage={`url(${HomeBg})`} w={"full"} >
-          <Flex w="full" flexDirection={"column"}>
-            {/* <Flex w="full" h={45} mb={5}>
+        <Flex pt="120px" px={20} pb={10} minHeight={"550px"} h={"full"}  w={"full"} bgImage={`url(${HomeBg})`} backgroundPosition={"center"} backgroundSize={"cover"}>
+          {/* <Flex w="full" flexDirection={"column"}>
+            <Flex w="full" h={45} mb={5}>
               <Box w={"30%"}>
                 <Text fontSize={"3xl"} fontWeight={"bold"}>Top KOLs</Text>
               </Box>
@@ -275,8 +275,8 @@ export default function Home() {
                 </Flex>
               })
             }
-            </Flex> */}
-          </Flex>
+            </Flex>
+          </Flex> */}
         </Flex>
       </Flex>
 
