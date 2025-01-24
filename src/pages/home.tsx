@@ -163,6 +163,7 @@ export default function Home() {
                 color: "#8181E5", // Placeholder 的颜色
                 fontSize: "lg",    // Placeholder 的字体大小
               }} borderWidth="1px" borderColor="#7676E0" fontSize={"lg"} textAlign={"center"} color={"#8181E5"} bgColor="#fff" borderRadius="full" h="70px" w="full" placeholder="Search KOL or Token"></Input>
+
             {searchText && (
               <Flex h="300px" w="full" px={5} py={5}>
                 {
@@ -225,7 +226,8 @@ export default function Home() {
             )}
           </Flex>
         </Flex>
-        <Flex pt="120px" px={20} pb={10} minHeight={"550px"} h={"full"}  w={"full"} bgImage={`url(${HomeBg})`} backgroundPosition={"center"} backgroundSize={"cover"}>
+        {/* bgImage={`url(${HomeBg})`} backgroundPosition={"center"} backgroundSize={"cover"} */}
+        <Flex pt="120px" px={20} pb={10} minHeight={"550px"} h={"full"} w={"full"} bgImage={`url(${HomeBg})`} backgroundPosition={"center"} backgroundSize={"cover"}>
           {/* <Flex w="full" flexDirection={"column"}>
             <Flex w="full" h={45} mb={5}>
               <Box w={"30%"}>
