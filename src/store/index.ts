@@ -1,9 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit"
 import walletReducer from "./wallet"
+import koltokenSlice from "./kolToken"
 
 const store = configureStore({
   reducer: {
     wallet: walletReducer,
+    koltoken: koltokenSlice
   },
 })
 

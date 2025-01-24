@@ -38,7 +38,7 @@ const customConfig = defineConfig({
       padding: 0,
       margin: 0,
       boxSizing: "border-box",
-      fontFamily: "Pixel",
+      fontFamily: "SF Pro",
       outline: "none",
       fontStyle:"initial"
     },

@@ -1,9 +1,9 @@
 
 @font-face {
-  font-family: 'Pixel';
-  src: url('/fonts/SF-Pro.ttf') format('opentype');
+  font-family: 'SF Pro';
+  src: url('/fonts/SF-Pro.ttf') format('truetype');
   font-weight: 800;
-  font-style: normal;
+  font-style: "Expanded Bold";
 }
 
 

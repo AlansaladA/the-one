@@ -258,7 +258,7 @@ export default function kol() {
       [e.dataKey]: !prev[e.dataKey], // 切换折线的隐藏状态
     }));
   };
-  return <VStack align="stretch" mt={10}>
+  return <VStack align="stretch" mt={10} px={40}>
   {/* Profile Section */}
   <Flex justify="space-between" align="center" mb={4}>
     <Flex align="center" gap={2}>
