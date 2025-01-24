@@ -1,6 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit"
 import walletReducer from "./wallet"
-import koltokenSlice from "./kolToken"
+import koltokenSlice from "./koltoken"
 
 const store = configureStore({
   reducer: {
