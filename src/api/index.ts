@@ -101,3 +101,29 @@ export const getFollowTime = async (kolName: string) => {
     method: "get",
   });
 };
+
+
+export const getRanks = async () => {
+  return await request<{
+    return: Array<{
+      avg_post_call_performance: number;
+      id: number;
+      kol:string,
+      name_1:string,
+      name_2:string,
+      name_3:string,
+      name_4:string,
+      peak_performance:number,
+      profile_id:string,
+      profile_link:string,
+      success_rate:number,
+      value_1:number,
+      value_2:number,
+      value_3:number,
+      value_4:number
+    }>;
+  }>({
+    url: `/get-kol-ranking`,
+    method: "get",
+  });
+};
