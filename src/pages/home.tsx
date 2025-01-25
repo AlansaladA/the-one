@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
-import { getTickers, getKols } from "@/api";
+import { getTickers, getKols, getRanks } from "@/api";
 import { Input, Box, VStack, HStack, Text, Spinner, Flex, Image, Table, Button } from "@chakra-ui/react";
 import useDebounce from "@/hooks/useDebounce";
 import { shortenAddress } from "@/utils/formatter";
@@ -10,7 +10,7 @@ import Title from "@/assets/title2.svg"
 import Loading from "@/components/loading";
 import { Link } from "react-router"
 import { Avatar } from "@/components/ui/avatar";
-import HomeBg from "@/assets/bg6.png"
+import HomeBg from "@/assets/bg7.png"
 import HomeBg2 from "@/assets/bg1.png"
 import {
   DialogHeader,
@@ -32,24 +32,7 @@ import Base from "@/assets/base.svg"
 import Ethereum from "@/assets/ethereum.svg"
 import Optimism from "@/assets/optimism.svg"
 import Solana from "@/assets/solana.svg"
-
-const items = [
-  { id: 1, name: "Laptop", category: "Electronics", price: 999.99 },
-  { id: 2, name: "Coffee Maker", category: "Home Appliances", price: 49.99 },
-  { id: 3, name: "Desk Chair", category: "Furniture", price: 150.0 },
-  { id: 4, name: "Smartphone", category: "Electronics", price: 799.99 },
-  { id: 5, name: "Headphones", category: "Accessories", price: 199.99 },
-  { id: 1, name: "Laptop", category: "Electronics", price: 999.99 },
-  { id: 2, name: "Coffee Maker", category: "Home Appliances", price: 49.99 },
-  { id: 3, name: "Desk Chair", category: "Furniture", price: 150.0 },
-  { id: 4, name: "Smartphone", category: "Electronics", price: 799.99 },
-  { id: 5, name: "Headphones", category: "Accessories", price: 199.99 },
-  { id: 1, name: "Laptop", category: "Electronics", price: 999.99 },
-  { id: 2, name: "Coffee Maker", category: "Home Appliances", price: 49.99 },
-  { id: 3, name: "Desk Chair", category: "Furniture", price: 150.0 },
-  { id: 4, name: "Smartphone", category: "Electronics", price: 799.99 },
-  { id: 5, name: "Headphones", category: "Accessories", price: 199.99 },
-]
+import { Ranks } from "@/utils/types"
 
 const list = [
   {
@@ -88,7 +71,8 @@ export default function Home() {
   const [loading, setLoading] = useState<boolean>(false);
   const [openHow, setOpenHow] = useState<boolean>(false)
   const [type, setType] = useState<"Token" | "KOL">("Token")
-
+  const [ranks, setRanks] = useState<Ranks[]>([])
+  const [loadRank, setLoadRank] = useState<boolean>(false)
   useEffect(() => {
     const cachedKols = localStorage.getItem("kolsList");
     const cachedTokens = localStorage.getItem("tokenList");
@@ -147,6 +131,21 @@ export default function Home() {
         setFilteredTokens(tokensFiltered);
       }, 1000);
     }, 1000)
+
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          setLoadRank(true); 
+          const res = await getRanks(); 
+          setRanks(res.return.slice(0, 20)); 
+        } catch (error) {
+          console.error("Error fetching ranks:", error); 
+        } finally {
+          setLoadRank(false);
+        }
+      };
+      fetchData();
+    }, []);
 
   return (
     <Flex w={"full"} h={"full"} >
@@ -228,7 +227,7 @@ export default function Home() {
         </Flex>
         {/* bgImage={`url(${HomeBg})`} backgroundPosition={"center"} backgroundSize={"cover"} */}
         <Flex pt="120px" px={20} pb={10} minHeight={"550px"} h={"full"} w={"full"} bgImage={`url(${HomeBg})`} backgroundPosition={"center"} backgroundSize={"cover"}>
-          {/* <Flex w="full" flexDirection={"column"}>
+          <Flex w="full" flexDirection={"column"}>
             <Flex w="full" h={45} mb={5}>
               <Box w={"30%"}>
                 <Text fontSize={"3xl"} fontWeight={"bold"}>Top KOLs</Text>
@@ -237,48 +236,49 @@ export default function Home() {
                 <Text fontSize={"3xl"} mr={2}>Calling</Text>
                 <Text fontSize={"xl"}>{"(peak price increase after call)"}</Text>
               </Flex>
-            </Flex> 
-            <Flex  flexDirection={"column"} overflowY={"auto"} gap={4} maxHeight={554}>
-            {
-              new Array(10).fill(0).map((v, index) => {
-                return <Flex w="full" h={45} key={index}>
-                  <Flex w={"30%"} alignItems={"center"} gap={8}>
-                    <Text fontSize={"xl"}>#1</Text>
-                    <Flex alignItems={"center"} gap={2}>
-                      <Avatar size={"xl"}></Avatar>
-                      <Flex flexDirection={"column"} >
-                        <Text fontSize={"xl"}>OxWizard</Text>
-                        <Text color={"rgba(255,255,255,.4)"}>@OxWizard</Text>
+            </Flex>
+            <Flex flexDirection={"column"} overflowY={"auto"} gap={4} maxHeight={554}>
+              {
+                loadRank ? <Loading></Loading> :
+                  ranks.map((item, index) => {
+                    return <Flex w="full"  key={index}>
+                      <Flex w={"30%"} alignItems={"center"} gap={8}>
+                        <Text fontSize={"xl"} w={"10%"}>#{index + 1}</Text>
+                        <Flex alignItems={"center"} gap={2} flex={1}>
+                          <Avatar size={"xl"} src={item.profile_link} name={item.kol}></Avatar>
+                          <Flex flexDirection={"column"} >
+                            <Text fontSize={"xl"}>{item.profile_id}</Text>
+                            <Text color={"rgba(255,255,255,.4)"}>@{item.kol}</Text>
+                          </Flex>
+                        </Flex>
+                      </Flex>
+                      <Flex w={"70%"} alignItems={"flex-start"} gap={4}>
+                        <Flex >
+                          <Text fontSize={"xl"}>{`${item.name_1} (`}</Text>
+                          <Text fontSize={"xl"} color={"green.400"}>+{item.value_1}%</Text>
+                          <Text fontSize={"xl"}>{"),"}</Text>
+                        </Flex>
+                        <Flex >
+                          <Text fontSize={"xl"}>{`${item.name_2} (`}</Text>
+                          <Text fontSize={"xl"} color={"green.400"}>+{item.value_2}%</Text>
+                          <Text fontSize={"xl"}>{"),"}</Text>
+                        </Flex>
+                        <Flex >
+                          <Text fontSize={"xl"}>{`${item.name_3} (`}</Text>
+                          <Text fontSize={"xl"} color={"green.400"}>+{item.value_3}%</Text>
+                          <Text fontSize={"xl"}>{"),"}</Text>
+                        </Flex>
+                        <Flex >
+                          <Text fontSize={"xl"}>{`${item.name_4} (`}</Text>
+                          <Text fontSize={"xl"} color={"green.400"}>+{item.value_4}%</Text>
+                          <Text fontSize={"xl"}>{"),"}</Text>
+                        </Flex>
                       </Flex>
                     </Flex>
-                  </Flex>
-                  <Flex w={"70%"} alignItems={"center"} gap={4}>
-                    <Flex >
-                      <Text fontSize={"xl"}>{"$Trump ("}</Text>
-                      <Text fontSize={"xl"} color={"green.400"}>+1709.32%</Text>
-                      <Text fontSize={"xl"}>{"),"}</Text>
-                    </Flex>
-                    <Flex >
-                      <Text fontSize={"xl"}>{"$Trump ("}</Text>
-                      <Text fontSize={"xl"} color={"green.400"}>+1709.32%</Text>
-                      <Text fontSize={"xl"}>{"),"}</Text>
-                    </Flex>
-                    <Flex >
-                      <Text fontSize={"xl"}>{"$Trump ("}</Text>
-                      <Text fontSize={"xl"} color={"green.400"}>+1709.32%</Text>
-                      <Text fontSize={"xl"}>{"),"}</Text>
-                    </Flex>
-                    <Flex >
-                      <Text fontSize={"xl"}>{"$Trump ("}</Text>
-                      <Text fontSize={"xl"} color={"green.400"}>+1709.32%</Text>
-                      <Text fontSize={"xl"}>{"),"}</Text>
-                    </Flex>
-                  </Flex>
-                </Flex>
-              })
-            }
+                  })
+              }
             </Flex>
-          </Flex> */}
+          </Flex>
         </Flex>
       </Flex>
 

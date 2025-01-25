@@ -46,7 +46,7 @@ const customConfig = defineConfig({
       height: "100vh",
       width: "100vw",
       overflow: "auto",
-      backgroundColor: "#000",
+      backgroundColor: "#0D0D0D",
       color: "#fff",
       fontSize: 14,
     },

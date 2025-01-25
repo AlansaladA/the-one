@@ -127,13 +127,13 @@ export default function kol() {
       const nodes = res.tweets;
 
       const centerNode = {
-        name: _data?.user,
+        name: _data?.Following,
         symbolSize: 30, // 设置中心点大小
         symbol: `image://${_data?.profile_image_url}`, // 可自定义样式
       };
 
       const formattedData = nodes.map((node: any, index: number) => ({
-        name: node.user + index,
+        name: node.Following +"-"+ index,
         symbolSize: node.size || 20,
         symbol: node.profile_image_url
           ? `image://${node.profile_image_url}`
@@ -143,7 +143,7 @@ export default function kol() {
       // 格式化链接数据
       const formattedLinks = nodes.map((node: any, index: number) => ({
         source: centerNode.name, // 中心节点作为 source
-        target: node.user + index, // 指向每个节点
+        target: node.Following +"-"+ index, // 指向每个节点
         value: node.relationship || 1, // 可自定义关系值
       }));
 
@@ -215,8 +215,12 @@ export default function kol() {
 
     const onChartClick = (params: ECElementEvent) => {
       if (params.dataType === 'node') {
+        console.log(params.data,'nodeData');
+        
         const nodeData = params.data as { name: string }
-        const userName = nodeData.name as string
+        const userName = nodeData.name.replace(/-[^-]*$/, "");
+        console.log(userName);
+        
         window.open(`https://x.com/${userName}`, '_blank');
         // 使用立即执行的异步函数来处理异步操作
         // (async () => {
