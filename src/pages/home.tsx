@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
-import { getTickers, getKols,getRanks } from "@/api";
+import { getTickers, getKols, getRanks } from "@/api";
 import { Input, Box, VStack, HStack, Text, Spinner, Flex, Image, Table, Button } from "@chakra-ui/react";
 import useDebounce from "@/hooks/useDebounce";
 import { shortenAddress } from "@/utils/formatter";
@@ -71,8 +71,8 @@ export default function Home() {
   const [loading, setLoading] = useState<boolean>(false);
   const [openHow, setOpenHow] = useState<boolean>(false)
   const [type, setType] = useState<"Token" | "KOL">("Token")
-  const [ranks,setRanks] = useState<Ranks[]>([])
-
+  const [ranks, setRanks] = useState<Ranks[]>([])
+  const [loadRank, setLoadRank] = useState<boolean>(false)
   useEffect(() => {
     const cachedKols = localStorage.getItem("kolsList");
     const cachedTokens = localStorage.getItem("tokenList");
@@ -132,13 +132,20 @@ export default function Home() {
       }, 1000);
     }, 1000)
 
-  useEffect(()=>{
-    const getRanksApi = async () =>{
-      let res = await getRanks()
-      setRanks(res.return)
-    }
-    getRanksApi()
-  },[])
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          setLoadRank(true); 
+          const res = await getRanks(); 
+          setRanks(res.return.slice(0, 20)); 
+        } catch (error) {
+          console.error("Error fetching ranks:", error); 
+        } finally {
+          setLoadRank(false);
+        }
+      };
+      fetchData();
+    }, []);
 
   return (
     <Flex w={"full"} h={"full"} >
@@ -229,47 +236,47 @@ export default function Home() {
                 <Text fontSize={"3xl"} mr={2}>Calling</Text>
                 <Text fontSize={"xl"}>{"(peak price increase after call)"}</Text>
               </Flex>
-            </Flex> 
-            <Flex  flexDirection={"column"} overflowY={"auto"} gap={4} maxHeight={554}>
-            {
-              ranks?.length>0 && ranks.map((item, index) => {
-                return <Flex w="full" h={45} key={index}>
-                  <Flex w={"30%"} alignItems={"center"} gap={8}>
-                    <Text fontSize={"xl"} w={"10%"}>#{index+1}</Text>
-                    <Flex alignItems={"center"} gap={2}>
-                      <Avatar size={"xl"} src={item.profile_link} name={item.kol}></Avatar>
-                      <Flex flexDirection={"column"} >
-                        <Text fontSize={"xl"}>{item.kol}</Text>
-                        <Text color={"rgba(255,255,255,.4)"}>@{item.kol}</Text>
+            </Flex>
+            <Flex flexDirection={"column"} overflowY={"auto"} gap={4} maxHeight={554}>
+              {
+                loadRank ? <Loading></Loading> :
+                  ranks.map((item, index) => {
+                    return <Flex w="full" h={45} key={index}>
+                      <Flex w={"30%"} alignItems={"center"} gap={8}>
+                        <Text fontSize={"xl"} w={"10%"}>#{index + 1}</Text>
+                        <Flex alignItems={"center"} gap={2}>
+                          <Avatar size={"xl"} src={item.profile_link} name={item.kol}></Avatar>
+                          <Flex flexDirection={"column"} >
+                            <Text fontSize={"xl"}>{item.kol}</Text>
+                            <Text color={"rgba(255,255,255,.4)"}>@{item.kol}</Text>
+                          </Flex>
+                        </Flex>
+                      </Flex>
+                      <Flex w={"70%"} alignItems={"center"} gap={4}>
+                        <Flex >
+                          <Text fontSize={"xl"}>{`${item.name_1} (`}</Text>
+                          <Text fontSize={"xl"} color={"green.400"}>+{item.value_1}%</Text>
+                          <Text fontSize={"xl"}>{"),"}</Text>
+                        </Flex>
+                        <Flex >
+                          <Text fontSize={"xl"}>{`${item.name_2} (`}</Text>
+                          <Text fontSize={"xl"} color={"green.400"}>+{item.value_2}%</Text>
+                          <Text fontSize={"xl"}>{"),"}</Text>
+                        </Flex>
+                        <Flex >
+                          <Text fontSize={"xl"}>{`${item.name_3} (`}</Text>
+                          <Text fontSize={"xl"} color={"green.400"}>+{item.value_3}%</Text>
+                          <Text fontSize={"xl"}>{"),"}</Text>
+                        </Flex>
+                        <Flex >
+                          <Text fontSize={"xl"}>{`${item.name_4} (`}</Text>
+                          <Text fontSize={"xl"} color={"green.400"}>+{item.value_4}%</Text>
+                          <Text fontSize={"xl"}>{"),"}</Text>
+                        </Flex>
                       </Flex>
                     </Flex>
-                  </Flex>
-                  <Flex w={"70%"} alignItems={"center"} gap={4}>
-                    <Flex >
-                      <Text fontSize={"xl"}>{`${item.name_1} (`}</Text>
-                      <Text fontSize={"xl"} color={"green.400"}>+{item.value_1}%</Text>
-                      <Text fontSize={"xl"}>{"),"}</Text>
-                    </Flex>
-                    <Flex >
-                      <Text fontSize={"xl"}>{`${item.name_2} (`}</Text>
-                      <Text fontSize={"xl"} color={"green.400"}>+{item.value_2}%</Text>
-                      <Text fontSize={"xl"}>{"),"}</Text>
-                    </Flex>
-                    <Flex >
-                      <Text fontSize={"xl"}>{`${item.name_3} (`}</Text>
-                      <Text fontSize={"xl"} color={"green.400"}>+{item.value_3}%</Text>
-                      <Text fontSize={"xl"}>{"),"}</Text>
-                    </Flex>
-                    <Flex >
-                      <Text fontSize={"xl"}>{`${item.name_4} (`}</Text>
-                      <Text fontSize={"xl"} color={"green.400"}>+{item.value_4}%</Text>
-                      <Text fontSize={"xl"}>{"),"}</Text>
-                    </Flex>
-                  </Flex>
-                </Flex>
-              })
-              
-            }
+                  })
+              }
             </Flex>
           </Flex>
         </Flex>
