@@ -241,18 +241,18 @@ export default function Home() {
               {
                 loadRank ? <Loading></Loading> :
                   ranks.map((item, index) => {
-                    return <Flex w="full" h={45} key={index}>
+                    return <Flex w="full"  key={index}>
                       <Flex w={"30%"} alignItems={"center"} gap={8}>
                         <Text fontSize={"xl"} w={"10%"}>#{index + 1}</Text>
-                        <Flex alignItems={"center"} gap={2}>
+                        <Flex alignItems={"center"} gap={2} flex={1}>
                           <Avatar size={"xl"} src={item.profile_link} name={item.kol}></Avatar>
                           <Flex flexDirection={"column"} >
-                            <Text fontSize={"xl"}>{item.kol}</Text>
+                            <Text fontSize={"xl"}>{item.profile_id}</Text>
                             <Text color={"rgba(255,255,255,.4)"}>@{item.kol}</Text>
                           </Flex>
                         </Flex>
                       </Flex>
-                      <Flex w={"70%"} alignItems={"center"} gap={4}>
+                      <Flex w={"70%"} alignItems={"flex-start"} gap={4}>
                         <Flex >
                           <Text fontSize={"xl"}>{`${item.name_1} (`}</Text>
                           <Text fontSize={"xl"} color={"green.400"}>+{item.value_1}%</Text>
