@@ -33,7 +33,7 @@ import Ethereum from "@/assets/ethereum.svg"
 import Optimism from "@/assets/optimism.svg"
 import Solana from "@/assets/solana.svg"
 import { Ranks } from "@/utils/types"
-
+import { useNavigate } from "react-router";
 const list = [
   {
     name: "Solana",
@@ -73,6 +73,7 @@ export default function Home() {
   const [type, setType] = useState<"Token" | "KOL">("Token")
   const [ranks, setRanks] = useState<Ranks[]>([])
   const [loadRank, setLoadRank] = useState<boolean>(false)
+  const navigate = useNavigate()
   useEffect(() => {
     const cachedKols = localStorage.getItem("kolsList");
     const cachedTokens = localStorage.getItem("tokenList");
@@ -132,20 +133,20 @@ export default function Home() {
       }, 1000);
     }, 1000)
 
-    useEffect(() => {
-      const fetchData = async () => {
-        try {
-          setLoadRank(true); 
-          const res = await getRanks(); 
-          setRanks(res.return.slice(0, 20)); 
-        } catch (error) {
-          console.error("Error fetching ranks:", error); 
-        } finally {
-          setLoadRank(false);
-        }
-      };
-      fetchData();
-    }, []);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoadRank(true);
+        const res = await getRanks();
+        setRanks(res.return.slice(0, 20));
+      } catch (error) {
+        console.error("Error fetching ranks:", error);
+      } finally {
+        setLoadRank(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   return (
     <Flex w={"full"} h={"full"} >
@@ -153,15 +154,16 @@ export default function Home() {
         <Image mt={8} src={Title} ></Image>
         <Text fontSize={"3xl"} color={"#fff"} mt={"-80px"} mb={50}>Supporting {kolsList.length.toLocaleString()} KOLs and {tokenList.length.toLocaleString()} tokens</Text>
         <Flex mb={"70px"} position={"relative"} flexDirection={"column"} alignItems={"center"} w="full">
-          <Flex minW={"900px"} position={"absolute"} borderRadius={30} bgColor={"#292543"} w="55%" flexDirection={"column"} alignItems={"center"}>
+          <Flex minW={"900px"} position={"absolute"} borderRadius={30} bgColor={"#2c2b4a"} w="55%" flexDirection={"column"} alignItems={"center"}>
             <Input
               value={searchText}
               onChange={handleInputChange}
               outline={"none"}
+
               _placeholder={{
                 color: "#8181E5", // Placeholder 的颜色
-                fontSize: "lg",    // Placeholder 的字体大小
-              }} borderWidth="1px" borderColor="#7676E0" fontSize={"lg"} textAlign={"center"} color={"#8181E5"} bgColor="#fff" borderRadius="full" h="70px" w="full" placeholder="Search KOL or Token"></Input>
+                fontSize: "2xl",    // Placeholder 的字体大小
+              }} borderWidth="1px" borderColor="#7676E0" fontSize={"2xl"} textAlign={"center"} color={"#8181E5"} bgColor="#fff" borderRadius="full" h="70px" w="full" placeholder="Search KOL or Token"></Input>
 
             {searchText && (
               <Flex h="300px" w="full" px={5} py={5}>
@@ -171,22 +173,22 @@ export default function Home() {
                   ) : <Flex overflowY={"auto"} flexDirection={"column"} gap={4} w="full">
                     <Flex flexDirection={"column"} gap={3}>
                       <Text color="whiteAlpha.500">Tokens</Text>
-                      <Flex flexDirection={"column"} gap={2}>
+                      <Flex flexDirection={"column"} gap={3}>
                         {filteredTokens.length > 0 ? (
                           filteredTokens.map((item, index) => {
                             return (
                               <Link style={{ color: "inherit" }} to={`/token/${item.name}`} key={index}>
-                                <Flex className="flex gap-2 items-center" gap={8} cursor={"pointer"}>
+                                <Flex alignItems={"center"} gap={8} cursor={"pointer"}>
                                   {/* <Image src={"/token.svg"} width={28} height={28} alt=""></Image> */}
-                                  <Text fontWeight="bold">{item.name}</Text>
-                                  <Text color="whiteAlpha.500" className="text-xs text-zinc-400 opacity-2">{shortenAddress(item.address)}</Text>
+                                  <Text fontWeight="bold" fontSize={"xl"}>{item.name}</Text>
+                                  <Text color="whiteAlpha.500" className="text-xs text-zinc-400 opacity-2">{(item.address)}</Text>
                                 </Flex>
                               </Link>
                             )
                           })
                         ) : (
                           <Flex alignItems={"center"} gap={4}>
-                            <Text>Oops! Your Token Seems To Be Hiding.</Text>
+                            <Text fontSize={"xl"}>Oops! Your Token Seems To Be Hiding.</Text>
                             {/* <Button borderRadius={"full"} onClick={() => { setOpenHow(true), setType("Token") }}>
                               <Text>Request Token</Text>
                             </Button> */}
@@ -204,14 +206,14 @@ export default function Home() {
                               <Link style={{ color: "inherit" }} to={`/detail/${item}`} key={index}>
                                 <Flex className="flex gap-2 items-center" cursor={"pointer"}>
                                   {/* <Image src={"/token.svg"} width={28} height={28} alt=""></Image> */}
-                                  <Text fontWeight="bold">{item}</Text>
+                                  <Text fontSize={"xl"} fontWeight="bold">{item}</Text>
                                 </Flex>
                               </Link>
                             )
                           })
                         ) : (
                           <Flex alignItems={"center"} gap={4}>
-                            <Text>No KOL Found In The1.</Text>
+                            <Text fontSize={"xl"}>No KOL Found In The1.</Text>
                             {/* <Button borderRadius={"full"} onClick={() => { setOpenHow(true), setType("KOL") }}>
                               <Text>Request KOL</Text>
                             </Button> */}
@@ -226,13 +228,13 @@ export default function Home() {
           </Flex>
         </Flex>
         {/* bgImage={`url(${HomeBg})`} backgroundPosition={"center"} backgroundSize={"cover"} */}
-        <Flex pt="120px" px={20} pb={10} minHeight={"550px"} h={"full"} w={"full"} bgImage={`url(${HomeBg})`} backgroundPosition={"center"} backgroundSize={"cover"}>
+        <Flex pt="120px" px={40} pb={10} minHeight={"550px"} h={"full"} w={"full"} bgImage={`url(${HomeBg})`} backgroundPosition={"center"} backgroundSize={"cover"}>
           <Flex w="full" flexDirection={"column"}>
             <Flex w="full" h={45} mb={5}>
-              <Box w={"30%"}>
+              <Box w={"35%"}>
                 <Text fontSize={"3xl"} fontWeight={"bold"}>Top KOLs</Text>
               </Box>
-              <Flex w={"70%"} alignItems={"center"}>
+              <Flex w={"65%"} alignItems={"center"}>
                 <Text fontSize={"3xl"} mr={2}>Calling</Text>
                 <Text fontSize={"xl"}>{"(peak price increase after call)"}</Text>
               </Flex>
@@ -241,18 +243,20 @@ export default function Home() {
               {
                 loadRank ? <Loading></Loading> :
                   ranks.map((item, index) => {
-                    return <Flex w="full"  key={index}>
-                      <Flex w={"30%"} alignItems={"center"} gap={8}>
+                    return <Flex w="full" key={index}>
+                      <Flex w={"35%"} alignItems={"center"} gap={8}>
                         <Text fontSize={"xl"} w={"10%"}>#{index + 1}</Text>
-                        <Flex alignItems={"center"} gap={2} flex={1}>
-                          <Avatar size={"xl"} src={item.profile_link} name={item.kol}></Avatar>
-                          <Flex flexDirection={"column"} >
-                            <Text fontSize={"xl"}>{item.profile_id}</Text>
-                            <Text color={"rgba(255,255,255,.4)"}>@{item.kol}</Text>
+                          <Flex alignItems={"center"} gap={2} flex={1} >
+
+                            <Avatar onClick={()=>navigate(`/detail/${item.kol}`)} size={"xl"} src={item.profile_link} name={item.kol}></Avatar>
+                            <Flex flexDirection={"column"} >
+                              <Text fontSize={"xl"}>{item.profile_id}</Text>
+                              <Text onClick={()=> window.open(`https://x.com/${item.kol}`, '_blank')} cursor={"pointer"} color={"rgba(255,255,255,.4)"}>@{item.kol}</Text>
+                            </Flex>
+
                           </Flex>
-                        </Flex>
                       </Flex>
-                      <Flex w={"70%"} alignItems={"flex-start"} gap={4}>
+                      <Flex w={"65%"} alignItems={"flex-start"} gap={4}>
                         <Flex >
                           <Text fontSize={"xl"}>{`${item.name_1} (`}</Text>
                           <Text fontSize={"xl"} color={"green.400"}>+{item.value_1}%</Text>
@@ -271,7 +275,7 @@ export default function Home() {
                         <Flex >
                           <Text fontSize={"xl"}>{`${item.name_4} (`}</Text>
                           <Text fontSize={"xl"} color={"green.400"}>+{item.value_4}%</Text>
-                          <Text fontSize={"xl"}>{"),"}</Text>
+                          <Text fontSize={"xl"}>{")"}</Text>
                         </Flex>
                       </Flex>
                     </Flex>
