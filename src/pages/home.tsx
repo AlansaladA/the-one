@@ -1,4 +1,3 @@
-"use client";
 import { useEffect, useState, useRef } from "react";
 import { getTickers, getKols, getRanks } from "@/api";
 import { Input, Box, VStack, HStack, Text, Spinner, Flex, Image, Table, Button } from "@chakra-ui/react";
@@ -11,7 +10,8 @@ import Loading from "@/components/loading";
 import { Link } from "react-router"
 import { Avatar } from "@/components/ui/avatar";
 import HomeBg from "@/assets/bg7.png"
-import HomeBg2 from "@/assets/bg1.png"
+// import HomeBg2 from "@/assets/bg1.png"
+import SolanaImg from "@/assets/solana.png"
 import {
   DialogHeader,
   DialogBody,
@@ -34,6 +34,7 @@ import Optimism from "@/assets/optimism.svg"
 import Solana from "@/assets/solana.svg"
 import { Ranks } from "@/utils/types"
 import { useNavigate } from "react-router";
+
 const list = [
   {
     name: "Solana",
@@ -154,7 +155,7 @@ export default function Home() {
         <Image mt={8} src={Title} ></Image>
         <Text fontSize={"3xl"} color={"#fff"} mt={"-80px"} mb={50}>Supporting {kolsList.length.toLocaleString()} KOLs and {tokenList.length.toLocaleString()} tokens</Text>
         <Flex mb={"70px"} position={"relative"} flexDirection={"column"} alignItems={"center"} w="full">
-          <Flex minW={"900px"} position={"absolute"} borderRadius={30} bgColor={"#2c2b4a"} w="55%" flexDirection={"column"} alignItems={"center"}>
+          <Flex zIndex={999} minW={"900px"} position={"absolute"} borderRadius={30} bgColor={"#2c2b4a"} w="55%" flexDirection={"column"} alignItems={"center"}>
             <Input
               value={searchText}
               onChange={handleInputChange}
@@ -178,10 +179,10 @@ export default function Home() {
                           filteredTokens.map((item, index) => {
                             return (
                               <Link style={{ color: "inherit" }} to={`/token/${item.name}`} key={index}>
-                                <Flex alignItems={"center"} gap={8} cursor={"pointer"}>
-                                  {/* <Image src={"/token.svg"} width={28} height={28} alt=""></Image> */}
-                                  <Text fontWeight="bold" fontSize={"xl"}>{item.name}</Text>
-                                  <Text color="whiteAlpha.500" className="text-xs text-zinc-400 opacity-2">{(item.address)}</Text>
+                                <Flex alignItems={"center"} gap={4} cursor={"pointer"}>
+                                  <Avatar src={SolanaImg}></Avatar>
+                                  <Text fontWeight="bold" fontSize={"xl"}>{"$"+item.name}</Text>
+                                  <Text color="whiteAlpha.500" className="text-xs  opacity-2">{(item.address)}</Text>
                                 </Flex>
                               </Link>
                             )
@@ -257,22 +258,22 @@ export default function Home() {
                           </Flex>
                       </Flex>
                       <Flex w={"65%"} alignItems={"flex-start"} gap={4}>
-                        <Flex >
+                        <Flex alignItems={"center"} textWrap={"nowrap"}>
                           <Text fontSize={"xl"}>{`${item.name_1} (`}</Text>
                           <Text fontSize={"xl"} color={"green.400"}>+{item.value_1}%</Text>
                           <Text fontSize={"xl"}>{"),"}</Text>
                         </Flex>
-                        <Flex >
+                        <Flex  alignItems={"center"} textWrap={"nowrap"}>
                           <Text fontSize={"xl"}>{`${item.name_2} (`}</Text>
                           <Text fontSize={"xl"} color={"green.400"}>+{item.value_2}%</Text>
                           <Text fontSize={"xl"}>{"),"}</Text>
                         </Flex>
-                        <Flex >
+                        <Flex  alignItems={"center"} textWrap={"nowrap"}>
                           <Text fontSize={"xl"}>{`${item.name_3} (`}</Text>
                           <Text fontSize={"xl"} color={"green.400"}>+{item.value_3}%</Text>
                           <Text fontSize={"xl"}>{"),"}</Text>
                         </Flex>
-                        <Flex >
+                        <Flex  alignItems={"center"} textWrap={"nowrap"}>
                           <Text fontSize={"xl"}>{`${item.name_4} (`}</Text>
                           <Text fontSize={"xl"} color={"green.400"}>+{item.value_4}%</Text>
                           <Text fontSize={"xl"}>{")"}</Text>

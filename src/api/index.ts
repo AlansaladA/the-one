@@ -126,4 +126,18 @@ export const getRanks = async () => {
     url: `/get-kol-ranking`,
     method: "get",
   });
-};
+}
+
+
+export const getRelation = async (tickerName:string) => {
+  return await request<{
+    ticker_name:string,
+    tweets:Array<{
+      data:any,
+      position:any
+    }>
+  }>({
+    url:`/get-prop-map?ticker_name=${tickerName}`,
+    method:"get",
+  })
+}

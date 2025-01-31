@@ -1,8 +1,6 @@
-"use client";
-
 import { Suspense, useEffect, useState } from "react";
 import TokenChart from "@/components/TokenChart";
-import { getTweetOne, getTickerOne } from "@/api";
+import { getTweetOne, getTickerOne,getRelation } from "@/api";
 import { useParams } from "react-router";
 import { Tweet, PriceHistory } from "@/utils/types";
 import { Box, Heading, Spinner, Flex, Container } from "@chakra-ui/react";
@@ -15,9 +13,11 @@ export default function Ticker() {
   const [data, setData] = useState<{
     priceHistory: PriceHistory[];
     tweets: Tweet[];
+    tweetsRelation: any;
   }>({
     priceHistory: [],
     tweets: [],
+    tweetsRelation: [],
   });
 
   const { ticker } = useParams<Params>();
@@ -26,13 +26,21 @@ export default function Ticker() {
     const getfetchData = async () => {
       if (ticker) {
         try {
-          const [priceRes, tweetsRes] = await Promise.all([
+          const [priceRes, tweetsRes,tweetsRelation] = await Promise.all([
             getTickerOne(ticker),
             getTweetOne(ticker),
+            getRelation(ticker)
           ]);
+
           setData({
             priceHistory: priceRes.history, // 根据接口返回的结构调整
-            tweets: tweetsRes.tweets, // 根据接口返回的结构调整
+            tweets: tweetsRes.tweets.map(v=>{
+              return {
+                ...v,
+                tweet_id: BigInt(v.tweet_id).toString()
+              }
+            }),
+            tweetsRelation:tweetsRelation.tweets
           });
         } catch (error) {
           console.error(error); // 记录错误信息
@@ -41,6 +49,7 @@ export default function Ticker() {
     };
     getfetchData();
   }, [ticker]);
+
 
   return (
     <Container maxW="container.lg" py={8}>
