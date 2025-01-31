@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, memo } from "react";
+import { useState, useMemo, useEffect, memo,Fragment } from "react";
 import {
   AreaChart,
   Area,
@@ -322,36 +322,36 @@ const TokenChart = ({
 
 
   const sortedTweetMarkers = useMemo(() => {
-   if(!initialData.tweetsRelation.length) return []
-   const position = JSON.parse(initialData.tweetsRelation[0].position)
-   const data = initialData.tweetsRelation[0].data
+    if (!initialData.tweetsRelation.length) return []
+    const position = JSON.parse(initialData.tweetsRelation[0].position)
+    const data = initialData.tweetsRelation[0].data
 
     // 找关联数据
     const tweetsWithRelation = initialData.tweets.map(tweet => {
       const tweetId = tweet.tweet_id.toString();
-      const relationWithoutSelf = data[tweetId] ? 
-        data[tweetId].filter(id => id !== tweetId) : 
+      const relationWithoutSelf = data[tweetId] ?
+        data[tweetId].filter(id => id !== tweetId) :
         [];
-      
+
       return {
         ...tweet,
         time: new Date(tweet.created_at),
-        relation: relationWithoutSelf 
+        relation: relationWithoutSelf
       }
     }).sort((a, b) => a.time.getTime() - b.time.getTime());
-  
-    const list2 = tweetsWithRelation.filter(tweet => 
+
+    const list2 = tweetsWithRelation.filter(tweet =>
       position.hasOwnProperty(tweet.tweet_id)
     ).map(tweet => ({
       ...tweet,
       value: position[tweet.tweet_id]
     }));
 
-    console.log(list2,'list2');
-    
+    console.log(list2, 'list2');
+
     return list2
-  }, [initialData.tweets,initialData.tweetsRelation])
-  
+  }, [initialData.tweets, initialData.tweetsRelation])
+
 
   // 计算时间和价格的范围
   const timeRange = useMemo(() => {
@@ -474,7 +474,17 @@ const TokenChart = ({
           h="100%"
           position="relative"
         >
-          <svg
+          <RelationLines
+            sortedTweetMarkers={sortedTweetMarkers}
+            timeRange={timeRange}
+            priceRange={priceRange}
+          />
+          <MarkerPoints
+            sortedTweetMarkers={sortedTweetMarkers}
+            timeRange={timeRange}
+            priceRange={priceRange}
+          />
+          {/* <svg
             width="100%"
             height="100%"
             style={{
@@ -538,7 +548,7 @@ const TokenChart = ({
                 />
               </Box>
             );
-          })}
+          })} */}
         </Box>
       </Box>
     </Box>
@@ -548,6 +558,104 @@ const TokenChart = ({
 export default TokenChart;
 
 
+interface RelationProps {
+  sortedTweetMarkers: any[];
+  timeRange: { min: number; max: number };
+  priceRange: { min: number; max: number };
+}
+
+const RelationLines = memo(({ sortedTweetMarkers, timeRange, priceRange }: RelationProps) => {
+  // 使用 useMemo 缓存线条数据
+  const lines = useMemo(() => {
+    return sortedTweetMarkers.map((marker1, i) => (
+      sortedTweetMarkers.slice(i + 1).map((marker2, j) => {
+        const hasRelation = marker1.relation?.includes(marker2.tweet_id) ||
+          marker2.relation?.includes(marker1.tweet_id);
+
+        if (!hasRelation) return null;
+
+        const x1 = ((marker1.time.getTime() - timeRange.min) / (timeRange.max - timeRange.min)) * 100;
+        const y1 = ((marker1.value - priceRange.min) / (priceRange.max - priceRange.min)) * 100;
+        const x2 = ((marker2.time.getTime() - timeRange.min) / (timeRange.max - timeRange.min)) * 100;
+        const y2 = ((marker2.value - priceRange.min) / (priceRange.max - priceRange.min)) * 100;
+
+        return {
+          key: `line-${i}-${j}`,
+          x1: `${x1}%`,
+          y1: `${100 - y1}%`,
+          x2: `${x2}%`,
+          y2: `${100 - y2}%`
+        };
+      }).filter(Boolean)
+    )).flat();
+  }, [sortedTweetMarkers, timeRange, priceRange]);
+
+  return (
+    <svg
+      width="100%"
+      height="100%"
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        pointerEvents: 'none',
+      }}
+    >
+      {lines.map(line => (
+        <line
+          key={line.key}
+          x1={line.x1}
+          y1={line.y1}
+          x2={line.x2}
+          y2={line.y2}
+          stroke="rgba(136, 132, 216, 0.5)"
+          strokeWidth="2"
+          opacity={0.5}
+        />
+      ))}
+    </svg>
+  );
+});
+
+// 2. 将点位渲染抽离为单独的组件
+const MarkerPoints = memo(({ sortedTweetMarkers, timeRange, priceRange }: RelationProps) => {
+  // 使用 useMemo 缓存点位数据
+  const points = useMemo(() => {
+    return sortedTweetMarkers.map((marker) => {
+      const xPos = ((marker.time.getTime() - timeRange.min) / (timeRange.max - timeRange.min)) * 100;
+      const yPos = ((marker.value - priceRange.min) / (priceRange.max - priceRange.min)) * 100;
+      
+      return {
+        key: marker.tweet_id,
+        xPos,
+        yPos,
+        marker
+      };
+    });
+  }, [sortedTweetMarkers, timeRange, priceRange]);
+
+  return (
+    <>
+      {points.map(point => (
+        <Box
+          key={point.key}
+          position="absolute"
+          left={`${point.xPos}%`}
+          bottom={`${point.yPos}%`}
+          transform="translate(-50%, 50%)"
+          zIndex={1}
+          style={{ willChange: 'transform' }} // 优化渲染性能
+        >
+          <MemoCustomDotRelation
+            cx={12}
+            cy={12}
+            tweets={point.marker}
+          />
+        </Box>
+      ))}
+    </>
+  );
+});
 
 
 
