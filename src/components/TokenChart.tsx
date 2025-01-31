@@ -349,7 +349,7 @@ const TokenChart = ({
 
     console.log(list2, 'list2');
 
-    return list2
+    return list2.slice(4)
   }, [initialData.tweets, initialData.tweetsRelation])
 
 
