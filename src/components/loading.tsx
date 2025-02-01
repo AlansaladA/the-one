@@ -12,7 +12,7 @@ const Loading: React.FC<LoadingIndicatorProps> = ({
   return (
     <Center justifyContent="center" py={4} h="full" w="full">
       <Spinner size="md" color="#8181E5" mr={2} />
-      <Text color={"#fff"}>{message}</Text>
+      <Text color={"#fff"} fontSize={"lg"}>{message}</Text>
     </Center>
   );
 };

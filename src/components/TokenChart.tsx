@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, memo } from "react";
+import { useState, useMemo, useEffect, memo,Fragment } from "react";
 import {
   AreaChart,
   Area,
@@ -20,7 +20,6 @@ import {
 } from "@chakra-ui/react";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useParams, useNavigate } from 'react-router'
-// import { FaTwitter } from "react-icons/fa";
 import { Tweet, PriceHistory } from "@/utils/types";
 import { Avatar, AvatarGroup } from "@/components/ui/avatar"
 import Loading from "./loading";
@@ -28,6 +27,7 @@ import { Button } from "@/components/ui/button"
 import { FaTwitter } from "react-icons/fa";
 import Relation from "./relation"
 import { Link } from "react-router";
+import Follow from "./follow";
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
@@ -76,6 +76,7 @@ const CustomDot = ({
   const navigate = useNavigate()
   if (!tweets?.length) return null;
 
+
   const calculateImpact = (tweet: Tweet, currentPrice: number) => {
     // Find highest price after the tweet
     const tweetTime = new Date(tweet.created_at).getTime();
@@ -109,7 +110,7 @@ const CustomDot = ({
         }
       }
         content={
-          <Box overflowY={"auto"} maxHeight={"300px"}  p={4} display={"flex"} flexDirection={"column"} gap={4} bg="#2D2D4FF2" borderRadius="lg" color="gray.300" >
+          <Box overflowY={"auto"} maxHeight={"300px"} p={4} display={"flex"} flexDirection={"column"} gap={4} bg="#2D2D4FF2" borderRadius="lg" color="gray.300" >
             {tweets.map((tweet: Tweet, i) => {
               const impact = calculateImpact(tweet, price);
               return (
@@ -217,7 +218,7 @@ const CustomDot = ({
                   justifyContent={"center"}
                   alignItems={"center"}
                 >
-                  <Text fontSize="xs">{"+"+(tweets.length - 7)}</Text>
+                  <Text fontSize="xs">{"+" + (tweets.length - 7)}</Text>
                 </Flex>
               )}
             </AvatarGroup>
@@ -232,13 +233,13 @@ const CustomDot = ({
     </foreignObject >
   );
 };
-const MemoCustomDot=memo(CustomDot)
+const MemoCustomDot = memo(CustomDot)
 
 
 const TokenChart = ({
   initialData,
 }: {
-  initialData: { priceHistory: PriceHistory[]; tweets: Tweet[] };
+  initialData: { priceHistory: PriceHistory[]; tweets: Tweet[], tweetsRelation: any };
 }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [followerRange, setFollowerRange] = useState<string[]>([]);
@@ -313,13 +314,6 @@ const TokenChart = ({
     });
   }
 
-  const relationData = useMemo(() => {
-    return followerRange.length > 0
-      ? initialData.tweets.filter((tweet) =>
-        followerRange.includes(getFollowerRange(tweet.followers_count))
-      )
-      : initialData.tweets;
-  }, [initialData.tweets])
 
   return (
     <Box mb={8}>
@@ -415,6 +409,9 @@ const TokenChart = ({
       </Box>
 
       {/* <Relation relationData={relationData}></Relation> */}
+
+     <Follow priceHistory={initialData.priceHistory} tweets={initialData.tweets} tweetsRelation={initialData.tweetsRelation}></Follow>
+
     </Box>
   );
 };

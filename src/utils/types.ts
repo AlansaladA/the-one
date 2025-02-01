@@ -39,7 +39,7 @@ export interface Tweet {
   profile_image_url: string;
   screen_name: string;
   text: string;
-  tweet_id: number;
+  tweet_id: string;
   user: string;
   relation?:string[]
 }
