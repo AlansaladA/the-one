@@ -18,45 +18,34 @@ import { Link } from "react-router";
 import { Tweet, PriceHistory } from "@/utils/types";
 import { Slider } from "@/components/ui/slider"
 
-export default function Follow({ priceHistory, tweets, tweetsRelation }: {
+export default function Follow({ priceHistory, tweets, tweetsRelation, range }: {
   priceHistory: PriceHistory[]
   tweets: Tweet[]
   tweetsRelation: any
+  range: [number, number]
 }) {
-  const [selectRange, setSelectRange] = useState<number[]>([0,100]);
+  const [selectRange, setSelectRange] = useState<number[]>([0, 100]);
   const sortedTweetMarkers = useMemo(() => {
-    if (!tweetsRelation.length) return []
-    const position = JSON.parse(tweetsRelation[0].position)
-    const data = tweetsRelation[0].data
-
-    // 找关联数据
-    const tweetsWithRelation = tweets.map(tweet => {
+    if (!tweetsRelation.length) return [];
+    const relationData = tweetsRelation[0]?.data || {};
+    const position = tweetsRelation[0]?.position ? JSON.parse(tweetsRelation[0].position) : {};
+  
+    return tweets.map(tweet => {
       const tweetId = tweet.tweet_id.toString();
-      const relationWithoutSelf = data[tweetId] ?
-        data[tweetId].filter(id => id !== tweetId) :
-        [];
-
       return {
         ...tweet,
         time: new Date(tweet.created_at),
-        relation: relationWithoutSelf
-      }
-    }).sort((a, b) => a.time.getTime() - b.time.getTime());
+        relation: relationData[tweetId]?.filter(id => id !== tweetId) || [],
+        value: position[tweetId] || 0
+      };
+    }).sort((a, b) => a.time.getTime() - b.time.getTime())
+  }, [tweetsRelation]);
 
-    const list2 = tweetsWithRelation.filter(tweet =>
-      position.hasOwnProperty(tweet.tweet_id)
-    ).map(tweet => ({
-      ...tweet,
-      value: position[tweet.tweet_id]
-    }));
-
-    console.log(list2, 'list2');
-
-    return list2.slice(4)
-  }, [tweets, tweetsRelation])
+  console.log(range);
 
 
   // 计算时间和价格的范围
+  // const timeRange = useMemo(() => ({ min: range[0], max: range[1] }), [range])
   const timeRange = useMemo(() => {
     if (priceHistory.length === 0) return { min: 0, max: 1 };
     // 提取时间戳数组
@@ -65,11 +54,14 @@ export default function Follow({ priceHistory, tweets, tweetsRelation }: {
     // 计算索引位置
     const startIndex = Math.floor((selectRange[0] / 100) * (totalCount - 1));
     const endIndex = Math.floor((selectRange[1] / 100) * (totalCount - 1));
+    console.log(startIndex, endIndex, range);
+
     return {
-      min: times[startIndex], // 选取范围的起始时间
-      max: times[endIndex]    // 选取范围的结束时间
+      min: times[range[0]], // 选取范围的起始时间
+      max: times[range[1]]    // 选取范围的结束时间
     };
-  }, [priceHistory, selectRange]);
+  }, [priceHistory, selectRange, range]);
+
 
   const priceRange = useMemo(() => {
     if (sortedTweetMarkers.length === 0) return { min: 0, max: 1 };
@@ -80,11 +72,8 @@ export default function Follow({ priceHistory, tweets, tweetsRelation }: {
     };
   }, [sortedTweetMarkers]);
 
-  useEffect(() => {
-
-  })
   return <Box w={"100%"} h="600px" pr={2} position="relative" mt={10} pl={14}>
-    <Slider width="100%" defaultValue={[0, 100]} onValueChange={(val) => setSelectRange(val.value)} />
+    {/* <Slider width="100%" defaultValue={[0, 100]} onValueChange={(val) => setSelectRange(val.value)} /> */}
     <Box
       w="100%"
       h="100%"
@@ -349,5 +338,3 @@ const CustomDotRelation = ({
   );
 };
 const MemoCustomDotRelation = memo(CustomDotRelation)
-
-

@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, memo,Fragment } from "react";
+import { useState, useMemo, useEffect, memo, Fragment } from "react";
 import {
   AreaChart,
   Area,
@@ -314,7 +314,10 @@ const TokenChart = ({
     });
   }
 
-
+  const [range, setRange] = useState<[number, number]>([0, initialData.priceHistory.length - 1])
+  useEffect(() => {
+    setRange([0, initialData.priceHistory.length - 1])
+  }, [initialData])
   return (
     <Box mb={8}>
       <Flex gap={4} mb={4}>
@@ -392,6 +395,11 @@ const TokenChart = ({
               stroke="#8884d8"
               fill="#1f1f1f"
               tickFormatter={formatTime}
+              onChange={(props) => {
+                if (props.startIndex != undefined && props.endIndex != undefined)
+                  setRange([props.startIndex, props.endIndex])
+                }
+              }
             >
               <AreaChart>
                 <Area
@@ -408,9 +416,10 @@ const TokenChart = ({
         }
       </Box>
 
-      {/* <Relation relationData={relationData}></Relation> */}
+      <Follow
+        range={range}
 
-     <Follow priceHistory={initialData.priceHistory} tweets={initialData.tweets} tweetsRelation={initialData.tweetsRelation}></Follow>
+        priceHistory={initialData.priceHistory} tweets={initialData.tweets} tweetsRelation={initialData.tweetsRelation}></Follow>
 
     </Box>
   );
