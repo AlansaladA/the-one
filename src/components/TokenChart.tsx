@@ -315,12 +315,34 @@ const TokenChart = ({
   }
 
   const [range, setRange] = useState<[number, number]>([0, initialData.priceHistory.length - 1])
+
   useEffect(() => {
+    if (tweetMarkers.length > 0) {
+      const firstTweetIndex = processedChartData.findIndex(
+        (data) => tweetMarkers.some((marker) => marker.time.getTime() === data.time.getTime())
+      );
+      const lastTweetIndex = processedChartData.findLastIndex(
+        (data) => tweetMarkers.some((marker) => marker.time.getTime() === data.time.getTime())
+      );
+
+      if (firstTweetIndex !== -1 && lastTweetIndex !== -1) {
+        setRange([firstTweetIndex, lastTweetIndex + 1]);
+      }
+    }
+  }, [tweetMarkers, processedChartData]);
+  const [brushRange, setBrushRange] = useState<[number, number]>([0, 10]);
+
+  useEffect(() => {
+    setBrushRange(range); // 确保 Brush 状态和 range 同步
+  }, [range]);
+
+  const fillFun = () =>{
     setRange([0, initialData.priceHistory.length - 1])
-  }, [initialData])
+  }
+
   return (
     <Box mb={8}>
-      <Flex gap={4} mb={4}>
+      <Flex gap={4} mb={4} justifyContent={"space-between"}>
         <VStack align="start">
           <Text fontSize="sm" color="gray.400">
             Filter by Followers
@@ -346,6 +368,7 @@ const TokenChart = ({
             ))}
           </HStack>
         </VStack>
+        <Button onClick={fillFun}>filled</Button>
       </Flex>
       <Box position="relative" height="600px">
         {isLoading ? (
@@ -395,11 +418,15 @@ const TokenChart = ({
               stroke="#8884d8"
               fill="#1f1f1f"
               tickFormatter={formatTime}
+              startIndex={brushRange[0]}
+              endIndex={brushRange[1]}
               onChange={(props) => {
-                if (props.startIndex != undefined && props.endIndex != undefined)
-                  setRange([props.startIndex, props.endIndex])
+                if (props.startIndex !== undefined && props.endIndex !== undefined) {
+                  // setBrushRange([props.startIndex, props.endIndex + 1]); // 先更新 Brush
+                  // setRange([props.startIndex, props.endIndex])
+                  setTimeout(() => setRange([props.startIndex || 0, props.endIndex || 1]), 100); // 延迟同步 range
                 }
-              }
+              }}
             >
               <AreaChart>
                 <Area
@@ -418,9 +445,7 @@ const TokenChart = ({
 
       <Follow
         range={range}
-
         priceHistory={initialData.priceHistory} tweets={initialData.tweets} tweetsRelation={initialData.tweetsRelation}></Follow>
-
     </Box>
   );
 };
