@@ -72,14 +72,15 @@ export default function Follow({ priceHistory, tweets, tweetsRelation, range }: 
     };
   }, [sortedTweetMarkers]);
 
-  return <Box w={"100%"} h="600px" pr={2} position="relative" mt={10} pl={14}>
+  return <Box w={"100%"} h="620px"  position="relative" mt={10} pl={14} py={2}>
     {/* <Slider width="100%" defaultValue={[0, 100]} onValueChange={(val) => setSelectRange(val.value)} /> */}
     <Box
       w="100%"
       h="100%"
       position="relative"
       mt={6}
-      overflow={"hidden"}
+      overflow={"hidden"} 
+      // py={4}
     >
       <RelationLines
         sortedTweetMarkers={sortedTweetMarkers}
@@ -91,7 +92,6 @@ export default function Follow({ priceHistory, tweets, tweetsRelation, range }: 
         timeRange={timeRange}
         priceRange={priceRange}
       />
-
     </Box>
   </Box>
 }
@@ -113,11 +113,12 @@ const RelationLines = memo(({ sortedTweetMarkers, timeRange, priceRange }: Relat
 
         if (!hasRelation) return null;
 
-        const x1 = ((marker1.time.getTime() - timeRange.min) / (timeRange.max - timeRange.min)) * 100;
-        const y1 = ((marker1.value - priceRange.min) / (priceRange.max - priceRange.min)) * 100;
-        const x2 = ((marker2.time.getTime() - timeRange.min) / (timeRange.max - timeRange.min)) * 100;
-        const y2 = ((marker2.value - priceRange.min) / (priceRange.max - priceRange.min)) * 100;
-
+        let x1 = ((marker1.time.getTime() - timeRange.min ) / (timeRange.max - timeRange.min)) * 99;
+        let y1 = ((marker1.value - priceRange.min) / (priceRange.max - priceRange.min)) * 98;
+        let x2 = ((marker2.time.getTime() - timeRange.min ) / (timeRange.max - timeRange.min)) * 99;
+        let y2 = ((marker2.value - priceRange.min) / (priceRange.max - priceRange.min)) * 98;
+        if(y1<5) y1 +=1
+        if(y2<5) y2 +=1
         return {
           key: `line-${i}-${j}`,
           x1: `${x1}%`,
@@ -161,15 +162,14 @@ const MarkerPoints = memo(({ sortedTweetMarkers, timeRange, priceRange }: Relati
   // 使用 useMemo 缓存点位数据
   const points = useMemo(() => {
     return sortedTweetMarkers.map((marker) => {
-      const xPos = ((marker.time.getTime() - timeRange.min) / (timeRange.max - timeRange.min)) * 100;
-      const yPos = ((marker.value - priceRange.min) / (priceRange.max - priceRange.min)) * 100;
+      let xPos = ((marker.time.getTime() - timeRange.min) / (timeRange.max - timeRange.min)) * 99;
+      let yPos = ((marker.value - priceRange.min) / (priceRange.max - priceRange.min)) * 98;
+      if(yPos<5) yPos +=1
+      // **防止超出边界**
+      // if (yPos > 95) yPos = 95; // 贴近底部的上移
+      // if (yPos < 5)   yPos = 2;   // 贴近顶部的下移
 
-      return {
-        key: marker.tweet_id,
-        xPos,
-        yPos,
-        marker
-      };
+      return { key: marker.tweet_id, xPos, yPos, marker };
     });
   }, [sortedTweetMarkers, timeRange, priceRange]);
 
@@ -183,7 +183,8 @@ const MarkerPoints = memo(({ sortedTweetMarkers, timeRange, priceRange }: Relati
           bottom={`${point.yPos}%`}
           transform="translate(-50%, 50%)"
           zIndex={1}
-          style={{ willChange: 'transform' }} // 优化渲染性能
+          style={{ willChange: 'transform' }} 
+
         >
           <MemoCustomDotRelation
             cx={12}
@@ -214,9 +215,9 @@ const CustomDotRelation = ({
     <foreignObject
       x={cx - 12}
       y={cy - 12}
-      width={24}
-      height={24}
-      style={{ overflow: "visible" }}
+      width={40} // 增大外层
+      height={40} // 增大外层
+      style={{ overflow: "visible", padding: "4px" }} // 增加 padding
     >
       <Tooltip closeOnScroll={false} interactive contentProps={
         {
