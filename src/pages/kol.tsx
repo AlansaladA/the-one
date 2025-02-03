@@ -335,7 +335,7 @@ export default function kol() {
                   tick={{ fill: "#8c8c8c" }}
                   tickLine={false}
                   tickFormatter={(value) => `${value}%`}
-                  domain={[-100, 100]}
+                  domain={[-100]}
                 />
                 <Tooltip content={<CustomTooltip />} />
               </LineChart>

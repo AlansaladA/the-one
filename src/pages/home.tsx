@@ -256,8 +256,8 @@ export default function Home() {
             )}
           </Flex>
         </Flex>
-        <Flex pt={{ base: "40px", md: "140px" }}  // 减少顶部间距
-          px={{ base: 4, md: 40 }}
+        <Flex pt={{ base: "40px", md: "140px" }}
+          px={{ base: 4, md: 20 }}
           pb={10}
           minHeight={{ base: "100vh", md: "550px" }}
           h={"full"}
@@ -266,8 +266,13 @@ export default function Home() {
           backgroundPosition={"top"}
           backgroundRepeat={"no-repeat"}
           backgroundSize={{ base: "contain", md: "cover" }}
+          justifyContent="center"
         >
-          <Flex w="full" flexDirection={"column"}>
+          <Flex 
+            w="full" 
+            flexDirection={"column"}
+            maxW="1800px"
+          >
             <Flex w="full" h={{ base: "4", md: "45" }} mb={5} flexDirection={{ base: "column", md: "row" }}>
               <Box display={"flex"} alignItems={"center"} w={{ base: "100%", md: "35%" }} mb={{ base: 4, md: 0 }}>
                 <Text fontSize={{ base: "xl", md: "3xl" }} fontWeight={"bold"}>Top KOLs</Text>
