@@ -10,13 +10,13 @@ export default function Header() {
   const { address, balance, isLogined, login, logout } = useWallet()
   const navigate = useNavigate()
   return <Flex justifyContent={"space-between"} px='8' height={'80px'} alignItems={"center"}>
-    <Image cursor={'pointer'} src={Logo} height={'44px'} onClick={() => navigate('/')} />
+    <Image cursor={'pointer'} src={Logo} height={{ base: "30px", md: "44px" }} onClick={() => navigate('/')} />
     <Flex alignItems={'center'} gap={2}>
       <Button bgColor={"transparent"} onClick={() =>  window.open(`https://x.com/the1aiagent`, '_blank')}>
-        <Image src={TweetImg}></Image>
+        <Image src={TweetImg} height={{ base: "20px", md: "30px" }}></Image>
       </Button>
       <Button bgColor={"#000"} onClick={() => window.open(`https://dexscreener.com/solana/FfQ99V4Z74397VZBxz2iPfnZMWGeuobdWXpTfcHjuYno`, '_blank')}>
-        <Image src={DexImg}></Image>
+        <Image src={DexImg} height={{ base: "20px", md: "30px" }}></Image>
       </Button>
       {/* <Box mr={4}>
         {!isLogined ? (

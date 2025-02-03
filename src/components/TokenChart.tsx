@@ -242,7 +242,7 @@ const TokenChart = ({
   initialData: { priceHistory: PriceHistory[]; tweets: Tweet[], tweetsRelation: any };
 }) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [followerRange, setFollowerRange] = useState<string[]>([]);
+  const [followerRange, setFollowerRange] = useState<string[]>(["10k-50k","50k+"]);
 
   const processedChartData = useMemo(() => {
     return initialData.priceHistory.map((item) => ({

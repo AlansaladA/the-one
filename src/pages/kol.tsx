@@ -124,7 +124,7 @@ export default function kol() {
       const _data =
         res.tweets.filter((v) => v.Following === kol)[0] ?? {};
 
-      const nodes = res.tweets;
+      const nodes = res.tweets.filter((v) => v.Following !== kol);
 
       const centerNode = {
         name: _data?.Following,

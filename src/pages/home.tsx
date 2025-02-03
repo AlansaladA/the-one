@@ -4,13 +4,11 @@ import { Input, Box, VStack, HStack, Text, Spinner, Flex, Image, Table, Button }
 import useDebounce from "@/hooks/useDebounce";
 import { shortenAddress } from "@/utils/formatter";
 import { TokenList } from "@/utils/types";
-// import Bg from "@/assets/bg.png"
 import Title from "@/assets/title2.svg"
 import Loading from "@/components/loading";
 import { Link } from "react-router"
 import { Avatar } from "@/components/ui/avatar";
 import HomeBg from "@/assets/bg7.png"
-// import HomeBg2 from "@/assets/bg1.png"
 import SolanaImg from "@/assets/solana.png"
 import {
   DialogHeader,
@@ -153,73 +151,103 @@ export default function Home() {
     <Flex w={"full"} h={"full"} >
       <Flex w="full" flexDirection={"column"} alignItems={"center"} >
         <Image mt={8} src={Title} ></Image>
-        <Text fontSize={"3xl"} color={"#fff"} mt={"-80px"} mb={50}>Supporting {kolsList.length.toLocaleString()} KOLs and {tokenList.length.toLocaleString()} tokens</Text>
-        <Flex mb={"70px"} position={"relative"} flexDirection={"column"} alignItems={"center"} w="full">
-          <Flex zIndex={999} minW={"900px"} position={"absolute"} borderRadius={30} bgColor={"#2c2b4a"} w="55%" flexDirection={"column"} alignItems={"center"}>
+        <Text textAlign={"center"} fontSize={{ base: "lg", md: "3xl" }} color={"#fff"} mt={{ base: "-50px", md: "-80px" }} mb={50}>Supporting {kolsList.length.toLocaleString()} KOLs and {tokenList.length.toLocaleString()} tokens</Text>
+        <Flex mb={{ base: "", md: "" }} position={"relative"} flexDirection={"column"} alignItems={"center"} w="full">
+          <Flex
+            zIndex={999}
+            position={"relative"}
+            borderRadius={30}
+            bgColor={"#2c2b4a"}
+            w={{ base: "90%", sm: "80%", md: "70%", lg: "55%" }}
+            minW={{ base: "auto", lg: "900px" }}
+            flexDirection={"column"}
+            alignItems={"center"}
+          >
             <Input
               value={searchText}
               onChange={handleInputChange}
               outline={"none"}
-
               _placeholder={{
-                color: "#8181E5", // Placeholder 的颜色
-                fontSize: "2xl",    // Placeholder 的字体大小
-              }} borderWidth="1px" borderColor="#7676E0" fontSize={"2xl"} textAlign={"center"} color={"#8181E5"} bgColor="#fff" borderRadius="full" h="70px" w="full" placeholder="Search KOL or Token"></Input>
+                color: "#8181E5",
+                fontSize: { base: "md", md: "2xl" },
+              }}
+              position="relative"
+              zIndex={1000}
+              borderWidth="1px"
+              borderColor="#7676E0"
+              fontSize={{ base: "md", md: "2xl" }} textAlign={"center"} color={"#8181E5"} bgColor="#fff" borderRadius="full" h={{ base: "50px", md: "70px" }} w="full" placeholder="Search KOL or Token"></Input>
 
             {searchText && (
-              <Flex h="300px" w="full" px={5} py={5}>
+              <Flex h="300px"
+                w="full"
+                px={5}
+                py={5}
+                position="absolute"
+                top="100%"
+                bgColor="#2c2b4a"
+                borderRadius="0 0 30px 30px"
+                marginTop="-30px"
+                zIndex={999}
+              >
                 {
                   loading ? (
                     <Loading></Loading>
-                  ) : <Flex overflowY={"auto"} flexDirection={"column"} gap={4} w="full">
-                    <Flex flexDirection={"column"} gap={3}>
-                      <Text color="whiteAlpha.500">Tokens</Text>
+                  ) : <Flex
+                    flexDirection={"column"}
+                    gap={4}
+                    w="full"
+                    pt={8}
+                  >
+                    <Flex  overflowY={"auto"}  w="full" flexDirection={"column"} gap={3}>
                       <Flex flexDirection={"column"} gap={3}>
-                        {filteredTokens.length > 0 ? (
-                          filteredTokens.map((item, index) => {
-                            return (
-                              <Link style={{ color: "inherit" }} to={`/token/${item.name}`} key={index}>
-                                <Flex alignItems={"center"} gap={4} cursor={"pointer"}>
-                                  <Avatar src={SolanaImg}></Avatar>
-                                  <Text fontWeight="bold" fontSize={"xl"}>{"$"+item.name}</Text>
-                                  <Text color="whiteAlpha.500" className="text-xs  opacity-2">{(item.address)}</Text>
-                                </Flex>
-                              </Link>
-                            )
-                          })
-                        ) : (
-                          <Flex alignItems={"center"} gap={4}>
-                            <Text fontSize={"xl"}>Oops! Your Token Seems To Be Hiding.</Text>
-                            {/* <Button borderRadius={"full"} onClick={() => { setOpenHow(true), setType("Token") }}>
+                        <Text color="whiteAlpha.500">Tokens</Text>
+                        <Flex flexDirection={"column"} gap={3}>
+                          {filteredTokens.length > 0 ? (
+                            filteredTokens.map((item, index) => {
+                              return (
+                                <Link style={{ color: "inherit" }} to={`/token/${item.name}`} key={index}>
+                                  <Flex alignItems={"center"} gap={4} cursor={"pointer"}>
+                                    <Avatar src={SolanaImg} size={{ base: "sm", md: "md" }}></Avatar>
+                                    <Text fontWeight="bold" fontSize={{ base: "md", md: "xl" }}>{"$" + item.name}</Text>
+                                    <Text color="whiteAlpha.500" fontSize={{ base: "sm", md: "md" }} className="text-xs  opacity-2">{(item.address)}</Text>
+                                  </Flex>
+                                </Link>
+                              )
+                            })
+                          ) : (
+                            <Flex alignItems={"center"} gap={4}>
+                              <Text fontSize={{ base: "md", md: "xl" }}>Oops! Your Token Seems To Be Hiding.</Text>
+                              {/* <Button borderRadius={"full"} onClick={() => { setOpenHow(true), setType("Token") }}>
                               <Text>Request Token</Text>
                             </Button> */}
-                          </Flex>
-                        )}
+                            </Flex>
+                          )}
+                        </Flex>
                       </Flex>
-                    </Flex>
-                    <Box w="full" h="1px" bg={"rgba(255,255,255,0.3)"}></Box>
-                    <Flex flexDirection={"column"} gap={3}>
-                      <Text color="whiteAlpha.500">Kol</Text>
-                      <Flex flexDirection={"column"} gap={2}>
-                        {filteredKols.length > 0 ? (
-                          filteredKols.map((item, index) => {
-                            return (
-                              <Link style={{ color: "inherit" }} to={`/detail/${item}`} key={index}>
-                                <Flex className="flex gap-2 items-center" cursor={"pointer"}>
-                                  {/* <Image src={"/token.svg"} width={28} height={28} alt=""></Image> */}
-                                  <Text fontSize={"xl"} fontWeight="bold">{item}</Text>
-                                </Flex>
-                              </Link>
-                            )
-                          })
-                        ) : (
-                          <Flex alignItems={"center"} gap={4}>
-                            <Text fontSize={"xl"}>No KOL Found In The1.</Text>
-                            {/* <Button borderRadius={"full"} onClick={() => { setOpenHow(true), setType("KOL") }}>
+                      <Box w="full" h="1px" bg={"rgba(255,255,255,0.3)"}></Box>
+                      <Flex flexDirection={"column"} gap={3}>
+                        <Text color="whiteAlpha.500">Kol</Text>
+                        <Flex flexDirection={"column"} gap={2}>
+                          {filteredKols.length > 0 ? (
+                            filteredKols.map((item, index) => {
+                              return (
+                                <Link style={{ color: "inherit" }} to={`/detail/${item}`} key={index}>
+                                  <Flex className="flex gap-2 items-center" cursor={"pointer"}>
+                                    {/* <Image src={"/token.svg"} width={28} height={28} alt=""></Image> */}
+                                    <Text fontSize={{ base: "md", md: "xl" }} fontWeight="bold">{item}</Text>
+                                  </Flex>
+                                </Link>
+                              )
+                            })
+                          ) : (
+                            <Flex alignItems={"center"} gap={4}>
+                              <Text fontSize={{ base: "md", md: "xl" }}>No KOL Found In The1.</Text>
+                              {/* <Button borderRadius={"full"} onClick={() => { setOpenHow(true), setType("KOL") }}>
                               <Text>Request KOL</Text>
                             </Button> */}
-                          </Flex>
-                        )}
+                            </Flex>
+                          )}
+                        </Flex>
                       </Flex>
                     </Flex>
                   </Flex>
@@ -228,60 +256,81 @@ export default function Home() {
             )}
           </Flex>
         </Flex>
-        {/* bgImage={`url(${HomeBg})`} backgroundPosition={"center"} backgroundSize={"cover"} */}
-        <Flex pt="120px" px={40} pb={10} minHeight={"550px"} h={"full"} w={"full"} bgImage={`url(${HomeBg})`} backgroundPosition={"center"} backgroundSize={"cover"}>
+        <Flex pt={{ base: "40px", md: "140px" }}  // 减少顶部间距
+          px={{ base: 4, md: 40 }}
+          pb={10}
+          minHeight={{ base: "100vh", md: "550px" }}
+          h={"full"}
+          w={"full"}
+          bgImage={`url(${HomeBg})`}
+          backgroundPosition={"top"}
+          backgroundRepeat={"no-repeat"}
+          backgroundSize={{ base: "contain", md: "cover" }}
+        >
           <Flex w="full" flexDirection={"column"}>
-            <Flex w="full" h={45} mb={5}>
-              <Box w={"35%"}>
-                <Text fontSize={"3xl"} fontWeight={"bold"}>Top KOLs</Text>
+            <Flex w="full" h={{ base: "4", md: "45" }} mb={5} flexDirection={{ base: "column", md: "row" }}>
+              <Box display={"flex"} alignItems={"center"} w={{ base: "100%", md: "35%" }} mb={{ base: 4, md: 0 }}>
+                <Text fontSize={{ base: "xl", md: "3xl" }} fontWeight={"bold"}>Top KOLs</Text>
+                <Text display={{ base: "xl", md: "none" }} fontSize={{ base: "xl", md: "3xl" }}>&nbsp;& Calling</Text>
               </Box>
-              <Flex w={"65%"} alignItems={"center"}>
-                <Text fontSize={"3xl"} mr={2}>Calling</Text>
-                <Text fontSize={"xl"}>{"(peak price increase after call)"}</Text>
+              <Flex w={{ base: "100%", md: "65%" }} alignItems={"center"} display={{ base: "none", md: "flex" }}>
+                <Text fontSize={{ base: "2xl", md: "3xl" }} mr={2}>Calling</Text>
+                <Flex bgColor={"rgba(129, 129, 229, 0.2)"} px={2} borderRadius={3}>
+                  <Text fontSize={{ base: "md", md: "lg" }}>peak price increase after call</Text>
+                </Flex>
               </Flex>
             </Flex>
-            <Flex flexDirection={"column"} overflowY={"auto"} gap={4} maxHeight={554}>
-              {
-                loadRank ? <Loading></Loading> :
-                  ranks.map((item, index) => {
-                    return <Flex w="full" key={index}>
-                      <Flex w={"35%"} alignItems={"center"} gap={8}>
-                        <Text fontSize={"xl"} w={"10%"}>#{index + 1}</Text>
-                          <Flex alignItems={"center"} gap={2} flex={1} >
-
-                            <Avatar onClick={()=>navigate(`/detail/${item.kol}`)} size={"xl"} src={item.profile_link} name={item.kol}></Avatar>
-                            <Flex flexDirection={"column"} >
-                              <Text fontSize={"xl"}>{item.profile_id}</Text>
-                              <Text onClick={()=> window.open(`https://x.com/${item.kol}`, '_blank')} cursor={"pointer"} color={"rgba(255,255,255,.4)"}>@{item.kol}</Text>
-                            </Flex>
-
-                          </Flex>
-                      </Flex>
-                      <Flex w={"65%"} alignItems={"flex-start"} gap={4}>
-                        <Flex alignItems={"center"} textWrap={"nowrap"}>
-                          <Text fontSize={"xl"}>{`${item.name_1} (`}</Text>
-                          <Text fontSize={"xl"} color={"green.400"}>+{item.value_1}%</Text>
-                          <Text fontSize={"xl"}>{"),"}</Text>
-                        </Flex>
-                        <Flex  alignItems={"center"} textWrap={"nowrap"}>
-                          <Text fontSize={"xl"}>{`${item.name_2} (`}</Text>
-                          <Text fontSize={"xl"} color={"green.400"}>+{item.value_2}%</Text>
-                          <Text fontSize={"xl"}>{"),"}</Text>
-                        </Flex>
-                        <Flex  alignItems={"center"} textWrap={"nowrap"}>
-                          <Text fontSize={"xl"}>{`${item.name_3} (`}</Text>
-                          <Text fontSize={"xl"} color={"green.400"}>+{item.value_3}%</Text>
-                          <Text fontSize={"xl"}>{"),"}</Text>
-                        </Flex>
-                        <Flex  alignItems={"center"} textWrap={"nowrap"}>
-                          <Text fontSize={"xl"}>{`${item.name_4} (`}</Text>
-                          <Text fontSize={"xl"} color={"green.400"}>+{item.value_4}%</Text>
-                          <Text fontSize={"xl"}>{")"}</Text>
+            <Flex flexDirection={"column"} overflowY={"auto"} gap={4} maxHeight={{ base: "auto", md: 554 }}>
+              {loadRank ? <Loading></Loading> :
+                ranks.map((item, index) => (
+                  <Flex w="full"
+                    key={index}
+                    _hover={{ backgroundColor: "rgba(129, 129, 229, 0.2)" }}
+                    flexDirection={{ base: "column", md: "row" }}
+                    p={{ base: 4, md: 0 }}
+                    gap={{ base: 4, md: 0 }}>
+                    <Flex w={{ base: "100%", md: "35%" }} alignItems={"center"} gap={8}>
+                      <Text fontSize={{ base: "lg", md: "xl" }} w={{ base: "auto", md: "10%" }}>#{index + 1}</Text>
+                      <Flex alignItems={"center"} gap={2} flex={1}>
+                        <Avatar
+                          onClick={() => navigate(`/detail/${item.kol}`)}
+                          size={{ base: "lg", md: "xl" }}
+                          src={item.profile_link}
+                          name={item.kol}
+                        />
+                        <Flex flexDirection={"column"}>
+                          <Text fontSize={{ base: "lg", md: "xl" }}>{item.profile_id}</Text>
+                          <Text onClick={() => window.open(`https://x.com/${item.kol}`, '_blank')}
+                            cursor={"pointer"}
+                            color={"rgba(255,255,255,.4)"}
+                          >@{item.kol}</Text>
                         </Flex>
                       </Flex>
                     </Flex>
-                  })
-              }
+                    <Flex w={{ base: "100%", md: "65%" }}
+                      alignItems={"flex-start"}
+                      gap={4}
+                      flexWrap={{ base: "wrap", md: "wrap" }}>
+                      {/* Token cards */}
+                      {[1, 2, 3, 4].map(num => (
+                        <Flex key={num}
+                          gap={2}
+                          alignItems={"center"}
+                          textWrap={"nowrap"}
+                          bgColor={"rgba(129, 129, 229, 0.2)"}
+                          px={2}
+                          py={1}
+                          borderRadius={3}
+                          flex={{ base: "0 0 auto", md: "0 0 auto" }}> {/* 替换原来的 w 属性 */}
+                          <Text fontSize={{ base: "md", md: "xl" }}>{`$${item[`name_${num}`]}`}</Text>
+                          <Box bgColor={"#6EFFBB"} px={2} borderRadius={3}>
+                            <Text fontSize={{ base: "md", md: "xl" }} color={"#000"}>+{item[`value_${num}`]}%</Text>
+                          </Box>
+                        </Flex>
+                      ))}
+                    </Flex>
+                  </Flex>
+                ))}
             </Flex>
           </Flex>
         </Flex>
@@ -291,6 +340,7 @@ export default function Home() {
     </Flex>
   );
 }
+
 
 
 function RequestModal({ openHow, setOpenHow, type }: {

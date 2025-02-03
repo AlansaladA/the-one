@@ -18,7 +18,7 @@ import { Link } from "react-router";
 import { Tweet, PriceHistory } from "@/utils/types";
 import { Slider } from "@/components/ui/slider"
 
-export default function Follow({ priceHistory, tweets, tweetsRelation, range }: {
+function Follow({ priceHistory, tweets, tweetsRelation, range }: {
   priceHistory: PriceHistory[]
   tweets: Tweet[]
   tweetsRelation: any
@@ -339,3 +339,5 @@ const CustomDotRelation = ({
   );
 };
 const MemoCustomDotRelation = memo(CustomDotRelation)
+
+export default memo(Follow)
