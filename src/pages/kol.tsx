@@ -324,15 +324,15 @@ export default function kol() {
               gap={3} 
               overflowX="auto" 
               pb={5}
-              sx={{
-                '::-webkit-scrollbar': {
-                  height: '4px',
-                },
-                '::-webkit-scrollbar-thumb': {
-                  backgroundColor: 'rgba(255,255,255,0.2)',
-                  borderRadius: '2px',
-                },
-              }}
+              // sx={{
+              //   '::-webkit-scrollbar': {
+              //     height: '4px',
+              //   },
+              //   '::-webkit-scrollbar-thumb': {
+              //     backgroundColor: 'rgba(255,255,255,0.2)',
+              //     borderRadius: '2px',
+              //   },
+              // }}
             >
               {followTokens?.map((token: any, index: number) => (
                 <Link style={{ color: "inherit", flexShrink: 0 }} to={`/token/${token.pair_name_1}`} key={index}>
