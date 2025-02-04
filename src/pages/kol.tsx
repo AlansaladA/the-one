@@ -172,6 +172,23 @@ export default function kol() {
 
   useEffect(() => {
     setOption({
+      toolbox: {
+        show: true,
+        feature: {
+          dataZoom: {
+            show: true
+          },
+          restore: {
+            show: true
+          },
+          saveAsImage: {
+            show: true
+          }
+        },
+        iconStyle: {
+          borderColor: '#fff'
+        }
+      },
       series: [
         {
           type: "graph",
@@ -179,6 +196,11 @@ export default function kol() {
           force: {
             repulsion: 50, // 节点之间的斥力
             edgeLength: [50, 150], // 边的长度范围
+          },
+          roam: true, // 启用缩放和平移
+          scaleLimit: {
+            min: 0.4, // 最小缩放比例
+            max: 2    // 最大缩放比例
           },
           data: graphData.data,
           links: graphData.links,
@@ -262,124 +284,154 @@ export default function kol() {
       [e.dataKey]: !prev[e.dataKey], // 切换折线的隐藏状态
     }));
   };
-  return <VStack align="stretch" mt={10} px={40}>
-  {/* Profile Section */}
-  <Flex justify="space-between" align="center" mb={4}>
-    <Flex align="center" gap={2}>
-      {KolDetail?.profile_image_url && (
-        <Avatar size="lg" src={KolDetail?.profile_image_url} />
-      )}
-      <Box>
-        <Flex gap={2}>
-          <Text fontWeight="bold">{KolDetail?.user}</Text>
-        </Flex>
-        <Text fontSize="sm">@{kol}</Text>
-      </Box>
-    </Flex>
-  </Flex>
-
-  <Box w="full" h="1px" bgColor="rgba(255,255,255,.2)"></Box>
-
-  {/* Main Content */}
-  <Flex gap={4} height="750px" mt={2}>
-    {/* Left Section */}
-    <Flex direction="column" gap={4} flex="1" maxWidth="60%">
-      {/* Token Card */}
-      <Card.Root bg="#1f1b23E1" variant="elevated">
-        <Card.Body pb={2}>
-          <Text fontWeight="bold" color="#fff">Token</Text>
-          <Flex gap={3} overflowX={"auto"} pb={5}>
-            {followTokens?.map((token: any, index: number) => (
-              <Link style={{ color: "inherit" }} to={`/token/${token.pair_name_1}`} key={index}>
-                <Button bgColor="#3F3F46">
-                  <Text color={"#fff"}>{token.pair_name_1}</Text>
-                </Button>
-             </Link>
-            ))}
+  return <VStack align="stretch" mt={4} px={{ base: 4, md: 40 }}>
+    {/* Profile Section */}
+    <Flex justify="space-between" align="center" mb={4}>
+      <Flex align="center" gap={2}>
+        {KolDetail?.profile_image_url && (
+          <Avatar size={{ base: "md", md: "lg" }} src={KolDetail?.profile_image_url} />
+        )}
+        <Box>
+          <Flex gap={2}>
+            <Text fontWeight="bold">{KolDetail?.user}</Text>
           </Flex>
-        </Card.Body>
-      </Card.Root>
+          <Text fontSize="sm">@{kol}</Text>
+        </Box>
+      </Flex>
+    </Flex>
 
-      {/* Price Change Card */}
-      <Card.Root bg="#1f1b23E1" flex="1" variant="elevated">
+    <Box w="full" h="1px" bgColor="rgba(255,255,255,.2)" />
+
+    {/* Main Content */}
+    <Flex 
+      direction={{ base: "column", md: "row" }} 
+      gap={4} 
+      height={{ base: "auto", md: "750px" }} 
+      mt={2}
+    >
+      {/* Left Section */}
+      <Flex 
+        direction="column" 
+        gap={4} 
+        flex="1"
+        maxWidth={{ base: "100%", md: "60%" }}
+      >
+        {/* Token Card */}
+        <Card.Root bg="#1f1b23E1" variant="elevated">
+          <Card.Body pb={2}>
+            <Text fontWeight="bold" color="#fff">Token</Text>
+            <Flex 
+              gap={3} 
+              overflowX="auto" 
+              pb={5}
+              sx={{
+                '::-webkit-scrollbar': {
+                  height: '4px',
+                },
+                '::-webkit-scrollbar-thumb': {
+                  backgroundColor: 'rgba(255,255,255,0.2)',
+                  borderRadius: '2px',
+                },
+              }}
+            >
+              {followTokens?.map((token: any, index: number) => (
+                <Link style={{ color: "inherit", flexShrink: 0 }} to={`/token/${token.pair_name_1}`} key={index}>
+                  <Button bgColor="#3F3F46" size={{ base: "sm", md: "md" }}>
+                    <Text color="#fff">{token.pair_name_1}</Text>
+                  </Button>
+                </Link>
+              ))}
+            </Flex>
+          </Card.Body>
+        </Card.Root>
+
+        {/* Price Change Card */}
+        <Card.Root bg="#1f1b23E1" flex="1" variant="elevated">
+          <Card.Body p={4}>
+            <Text fontWeight="bold" color="#fff">Price Change</Text>
+            <Box height={{ base: "300px", md: "100%" }}>
+              {loading ? (
+                <Loading />
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart
+                    data={chartData}
+                    margin={{ top: 15, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <Legend onClick={handleLegendClick}/>
+                    {Xlist?.map((v: string, index: number) => (
+                      <Line
+                        key={index}
+                        type="monotone"
+                        dataKey={v}
+                        stroke={getColorByIndex(index)}
+                        dot={false}
+                        hide={hiddenLines[v]}
+                      />
+                    ))}
+                    <XAxis
+                      stroke="#8c8c8c"
+                      tick={{ fill: "#8c8c8c" }}
+                      tickLine={false}
+                      interval={6}
+                      tickFormatter={(value) => `${value + 1}h`}
+                    />
+                    <YAxis
+                      stroke="#8c8c8c"
+                      tick={{ fill: "#8c8c8c" }}
+                      tickLine={false}
+                      tickFormatter={(value) => `${value}%`}
+                      domain={[-100]}
+                    />
+                    <Tooltip content={<CustomTooltip />} />
+                  </LineChart>
+                </ResponsiveContainer>
+              )}
+            </Box>
+          </Card.Body>
+        </Card.Root>
+      </Flex>
+
+      {/* Right Section */}
+      <Card.Root 
+        bg="#1f1b23E1" 
+        flex="1" 
+        variant="elevated"
+        minHeight={{ base: "400px", md: "auto" }}
+      >
         <Card.Body p={4}>
-          <Text fontWeight="bold" color="#fff">Price Change</Text>
-          {loading ? (
-            <Loading />
-          ) : (
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart
-                data={chartData}
-                margin={{ top: 15, right: 30, left: 20, bottom: 5 }}
-              >
-                <Legend onClick={handleLegendClick}/>
-                {Xlist?.map((v: string, index: number) => (
-                  <Line
-                    key={index}
-                    type="monotone"
-                    dataKey={v}
-                    stroke={getColorByIndex(index)}
-                    dot={false}
-                    hide={hiddenLines[v]}
-                  />
-                ))}
-                <XAxis
-                  stroke="#8c8c8c"
-                  tick={{ fill: "#8c8c8c" }}
-                  tickLine={false}
-                  interval={6}
-                  tickFormatter={(value) => `${value + 1}h`}
-                />
-                <YAxis
-                  stroke="#8c8c8c"
-                  tick={{ fill: "#8c8c8c" }}
-                  tickLine={false}
-                  tickFormatter={(value) => `${value}%`}
-                  domain={[-100]}
-                />
-                <Tooltip content={<CustomTooltip />} />
-              </LineChart>
-            </ResponsiveContainer>
-          )}
+          <Flex justify="space-between" mb={2}>
+            <Box>
+              <Text fontWeight="bold" color="#fff">Key Following</Text>
+              <Text fontSize="xl" color="#8181E5">
+                {followerList?.[0].total_count}
+              </Text>
+            </Box>
+            <Box>
+              <Text fontWeight="bold" color="#fff">Key KOL Following</Text>
+              <Text fontSize="xl" color="#8181E5">
+                {followerList?.[0].common_count}
+              </Text>
+            </Box>
+          </Flex>
+
+          <Box w="full" h="1px" bgColor="rgba(255,255,255,.2)" />
+
+          <Box height={{ base: "350px", md: "100%" }}>
+            {loadship ? (
+              <Loading />
+            ) : (
+              <ReactECharts
+                ref={chartRef}
+                option={option}
+                style={{ height: "100%", width: "100%" }}
+              />
+            )}
+          </Box>
         </Card.Body>
       </Card.Root>
     </Flex>
-
-    {/* Right Section */}
-    <Card.Root bg="#1f1b23E1" flex="1" variant="elevated">
-      <Card.Body p={4}>
-        <Flex justify="space-between" mb={2}>
-          <Box>
-            <Text fontWeight="bold" color="#fff">Key Following</Text>
-            <Text fontSize="xl"color="#8181E5">
-              {followerList?.[0].total_count}
-            </Text>
-          </Box>
-          <Box>
-            <Text fontWeight="bold" color="#fff">Key KOL Following</Text>
-            <Text fontSize="xl" color="#8181E5">
-              {followerList?.[0].common_count}
-            </Text>
-          </Box>
-        </Flex>
-
-        <Box w="full" h="1px" bgColor="rgba(255,255,255,.2)"></Box>
-
-        <Flex justify="center" align="center" flex="1" width="100%">
-          {loadship ? (
-            <Loading />
-          ) : (
-            <ReactECharts
-              ref={chartRef}
-              option={option}
-              style={{ height: "100%", width: "100%" }}
-            />
-          )}
-        </Flex>
-      </Card.Body>
-    </Card.Root>
-  </Flex>
-</VStack>
+  </VStack>
 }
 
 const CustomTooltip = ({ payload, label }: any) => {
