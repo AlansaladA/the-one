@@ -6,7 +6,7 @@ import { Tweet, PriceHistory } from "@/utils/types";
 import { Box, Heading, Spinner, Flex, Container } from "@chakra-ui/react";
 import TokenEChart from "@/components/TokenEChart";
 
-import TokenChartVisx from '@/components/TokenChartVisx';
+// import TokenChartVisx from '@/components/TokenChartVisx';
 type Params = {
   ticker: string;
 };

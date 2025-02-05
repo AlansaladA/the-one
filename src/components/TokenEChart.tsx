@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, memo, Fragment } from "react";
+import { useState, useMemo, useEffect, memo, Fragment, useRef } from "react";
 import {
   AreaChart,
   Area,
@@ -56,193 +56,6 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   }
   return null;
 };
-
-interface CustomDotProps {
-  cx: number;
-  cy: number;
-  payload?: any;
-  tweets: Tweet[];
-  price: number;
-  chartData: Array<{
-    time: Date;
-    price: number;
-  }>;
-}
-
-const CustomDot = memo(({
-  cx,
-  cy,
-  payload,
-  tweets,
-  price,
-  chartData,
-}: CustomDotProps) => {
-  const navigate = useNavigate()
-  if (!tweets?.length) return null;
-
-
-  const calculateImpact = (tweet: Tweet, currentPrice: number) => {
-    const tweetTime = new Date(tweet.created_at).getTime();
-    const laterPrices = chartData.filter(
-      (d: any) => new Date(d.time).getTime() > tweetTime
-    );
-
-    if (laterPrices.length === 0) return null;
-
-    const highestPrice = Math.max(...laterPrices.map((d: any) => d.price));
-    const priceChange = ((highestPrice - currentPrice) / currentPrice) * 100;
-
-    return {
-      highestPrice,
-      priceChange,
-    };
-  };
-
-  return (
-    <foreignObject
-      x={cx - 12}
-      y={cy - 12}
-      width={24}
-      height={24}
-      style={{ overflow: "visible" }}
-    >
-      <Tooltip closeOnScroll={false} interactive contentProps={
-        {
-          p: 0, bg: 'transparent', maxWidth: 'none', // 让宽度自动适配内容
-          width: '500px'
-        }
-      }
-        content={
-          <Box overflowY={"auto"} maxHeight={"300px"} p={4} display={"flex"} flexDirection={"column"} gap={4} bg="#2D2D4FF2" borderRadius="lg" color="gray.300" >
-            {tweets.map((tweet: Tweet, i) => {
-              const impact = calculateImpact(tweet, price);
-              return (
-                <Box
-                  key={i}
-                  borderBottomWidth={i !== tweets.length - 1 ? "1px" : "none"}
-                  borderColor="#2D2D4F"
-                // borderBottomWidth="1px"
-                >
-                  <Flex justify="space-between" align="center" gap={3}>
-                    <Flex align="center" gap={3}>
-                      <Avatar
-                        src={tweet.profile_image_url}
-                        size="sm"
-                        cursor="pointer"
-                        _hover={{ opacity: 0.8 }}
-                      />
-                      <Flex alignItems={"flex-start"} flexDirection={"column"}>
-                        <Text fontSize={"sm"} fontWeight="bold" color="white" _hover={{ textDecor: "underline" }}>
-                          {tweet.user}
-                        </Text>
-                        <Text fontSize="sm" color="gray.400">
-                          @{tweet.screen_name}·{tweet.followers_count.toLocaleString()}
-                        </Text>
-                        <Text color="gray.400">followers</Text>
-                      </Flex>
-                    </Flex>
-                    <Flex gap={2}>
-                      <Button onClick={() => { navigate(`/detail/${tweet.screen_name}`) }} borderRadius={"full"} size="sm" bg="gray.500" _hover={{ bg: "gray.700" }} color="white">
-                        <Text fontWeight={"bold"}>Profile</Text>
-                      </Button>
-                      <Button
-                        borderRadius={"full"}
-                        size="sm"
-                        // leftIcon={<FaTwitter />}
-                        bg="blue.500"
-                        color="white"
-                        onClick={() => window.open(`https://twitter.com/intent/follow?screen_name=${tweet.screen_name}`, '_blank')}
-                      >
-                        <FaTwitter className="text-xs" />
-                        <Text fontWeight={"bold"}>Follow</Text>
-                      </Button>
-                    </Flex>
-                  </Flex>
-
-                  <Box mt={2} spaceY={1}>
-                    <Flex justify="space-between" fontSize="sm">
-                      <Text color="gray.400">Price at Post</Text>
-                      <Text color={"white"} fontFamily="monospace" fontWeight={"bold"}>${price.toFixed(4)}</Text>
-                    </Flex>
-                    {impact && (
-                      <>
-                        <Flex justify="space-between" fontSize="sm">
-                          <Text color="gray.400">Highest After</Text>
-                          <Text color={"white"} fontWeight={"bold"} fontFamily="monospace">${impact.highestPrice.toFixed(4)}</Text>
-                        </Flex>
-                        <Flex justify="space-between" fontSize="sm">
-                          <Text color="gray.400">Return After Tweet</Text>
-                          <Text
-                            fontWeight={"bold"}
-                            fontFamily="monospace"
-                            color={impact.priceChange >= 0 ? "green.500" : "red.500"}
-                          >
-                            {impact.priceChange >= 0 ? "+" : ""}
-                            {impact.priceChange.toFixed(2)}%
-                          </Text>
-                        </Flex>
-                      </>
-                    )}
-                  </Box>
-
-                  <Text mt={2} fontSize="sm" color="white">
-                    {tweet.text}
-                  </Text>
-                </Box>
-              );
-            })}
-          </Box>
-        }
-      >
-        <Box position={"relative"} display={"flex"} alignItems={"center"} cursor={"pointer"}>
-          {tweets.length > 1 ? (
-            <AvatarGroup stacking="last-on-top" borderless>
-              {tweets.slice(0, 7).map((tweet: Tweet, i: number) => (
-                <Link
-                  style={{ color: "inherit" }}
-                  to={`/detail/${tweet.screen_name}`}
-                  key={i}
-                >
-                  <Avatar w="15px" h="15px" src={tweet.profile_image_url}></Avatar>
-                </Link>
-              ))}
-              {tweets.length > 7 && (
-                // <Avatar
-                //   fallback={`+${tweets.length - 7}`}
-                //   w="25px"
-                //   h="25px"
-                //   fontSize={"xs"}
-                // />
-                <Flex
-                  w="25px"
-                  h="25px"
-                  borderRadius={"full"}
-                  bgColor={"#3F3F46"}
-                  justifyContent={"center"}
-                  alignItems={"center"}
-                >
-                  <Text fontSize="xs">{"+" + (tweets.length - 7)}</Text>
-                </Flex>
-              )}
-            </AvatarGroup>
-          ) : (
-            <Link style={{ color: "inherit" }} to={`/detail/${tweets[0].screen_name}`}>
-              <Avatar w="15px" h="15px" src={tweets[0].profile_image_url}></Avatar>
-            </Link>
-          )
-          }
-        </Box>
-      </Tooltip >
-    </foreignObject >
-  );
-}, (prevProps, nextProps) => {
-  // 自定义比较函数，只在必要时重新渲染
-  return prevProps.cx === nextProps.cx &&
-    prevProps.cy === nextProps.cy &&
-    prevProps.price === nextProps.price;
-});
-
-
 
 export default function TokenEChart({
   initialData,
@@ -338,7 +151,8 @@ export default function TokenEChart({
         setRange([firstTweetIndex, lastTweetIndex + 1]);
       }
     }
-  }, [tweetMarkers, processedChartData]);
+  }, [tweetMarkers, processedChartData])
+  
   const [brushRange, setBrushRange] = useState<[number, number]>([0, 10]);
 
   useEffect(() => {
@@ -346,8 +160,12 @@ export default function TokenEChart({
   }, [range]);
 
   const fillFun = () => {
-    setRange([0, initialData.priceHistory.length - 1])
+    // 更新 range 为完整数据范围
+    setRange([0, initialData.priceHistory.length - 1]);
   }
+
+  // 添加 echartRef
+  const echartRef = useRef(null);
 
   // 1. 添加时间窗口过滤，只显示当前可见区域的 markers
   const visibleTweetMarkers = useMemo(() => {
@@ -550,7 +368,9 @@ export default function TokenEChart({
         },
         splitLine: {
           show: false
-        }
+        },
+        min: processedChartData[range[0]]?.time,
+        max: processedChartData[range[1]]?.time
       },
       yAxis: {
         type: 'value',
@@ -743,16 +563,17 @@ export default function TokenEChart({
           <Loading />
         ) : (
           <ReactECharts
+            ref={echartRef}
             option={getChartOption()}
             style={{ height: '100%' }}
             onEvents={{
-              // dataZoom: (params: any) => {
-              //   const newRange = [
-              //     Math.floor(params.start * processedChartData.length / 100),
-              //     Math.ceil(params.end * processedChartData.length / 100)
-              //   ];
-              //   setRange(newRange as [number, number]);
-              // }
+              dataZoom: (params: any) => {
+                const newRange = [
+                  Math.floor(params.start * processedChartData.length / 100),
+                  Math.ceil(params.end * processedChartData.length / 100)
+                ];
+                setRange(newRange as [number, number]);
+              }
             }}
           />
         )}
