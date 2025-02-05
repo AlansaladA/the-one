@@ -190,7 +190,6 @@ export default function Home() {
               borderWidth="1px"
               borderColor="#7676E0"
               fontSize={{ base: "md", md: "2xl" }} textAlign={"center"} color={"#8181E5"} bgColor="#fff" borderRadius="full" h={{ base: "50px", md: "70px" }} w="full" placeholder="Search KOL or Token"></Input>
-
             {searchText && (
               <Flex h="300px"
                 w="full"
