@@ -1,5 +1,5 @@
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
-import { Graph } from '@visx/network';
+// import { Graph } from '@visx/network';
 import { PriceHistory, Tweet } from '@/utils/types';
 import { Avatar, } from "@/components/ui/avatar"
 import { Link, useNavigate } from "react-router";
@@ -204,7 +204,7 @@ export default function Relation({ data, relation, tweets, range }: {
     <Box ref={ref} width={'full'} height={'full'} overflow={'hidden'}>
       <svg width={width} height={height}>
         <rect width={width} height={height} rx={14} fill='transparent' />
-        <Graph<CustomLink, CustomNode>
+        {/* <Graph<CustomLink, CustomNode>
           graph={graph}
           top={20}
           left={100}
@@ -220,7 +220,7 @@ export default function Relation({ data, relation, tweets, range }: {
               opacity={0.5}
             />
           )}
-        />
+        /> */}
       </svg>
     </Box>
   );
