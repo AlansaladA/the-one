@@ -768,5 +768,3 @@ export default function TokenEChart({
     </Box>
   );
 };
-
-// export default TokenEChart;

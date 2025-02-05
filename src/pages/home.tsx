@@ -332,6 +332,8 @@ export default function Home() {
                       flexWrap={{ base: "wrap", md: "wrap" }}>
                       {[1, 2, 3, 4].map(num => (
                         <Flex key={num}
+                          cursor={"pointer"}
+                          onClick={() => navigate(`/token/${item[`name_${num}`]}`)}
                           gap={2}
                           alignItems={"center"}
                           textWrap={"nowrap"}
