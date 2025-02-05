@@ -3,7 +3,8 @@ import TokenChart from "@/components/TokenChart";
 import { getTweetOne, getTickerOne, getRelation } from "@/api";
 import { useParams } from "react-router";
 import { Tweet, PriceHistory } from "@/utils/types";
-import { Heading, Spinner, Flex, Container } from "@chakra-ui/react";
+import { Box, Heading, Spinner, Flex, Container } from "@chakra-ui/react";
+import TokenEChart from "@/components/TokenEChart";
 
 import TokenChartVisx from '@/components/TokenChartVisx';
 type Params = {
@@ -72,8 +73,8 @@ export default function Ticker() {
           </Flex>
         }
       >
-        <TokenChart initialData={data} />
-        {/* <TokenChartVisx initialData={data} /> */}
+        {/* <TokenChart initialData={data} /> */}
+        <TokenEChart initialData={data} />
       </Suspense>
     </Container>
   );

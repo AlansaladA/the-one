@@ -250,7 +250,8 @@ const TokenChart = ({
   };
 }) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [followerRange, setFollowerRange] = useState<string[]>(["10k-50k", "50k+"]);
+  const [followerRange, setFollowerRange] = useState<string[]>(["0-5k","5k-10k","10k-50k","50k+"]);
+
   const processedChartData = useMemo(() => {
     return initialData.priceHistory.map((item) => ({
       time: new Date(item.download_time),
@@ -453,11 +454,12 @@ const TokenChart = ({
         <Loading></Loading>
       ) : <Relation range={range} data={initialData.priceHistory} tweets={initialData.tweets} relation={initialData.tweetsRelation[0]} />}
 
+      {/* <Follow
       {/* {isLoading ? (
         <Loading></Loading>
       ) : <Follow
         range={range}
-        priceHistory={initialData.priceHistory} tweets={initialData.tweets} tweetsRelation={initialData.tweetsRelation}></Follow>} */}
+        priceHistory={initialData.priceHistory} tweets={initialData.tweets} tweetsRelation={initialData.tweetsRelation}></Follow>} */} */}
     </Box>
   );
 };

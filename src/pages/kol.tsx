@@ -324,6 +324,7 @@ export default function kol() {
               gap={3} 
               overflowX="auto" 
               pb={5}
+
               // sx={{
               //   '::-webkit-scrollbar': {
               //     height: '4px',

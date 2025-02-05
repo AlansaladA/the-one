@@ -51,10 +51,12 @@ export const getTweetOne = async (tickerName: string) => {
       firestorage_image_url: string | null
     }>
   }>({
-    url: `/get-ticker-tweet?ticker_name=${tickerName}`,
+    url: `/get-ticker-tweet-v2?ticker_name=${tickerName}`,
+    // url: `/get-ticker-tweet?ticker_name=${tickerName}`,
     method: "get",
   })
 }
+
 
 export const getKolOne = async (kolName: string) => {
   return await request({

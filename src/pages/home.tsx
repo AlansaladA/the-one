@@ -330,7 +330,6 @@ export default function Home() {
                       alignItems={"flex-start"}
                       gap={4}
                       flexWrap={{ base: "wrap", md: "wrap" }}>
-                      {/* Token cards */}
                       {[1, 2, 3, 4].map(num => (
                         <Flex key={num}
                           gap={2}
