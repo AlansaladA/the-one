@@ -92,11 +92,7 @@ export default function Home() {
 
         setKolsList(kols.tickers);
 
-        const uniqueTokens = Array.from(
-          new Map(
-            tokens.tickers.map(([name, address, num]) => [address, { name, address, num }])
-          ).values()
-        );
+        const uniqueTokens = tokens.tickers.map(([name, address, num]) => ({ name, address, num }));
 
         setTokenList(uniqueTokens);
         if (searchText) {
@@ -109,6 +105,24 @@ export default function Home() {
       fetchApi();
     }
   }, [searchText]);
+
+  useEffect(() => {
+    const updateCache = async () => {
+      try {
+        const [kols, ticks] = await Promise.all([getKols(), getTickers()]);
+        const filterList = ticks.tickers.map(([name, address, num]) => ({ name, address, num }))
+
+        localStorage.setItem("kolsList", JSON.stringify(kols.tickers));
+        localStorage.setItem("tokenList", JSON.stringify(filterList));
+      } catch (error) {
+        console.error('缓存更新失败:', error);
+      }
+    };
+    updateCache();
+    const interval = setInterval(updateCache, 30 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [])
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchText(e.target.value);
@@ -198,7 +212,7 @@ export default function Home() {
                     w="full"
                     pt={8}
                   >
-                    <Flex  overflowY={"auto"}  w="full" flexDirection={"column"} gap={3}>
+                    <Flex overflowY={"auto"} w="full" flexDirection={"column"} gap={3}>
                       <Flex flexDirection={"column"} gap={3}>
                         <Text color="whiteAlpha.500">Tokens</Text>
                         <Flex flexDirection={"column"} gap={3}>
@@ -268,8 +282,8 @@ export default function Home() {
           backgroundSize={{ base: "contain", md: "cover" }}
           justifyContent="center"
         >
-          <Flex 
-            w="full" 
+          <Flex
+            w="full"
             flexDirection={"column"}
             maxW="1800px"
           >

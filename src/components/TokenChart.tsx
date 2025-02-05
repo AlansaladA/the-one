@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, memo, Fragment } from "react";
+import { useState, useMemo, useEffect, memo, } from "react";
 import {
   AreaChart,
   Area,
@@ -13,13 +13,12 @@ import {
   Box,
   Flex,
   Text,
-  Spinner,
   // Button,
   VStack,
   HStack
 } from "@chakra-ui/react";
 import { Tooltip } from "@/components/ui/tooltip";
-import { useParams, useNavigate } from 'react-router'
+import { useNavigate } from 'react-router'
 import { Tweet, PriceHistory } from "@/utils/types";
 import { Avatar, AvatarGroup } from "@/components/ui/avatar"
 import Loading from "./loading";
@@ -123,7 +122,7 @@ const CustomDot = ({
                   <Flex justify="space-between" align="center" gap={3}>
                     <Flex align="center" gap={3}>
                       <Avatar
-                        src={tweet.profile_image_url}
+                        // src={tweet.profile_image_url}
                         size="sm"
                         cursor="pointer"
                         _hover={{ opacity: 0.8 }}
@@ -200,7 +199,9 @@ const CustomDot = ({
                   to={`/detail/${tweet.screen_name}`}
                   key={i}
                 >
-                  <Avatar w="15px" h="15px" src={tweet.profile_image_url}></Avatar>
+                  <Avatar w="15px" h="15px"
+                  // src={tweet.profile_image_url}
+                  />
                 </Link>
               ))}
               {tweets.length > 7 && (
@@ -224,7 +225,9 @@ const CustomDot = ({
             </AvatarGroup>
           ) : (
             <Link style={{ color: "inherit" }} to={`/detail/${tweets[0].screen_name}`}>
-              <Avatar w="15px" h="15px" src={tweets[0].profile_image_url}></Avatar>
+              <Avatar w="15px" h="15px"
+              // src={tweets[0].profile_image_url}
+              />
             </Link>
           )
           }
@@ -239,17 +242,22 @@ const MemoCustomDot = memo(CustomDot)
 const TokenChart = ({
   initialData,
 }: {
-  initialData: { priceHistory: PriceHistory[]; tweets: Tweet[], tweetsRelation: any };
+  initialData: {
+    priceHistory: PriceHistory[]; tweets: Tweet[], tweetsRelation: {
+      data: Record<string, string[]>;
+      position: string;
+    }[];
+  };
 }) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [followerRange, setFollowerRange] = useState<string[]>(["10k-50k","50k+"]);
-
+  const [followerRange, setFollowerRange] = useState<string[]>(["10k-50k", "50k+"]);
   const processedChartData = useMemo(() => {
     return initialData.priceHistory.map((item) => ({
       time: new Date(item.download_time),
       price: parseFloat(item.close),
     }));
   }, [initialData.priceHistory]);
+  const [range, setRange] = useState<[number, number]>([0, processedChartData.length - 1])
 
   const getFollowerRange = (followersCount: number): string => {
     if (followersCount < 5000) return "0-5k";
@@ -313,33 +321,30 @@ const TokenChart = ({
       hour12: false,
     });
   }
+  const defaultRange = useMemo(() => {
+    // 先创建一个时间戳到索引的映射
+    const timeIndexMap = Object.fromEntries(
+      processedChartData.map((data, index) => [data.time.getTime(), index])
+    );
 
-  const [range, setRange] = useState<[number, number]>([0, initialData.priceHistory.length - 1])
+    // 找出所有推文对应的索引
+    const tweetIndices = tweetMarkers
+      .map(marker => timeIndexMap[marker.time.getTime()])
+      .filter((index): index is number => index !== undefined)
+      .sort((a, b) => a - b);
 
-  useEffect(() => {
-    if (tweetMarkers.length > 0) {
-      const firstTweetIndex = processedChartData.findIndex(
-        (data) => tweetMarkers.some((marker) => marker.time.getTime() === data.time.getTime())
-      );
-      const lastTweetIndex = processedChartData.findLastIndex(
-        (data) => tweetMarkers.some((marker) => marker.time.getTime() === data.time.getTime())
-      );
+    if (tweetIndices.length === 0) return [0, 10];
 
-      if (firstTweetIndex !== -1 && lastTweetIndex !== -1) {
-        setRange([firstTweetIndex, lastTweetIndex + 1]);
-      }
-    }
+    return [tweetIndices[0], tweetIndices[tweetIndices.length - 1] + 1];
   }, [tweetMarkers, processedChartData]);
-  const [brushRange, setBrushRange] = useState<[number, number]>([0, 10]);
 
-  useEffect(() => {
-    setBrushRange(range); // 确保 Brush 状态和 range 同步
-  }, [range]);
-
-  const fillFun = () =>{
-    setRange([0, initialData.priceHistory.length - 1])
+  const fillFun = () => {
+    setRange([0, processedChartData.length - 1])
   }
 
+  useEffect(() => {
+    setRange([0, processedChartData.length - 1])
+  }, [processedChartData])
   return (
     <Box mb={8}>
       <Flex gap={4} mb={4} justifyContent={"space-between"}>
@@ -370,7 +375,7 @@ const TokenChart = ({
         </VStack>
         <Button onClick={fillFun}>filled</Button>
       </Flex>
-      <Box position="relative" height="600px">
+      {/* <Box position="relative" height="600px">
         {isLoading ? (
           <Loading></Loading>
         ) : <ResponsiveContainer width="100%" height="100%">
@@ -418,13 +423,15 @@ const TokenChart = ({
               stroke="#8884d8"
               fill="#1f1f1f"
               tickFormatter={formatTime}
-              startIndex={brushRange[0]}
-              endIndex={brushRange[1]}
+              // startIndex={defaultRange[0]}
+              // endIndex={defaultRange[1]}
               onChange={(props) => {
+                console.log('change', props);
+
                 if (props.startIndex !== undefined && props.endIndex !== undefined) {
-                  // setBrushRange([props.startIndex, props.endIndex + 1]); // 先更新 Brush
-                  // setRange([props.startIndex, props.endIndex])
-                  setTimeout(() => setRange([props.startIndex || 0, props.endIndex || 1]), 100); // 延迟同步 range
+                  //   // setBrushRange([props.startIndex, props.endIndex + 1]); // 先更新 Brush
+                  setRange([props.startIndex, props.endIndex])
+                  //   setTimeout(() => setRange([props.startIndex || 0, props.endIndex || 1]), 100); // 延迟同步 range
                 }
               }}
             >
@@ -441,11 +448,16 @@ const TokenChart = ({
           </AreaChart>
         </ResponsiveContainer>
         }
-      </Box>
+      </Box> */}
+      {isLoading ? (
+        <Loading></Loading>
+      ) : <Relation range={range} data={initialData.priceHistory} tweets={initialData.tweets} relation={initialData.tweetsRelation[0]} />}
 
-      <Follow
+      {/* {isLoading ? (
+        <Loading></Loading>
+      ) : <Follow
         range={range}
-        priceHistory={initialData.priceHistory} tweets={initialData.tweets} tweetsRelation={initialData.tweetsRelation}></Follow>
+        priceHistory={initialData.priceHistory} tweets={initialData.tweets} tweetsRelation={initialData.tweetsRelation}></Follow>} */}
     </Box>
   );
 };

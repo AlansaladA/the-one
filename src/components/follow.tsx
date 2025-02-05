@@ -29,7 +29,7 @@ function Follow({ priceHistory, tweets, tweetsRelation, range }: {
     if (!tweetsRelation.length) return [];
     const relationData = tweetsRelation[0]?.data || {};
     const position = tweetsRelation[0]?.position ? JSON.parse(tweetsRelation[0].position) : {};
-  
+
     return tweets.map(tweet => {
       const tweetId = tweet.tweet_id.toString();
       return {
@@ -41,7 +41,7 @@ function Follow({ priceHistory, tweets, tweetsRelation, range }: {
     }).sort((a, b) => a.time.getTime() - b.time.getTime())
   }, [tweetsRelation]);
 
-  console.log(range);
+  console.log(sortedTweetMarkers);
 
 
   // 计算时间和价格的范围
@@ -49,7 +49,9 @@ function Follow({ priceHistory, tweets, tweetsRelation, range }: {
   const timeRange = useMemo(() => {
     if (priceHistory.length === 0) return { min: 0, max: 1 };
     // 提取时间戳数组
-    const times = priceHistory.map(m => new Date(m.download_time).getTime()).sort((a, b) => a - b);
+    const times = priceHistory
+      .sort((a, b) => +new Date(a.download_time) - +new Date(b.download_time))
+
     const totalCount = times.length;
     // 计算索引位置
     const startIndex = Math.floor((selectRange[0] / 100) * (totalCount - 1));
@@ -57,8 +59,8 @@ function Follow({ priceHistory, tweets, tweetsRelation, range }: {
     console.log(startIndex, endIndex, range);
 
     return {
-      min: times[range[0]], // 选取范围的起始时间
-      max: times[range[1]]    // 选取范围的结束时间
+      min: new Date(times[range[0]].download_time).getTime(), // 选取范围的起始时间
+      max: new Date(times[range[1]].download_time).getTime()    // 选取范围的结束时间
     };
   }, [priceHistory, selectRange, range]);
 
@@ -72,15 +74,15 @@ function Follow({ priceHistory, tweets, tweetsRelation, range }: {
     };
   }, [sortedTweetMarkers]);
 
-  return <Box w={"100%"} h="620px"  position="relative" mt={10} pl={14} py={2}>
+  return <Box w={"100%"} h="620px" position="relative" mt={10} pl={14} py={2}>
     {/* <Slider width="100%" defaultValue={[0, 100]} onValueChange={(val) => setSelectRange(val.value)} /> */}
     <Box
       w="100%"
       h="100%"
       position="relative"
       mt={6}
-      overflow={"hidden"} 
-      // py={4}
+      overflow={"hidden"}
+    // py={4}
     >
       <RelationLines
         sortedTweetMarkers={sortedTweetMarkers}
@@ -113,12 +115,12 @@ const RelationLines = memo(({ sortedTweetMarkers, timeRange, priceRange }: Relat
 
         if (!hasRelation) return null;
 
-        let x1 = ((marker1.time.getTime() - timeRange.min ) / (timeRange.max - timeRange.min)) * 99;
+        const x1 = ((marker1.time.getTime() - timeRange.min) / (timeRange.max - timeRange.min)) * 99;
         let y1 = ((marker1.value - priceRange.min) / (priceRange.max - priceRange.min)) * 98;
-        let x2 = ((marker2.time.getTime() - timeRange.min ) / (timeRange.max - timeRange.min)) * 99;
+        const x2 = ((marker2.time.getTime() - timeRange.min) / (timeRange.max - timeRange.min)) * 99;
         let y2 = ((marker2.value - priceRange.min) / (priceRange.max - priceRange.min)) * 98;
-        if(y1<5) y1 +=1
-        if(y2<5) y2 +=1
+        if (y1 < 5) y1 += 1
+        if (y2 < 5) y2 += 1
         return {
           key: `line-${i}-${j}`,
           x1: `${x1}%`,
@@ -162,9 +164,9 @@ const MarkerPoints = memo(({ sortedTweetMarkers, timeRange, priceRange }: Relati
   // 使用 useMemo 缓存点位数据
   const points = useMemo(() => {
     return sortedTweetMarkers.map((marker) => {
-      let xPos = ((marker.time.getTime() - timeRange.min) / (timeRange.max - timeRange.min)) * 99;
+      const xPos = ((marker.time.getTime() - timeRange.min) / (timeRange.max - timeRange.min)) * 99;
       let yPos = ((marker.value - priceRange.min) / (priceRange.max - priceRange.min)) * 98;
-      if(yPos<5) yPos +=1
+      if (yPos < 5) yPos += 1
       // **防止超出边界**
       // if (yPos > 95) yPos = 95; // 贴近底部的上移
       // if (yPos < 5)   yPos = 2;   // 贴近顶部的下移
@@ -183,7 +185,7 @@ const MarkerPoints = memo(({ sortedTweetMarkers, timeRange, priceRange }: Relati
           bottom={`${point.yPos}%`}
           transform="translate(-50%, 50%)"
           zIndex={1}
-          style={{ willChange: 'transform' }} 
+          style={{ willChange: 'transform' }}
 
         >
           <MemoCustomDotRelation

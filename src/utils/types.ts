@@ -49,6 +49,7 @@ export interface PriceHistory {
   download_time: string;
   name: string;
   volume: string;
+  time: number;
 }
 
 export interface Ranks {

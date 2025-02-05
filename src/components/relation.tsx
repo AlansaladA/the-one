@@ -1,198 +1,227 @@
-import React, { useEffect, useRef,useState } from 'react';
-import { DataSet, Network } from 'vis-network/standalone';
-import { _data } from '@/utils/mockdata';
-import { Tweet } from '@/utils/types';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { Graph } from '@visx/network';
+import { PriceHistory, Tweet } from '@/utils/types';
+import { Avatar, } from "@/components/ui/avatar"
+import { Link, useNavigate } from "react-router";
+import { FaTwitter } from "react-icons/fa";
+import { Tooltip } from './ui/tooltip';
+import { Box, Flex, Text } from '@chakra-ui/react';
+import { Button } from './ui/button';
+const height = 620
+export type NetworkProps = {
+  width: number;
+  height: number;
+};
 
-const Relation = ({ relationData }:{relationData:Tweet[]}) => {
-  const networkRef = useRef<HTMLDivElement>(null);
-  const [network,setNetwork] = useState<any>({})
-  const [nodes, setNodes] = useState<any>(null);
+interface CustomNode {
+  x: number;
+  y: number;
+  color?: string;
 
-  const [tooltipContent, setTooltipContent] = useState<any>(null);
-  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
-
-  useEffect(() => {
-    if (!networkRef.current) return;
-    const containerWidth = networkRef.current.clientWidth;
-    // 获取最早和最晚的时间戳
-    const timestamps = _data.tweets.map((tweet) => new Date(tweet.created_at).getTime());
-    const minTimestamp = Math.min(...timestamps);
-    const maxTimestamp = Math.max(...timestamps);
-
-    // 准备节点数据，按时间排序
-    const nodes = new DataSet(
-      relationData
-        .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
-        .map((tweet, index) => {
-          const entryTimestamp = new Date(tweet.created_at).getTime();
-          const xPercentage = (entryTimestamp - minTimestamp) / (maxTimestamp - minTimestamp);
-          const x = containerWidth * (0.1 + xPercentage * 0.8); // 留出10%的边距
-          
-          return {
-            id: tweet.id,
-            title: "",
-            image: tweet.profile_image_url,
-            shape: 'circularImage',
-            text: tweet.text,
-            size: 40,
-            x: String(x),
-            y: String(500 + Math.sin(index) * 1300)
-          };
-        })
-    );
-    setNodes(nodes);
-
-    // y: 100 + Math.sin(index) * 400,
-    // 准备边数据
-    const edges = new DataSet(
-      // relationData.flatMap((tweet) =>
-        // tweet.relations.map((relation) => ({
-        //   from: tweet.id,
-        //   to: relation.targetId,
-        //   // label: relation.type,
-        //   arrows: 'to',
-        //   color: { color: '#49497D', highlight: '#49497D', hover: 'red' },
-        // })
-      //  )
-      // )
-    )
-
-    // 初始化网络
-    const container = networkRef.current;
-    const options = {
-      autoResize: true,
-      height: '100%',
-      width: '100%',
-      nodes: {
-        shape: 'dot',
-        size: 40,
-        font: {
-          size: 16,
-          color: '#fff',
-        },
-        borderWidth: 2,
-        borderWidthSelected: 4,
-        color: {
-          border: '#2B7CE9',
-          background: '#97C2FC',
-          highlight: {
-            border: '#2B7CE9',
-            background: '#D2E5FF'
-          },
-          hover: {
-            border: '#2B7CE9',
-            background: '#D2E5FF'
-          }
-        },
-        fixed: {
-          x:true,
-          y:true
-        }
-      },  
-      edges: {
-        width: 1,
-        // color: { color: 'red', highlight: '#fff', hover: '#fff' },
-        smooth: { type: 'continuous', enabled: true,roundness: 0.5, },
-        arrows: { to: { enabled: true, scaleFactor: 0 } },
-        dashes: true,
-      },
-      physics: {
-        enabled: false, // 禁用物理引擎以避免自动布局影响
-      },
-      interaction:{hover:true},
-      layout: {
-        randomSeed: 1, // 防止布局乱跳
-        improvedLayout: false, // 禁用改进布局，确保按x、y坐标位置固定
-      },
-    };
-
-    const network = new Network(container, { nodes,edges },  options);
-    network.fit()
-    network.on("selectNode",(params)=>{
-      console.log(params);
-      
-    })
-    network.on("hoverNode",(params)=>{
-      hoverFun(params)
-    })
-    setNetwork(network)
-  }, [relationData]);
-
-  const clickNode = () =>{
-    
-  }
-
-  const hoverFun = (params:any) =>{
-    if (params.node) {
-      const nodeId = params.node;
-      const node = nodes.get(nodeId);
-      const pointer = network.getPositions([nodeId])[nodeId];
-      const domPosition = network.canvasToDOM(pointer);
-      console.log(node,'node');
-      
-      setTooltipContent(node);
-      setTooltipPosition({
-        x: domPosition.x,
-        y: domPosition.y,
-      });
-    } else {
-      setTooltipContent(null);
-    }
-  }
-
-  useEffect(() => {
-    const clickNode = () =>{
-      console.log("oioioi");
-      
-    }
-    if(network){
-      // network.on("click",clickNode)
-    }
-  }, [network]);
-
-
-
-  return   <div style={{ position: 'relative' }}>
-  <div ref={networkRef} style={{ width: '100%', height: '600px' }} />
-  {/* {tooltipContent && (
-        <div
-          style={{
-            position: 'absolute',
-            left: tooltipPosition.x + 10,
-            top: tooltipPosition.y + 10,
-            backgroundColor: 'white',
-            padding: '12px',
-            borderRadius: '8px',
-            boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
-            zIndex: 1000,
-            maxWidth: '300px',
-            border: '1px solid #eee'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
-            <img 
-              src={tooltipContent.image} 
-              style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '50%',
-                marginRight: '10px'
-              }}
-              alt="profile"
-            />
-            <div>
-              <div style={{ fontWeight: 'bold' }}>{tooltipContent.screen_name}</div>
-              <div style={{ fontSize: '12px', color: '#666' }}>
-                {new Date(tooltipContent.created_at).toLocaleString('zh-CN')}
-              </div>
-            </div>
-          </div>
-          <div style={{ borderTop: '1px solid #eee', paddingTop: '8px' }}>
-            {tooltipContent.text}
-          </div>
-        </div>
-      )} */}
-</div>
+  created_at: string
+  // firestorage_image_url 
+  followers_count: number
+  id: number
+  impact: number
+  pair_name_1: string
+  profile_image_url: string,
+  relation: string[]
+  screen_name: string
+  text: string
+  tweet_id: string
+  user: string
 }
 
-export default Relation;
+interface CustomLink {
+  source: CustomNode;
+  target: CustomNode;
+}
+const CustomNodeComponent = memo(({ node }: { node: CustomNode }) => {
+  // console.log(node, 'node');
+  const navigate = useNavigate()
+
+  return (
+    <foreignObject
+      x={-12}
+      y={-12}
+      width={15}
+      height={15}
+    >
+      <Tooltip closeOnScroll={false} interactive contentProps={
+        {
+          p: 0, bg: 'transparent', maxWidth: 'none', // 让宽度自动适配内容
+          width: '500px'
+        }
+      }
+        content={
+          <Box overflowY={"auto"} maxHeight={"300px"} p={4} display={"flex"} flexDirection={"column"} gap={4} bg="#2D2D4FF2" borderRadius="lg" color="gray.300" >
+
+            <Box
+              // key={i}
+              // borderBottomWidth={i !== node.length - 1 ? "1px" : "none"}
+              borderColor="#2D2D4F"
+            // borderBottomWidth="1px"
+            >
+              <Flex justify="space-between" align="center" gap={3}>
+                <Flex align="center" gap={3}>
+                  <Avatar
+                    src={node.profile_image_url}
+                    size="sm"
+                    cursor="pointer"
+                    _hover={{ opacity: 0.8 }}
+                  />
+                  <Flex alignItems={"flex-start"} flexDirection={"column"}>
+                    <Text fontSize={"sm"} fontWeight="bold" color="white" _hover={{ textDecor: "underline" }}>
+                      {node.user}
+                    </Text>
+                    <Text fontSize="sm" color="gray.400">
+                      @{node.screen_name}·{node.followers_count.toLocaleString()}
+                    </Text>
+                    <Text color="gray.400">followers</Text>
+                  </Flex>
+                </Flex>
+                <Flex gap={2}>
+                  <Button onClick={() => { navigate(`/detail/${node.screen_name}`) }} borderRadius={"full"} size="sm" bg="gray.500" _hover={{ bg: "gray.700" }} color="white">
+                    <Text fontWeight={"bold"}>Profile</Text>
+                  </Button>
+                  <Button
+                    borderRadius={"full"}
+                    size="sm"
+                    bg="blue.500"
+                    color="white"
+                    onClick={() => window.open(`https://twitter.com/intent/follow?screen_name=${node.screen_name}`, '_blank')}
+                  >
+                    <FaTwitter className="text-xs" />
+                    <Text fontWeight={"bold"}>Follow</Text>
+                  </Button>
+                </Flex>
+              </Flex>
+
+              <Text mt={2} fontSize="sm" color="white">
+                {node.text}
+              </Text>
+            </Box>
+          </Box>
+        }
+      >
+        <Box position={"relative"} display={"flex"} alignItems={"center"} cursor={"pointer"}>
+          <Link style={{ color: "inherit" }} to={`/detail/${node.screen_name}`}>
+            <Avatar w="15px" h="15px" src={node.profile_image_url}></Avatar>
+          </Link>
+        </Box>
+      </Tooltip >
+    </foreignObject>
+  );
+})
+
+export default function Relation({ data, relation, tweets, range }: {
+  tweets: Tweet[]
+  data: PriceHistory[],
+  relation: {
+    data: Record<string, string[]>
+    position: string
+  }
+  range: [number, number]
+}) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [width, setWidth] = useState(0)
+
+  const position: Record<string, number> = useMemo(() => relation?.position ? JSON.parse(relation.position) : {}, [relation]);
+  const times = useMemo(() => data.sort((a, b) => a.time - b.time).map(item => item.time), [data])
+
+  const timeRage = useMemo(() => (
+    {
+      min: times[range[0]] ?? 0,
+      max: times[range[1]] ?? 1
+    }
+  ), [times, range])
+
+  const priceRange = useMemo(() => {
+    const values = Object.values(position)
+    if (values.length === 0) return { min: 0, max: 1 };
+
+    let min = values[0];
+    let max = min;
+
+    for (let i = 1; i < values.length; i++) {
+      const value = values[i];
+      if (value < min) min = value;
+      if (value > max) max = value;
+    }
+
+    return { min: min ?? 0, max: max ?? 1 };
+  }, [position]);
+
+  const sortedTweetMarkers = useMemo(() => {
+    if (!relation) return [];
+    const relationData = relation.data || {};
+    return tweets.map(tweet => {
+      const tweetId = tweet.tweet_id;
+      return {
+        ...tweet,
+        x: (new Date(tweet.created_at).getTime() - timeRage.min) / (timeRage.max - timeRage.min) * width,
+        relation: relationData[tweetId]?.filter(id => id !== tweetId) || [],
+        y: position[tweetId] ? (position[tweetId] - priceRange.min) / (priceRange.max - priceRange.min) * height : 0
+      };
+    }).sort((a, b) => a.y - b.y)
+  }, [position, priceRange.max, priceRange.min, relation, timeRage.max, timeRage.min, width, tweets])
+
+
+  const links: CustomLink[] = useMemo(() => {
+    if (!sortedTweetMarkers.length) return []
+    const arr: CustomLink[] = []
+
+    sortedTweetMarkers.forEach(marker => {
+      arr.push(...marker.relation.map(item => ({
+        source: marker, target: sortedTweetMarkers.find(m => m.tweet_id === item) || marker
+      })).filter(item => item.source.tweet_id != item.target.tweet_id))
+    })
+
+    return arr
+  }, [sortedTweetMarkers]);
+
+  const graph = useMemo(() => ({
+    nodes: sortedTweetMarkers,
+    links,
+  }), [sortedTweetMarkers, links]);
+
+  console.log(sortedTweetMarkers, links, timeRage);
+  const handleResize = () => {
+    if (ref.current) {
+      const { width, } = ref.current.getBoundingClientRect();
+      setWidth(width)
+    }
+  };
+
+  useEffect(() => {
+    handleResize()
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+  return (
+    <Box ref={ref} width={'full'} height={'full'} overflow={'hidden'}>
+      <svg width={width} height={height}>
+        <rect width={width} height={height} rx={14} fill='transparent'/>
+        <Graph<CustomLink, CustomNode>
+          graph={graph}
+          top={20}
+          left={100}
+          nodeComponent={({ node }) => <CustomNodeComponent node={node} />}
+          linkComponent={({ link: { source, target } }) => (
+            <line
+              x1={source.x}
+              y1={source.y}
+              x2={target.x}
+              y2={target.y}
+              stroke="rgba(136, 132, 216, 0.5)"
+              strokeWidth="2"
+              opacity={0.5}
+            />
+          )}
+        />
+      </svg>
+    </Box>
+  );
+}
