@@ -4,6 +4,7 @@ import { getTweetOne, getTickerOne,getRelation } from "@/api";
 import { useParams } from "react-router";
 import { Tweet, PriceHistory } from "@/utils/types";
 import { Box, Heading, Spinner, Flex, Container } from "@chakra-ui/react";
+import TokenEChart from "@/components/TokenEChart";
 
 type Params = {
   ticker: string;
@@ -64,7 +65,8 @@ export default function Ticker() {
           </Flex>
         }
       >
-        <TokenChart initialData={data} />
+        {/* <TokenChart initialData={data} /> */}
+        <TokenEChart initialData={data} />
       </Suspense>
     </Container>
   );

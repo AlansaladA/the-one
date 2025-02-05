@@ -49,10 +49,12 @@ export const getTweetOne = async (tickerName: string) => {
       user: string;
     }>;
   }>({
-    url: `/get-ticker-tweet?ticker_name=${tickerName}`,
+    url: `/get-ticker-tweet-v2?ticker_name=${tickerName}`,
+    // url: `/get-ticker-tweet?ticker_name=${tickerName}`,
     method: "get",
   });
 };
+
 
 export const getKolOne = async (kolName: string) => {
   return await request({
