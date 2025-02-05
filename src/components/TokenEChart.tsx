@@ -389,23 +389,23 @@ export default function TokenEChart({
           // 将tooltip位置调整到更靠近鼠标的位置
           return [point[0] - 10, point[1] + 10]; // 向左偏移10像素,向下偏移10像素
         },
-        formatter: function(params: any) {
+        formatter: function (params: any) {
           const marker = params.data[2];
           if (!marker) return '';
-          
+
           const tooltipId = `tooltip-${Date.now()}`;
           setTimeout(() => {
             marker.tweets.forEach((tweet: Tweet, index: number) => {
               const profileBtn = document.querySelector(`#${tooltipId}-profile-${index}`);
               const followBtn = document.querySelector(`#${tooltipId}-follow-${index}`);
-              
+
               if (profileBtn) {
                 profileBtn.addEventListener('click', (e) => {
                   e.stopPropagation();
                   navigate(`/detail/${tweet.screen_name}`);
                 });
               }
-              
+
               if (followBtn) {
                 followBtn.addEventListener('click', (e) => {
                   e.stopPropagation();
@@ -418,8 +418,8 @@ export default function TokenEChart({
           return `
             <div id="${tooltipId}" style="padding: 16px; max-width: 500px;overflow-y: auto; max-height: 300px;">
               ${marker.tweets.map((tweet: Tweet, index: number) => {
-                const impact = calculateImpact(tweet, marker.price);
-                return `
+            const impact = calculateImpact(tweet, marker.price);
+            return `
                   <div style="
                     padding-bottom: 16px;
                     margin-bottom: 16px;
@@ -505,7 +505,7 @@ export default function TokenEChart({
                     </div>
                   </div>
                 `;
-              }).join('')}
+          }).join('')}
             </div>
           `;
         },
@@ -556,7 +556,7 @@ export default function TokenEChart({
         type: 'value',
         axisLine: {
           show: true,
-          lineStyle: { 
+          lineStyle: {
             color: '#333',
             width: 1
           }
@@ -585,7 +585,7 @@ export default function TokenEChart({
               { offset: 1, color: 'rgba(136, 132, 216, 0.01)' }     // 降低底部不透明度
             ])
           },
-          z: 1 
+          z: 1
         },
         {
           type: 'custom',
@@ -712,29 +712,29 @@ export default function TokenEChart({
             Filter by Followers
           </Text>
           <Flex justifyContent={"space-between"} w={"full"}>
-          <HStack>
-            {(["0-5k", "5k-10k", "10k-50k", "50k+"] as const).map((range) => (
-              <Button
-                key={range}
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  setFollowerRange((prev) =>
-                    prev.includes(range)
-                      ? prev.filter((r) => r !== range)
-                      : [...prev, range]
-                  );
-                }}
-                // colorScheme={followerRange.includes(range) ? "blue" : "gray"}
-                bg={followerRange.includes(range) ? "blue.500" : "gray.800"}
-              >
-                {range}
-              </Button>
-            ))}
-          </HStack>
-          <Button onClick={fillFun}>
-            <FiSearch></FiSearch>
-          </Button>
+            <HStack>
+              {(["0-5k", "5k-10k", "10k-50k", "50k+"] as const).map((range) => (
+                <Button
+                  key={range}
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setFollowerRange((prev) =>
+                      prev.includes(range)
+                        ? prev.filter((r) => r !== range)
+                        : [...prev, range]
+                    );
+                  }}
+                  // colorScheme={followerRange.includes(range) ? "blue" : "gray"}
+                  bg={followerRange.includes(range) ? "blue.500" : "gray.800"}
+                >
+                  {range}
+                </Button>
+              ))}
+            </HStack>
+            <Button onClick={fillFun}>
+              <FiSearch></FiSearch>
+            </Button>
           </Flex>
         </VStack>
       </Flex>
@@ -757,10 +757,14 @@ export default function TokenEChart({
           />
         )}
       </Box>
-
-      {/* <Follow
+      {/* {isLoading ? (
+        <Loading></Loading>
+      ) : <Relation range={range} data={initialData.priceHistory} tweets={initialData.tweets} relation={initialData.tweetsRelation[0]} />} */}
+      {isLoading ? (
+        <Loading></Loading>
+      ) : <Follow
         range={range}
-        priceHistory={initialData.priceHistory} tweets={initialData.tweets} tweetsRelation={initialData.tweetsRelation}></Follow> */}
+        priceHistory={initialData.priceHistory} tweets={initialData.tweets} tweetsRelation={initialData.tweetsRelation}></Follow>}
     </Box>
   );
 };

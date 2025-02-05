@@ -203,12 +203,12 @@ export default function Relation({ data, relation, tweets, range }: {
   return (
     <Box ref={ref} width={'full'} height={'full'} overflow={'hidden'}>
       <svg width={width} height={height}>
-        <rect width={width} height={height} rx={14} fill='transparent'/>
+        <rect width={width} height={height} rx={14} fill='transparent' />
         <Graph<CustomLink, CustomNode>
           graph={graph}
           top={20}
           left={100}
-          nodeComponent={({ node }) => <CustomNodeComponent node={node} />}
+          nodeComponent={CustomNodeComponent}
           linkComponent={({ link: { source, target } }) => (
             <line
               x1={source.x}
