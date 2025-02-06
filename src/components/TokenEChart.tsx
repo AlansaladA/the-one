@@ -13,7 +13,7 @@ import { Tweet, PriceHistory } from "@/utils/types";
 import Loading from "./loading";
 import { Button } from "@/components/ui/button"
 import { FaTwitter } from "react-icons/fa";
-import Relation from "./relation"
+// import Relation from "./relation"
 import Follow from "./follow";
 import * as echarts from 'echarts';
 import ReactECharts from 'echarts-for-react';
