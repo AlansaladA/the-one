@@ -374,7 +374,7 @@ export default function kol() {
                       stroke="#8c8c8c"
                       tick={{ fill: "#8c8c8c" }}
                       tickLine={false}
-                      interval={6}
+                      // interval={window.innerWidth < 768 ? 24 : 6}
                       tickFormatter={(value) => `${value + 1}h`}
                     />
                     <YAxis

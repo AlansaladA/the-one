@@ -76,7 +76,10 @@ export default function Home() {
   useEffect(() => {
     const cachedKols = localStorage.getItem("kolsList");
     const cachedTokens = localStorage.getItem("tokenList");
-
+    if(!searchText) {
+      setFilteredKols([])
+      setFilteredTokens([])
+    }
     if (cachedKols && cachedTokens) {
       setKolsList(JSON.parse(cachedKols));
       setTokenList(JSON.parse(cachedTokens));
@@ -84,7 +87,7 @@ export default function Home() {
         setLoading(true);
         checkfilter(searchText, JSON.parse(cachedKols), JSON.parse(cachedTokens));
       }
-    } else {
+    }  else {
       setLoading(true);
       const fetchApi = async () => {
         const [kols, tokens] = await Promise.all([getKols(), getTickers()]);
@@ -132,19 +135,19 @@ export default function Home() {
     (text: string, kolList: string[], tokenList: TokenList[]) => {
       const kolsFiltered = kolList.filter((item) =>
         item.toLowerCase().includes(text.toLowerCase())
-      );
+      ).slice(0, 10);
       const tokensFiltered = tokenList.filter(
         (item) =>
           item.name.toLowerCase().includes(text.toLowerCase()) ||
           item.address.toLowerCase().includes(text.toLowerCase())
-      );
+      ).slice(0, 10);
 
       setTimeout(() => {
         setLoading(false);
         setFilteredKols(kolsFiltered);
         setFilteredTokens(tokensFiltered);
-      }, 1000);
-    }, 1000)
+      },500);
+    }, 500)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -180,17 +183,17 @@ export default function Home() {
             <Input
               value={searchText}
               onChange={handleInputChange}
-              outline={"none"}
-              _placeholder={{
-                color: "#8181E5",
-                fontSize: { base: "md", md: "2xl" },
-              }}
+              variant='flushed'
               position="relative"
               zIndex={1000}
-              borderWidth="1px"
-              borderColor="#7676E0"
-              fontSize={{ base: "md", md: "2xl" }} textAlign={"center"} color={"#8181E5"} bgColor="#fff" borderRadius="full" h={{ base: "50px", md: "70px" }} w="full" placeholder="Search KOL or Token"></Input>
-
+              fontSize={{ base: "md", md: "2xl" }} 
+              textAlign={"center"} 
+              color={"#8181E5"} 
+              bgColor="#fff" 
+              borderRadius="full" 
+              h={{ base: "50px", md: "70px" }}
+              w="full" 
+              placeholder="Search KOL or Token"></Input>
             {searchText && (
               <Flex h="300px"
                 w="full"
@@ -376,7 +379,7 @@ function RequestModal({ openHow, setOpenHow, type }: {
         <DialogTitle>Request {type}</DialogTitle>
       </DialogHeader>
       <DialogBody asChild>
-        <Flex gap={32} flexDirection={"column"} alignItems={"center"}>
+        <Flex gap={32} flexDirection={"column"} alignItems={"center"} w="full">
           <Flex flexDirection={"column"} gap={4} w="full">
             {
               type == "Token" && <MenuRoot>
@@ -401,14 +404,20 @@ function RequestModal({ openHow, setOpenHow, type }: {
               </MenuRoot>
             }
             <Input
-              // value={searchText}
-              // onChange={handleInputChange}
-              outline={"none"}
               _placeholder={{
-                color: "rgba(0,0,0,.5)", // Placeholder 的颜色
-              }} py={6} color={"rgba(0,0,0,.5)"} textAlign={"center"} bgColor="#fff" borderRadius="full" w="full" placeholder="Enter Token CA"></Input>
+                color: "rgba(0,0,0,.5)",
+              }} 
+              // variant="filled"
+              py={6} 
+              color={"rgba(0,0,0,.5)"} 
+              textAlign={"center"} 
+              bgColor="#fff" 
+              borderRadius="full" 
+              w="full" 
+              placeholder="Enter Token CA"
+            />
           </Flex>
-          <Button mt={10} borderRadius={"full"} w={"286px"}>Send Request</Button>
+          <Button mt={10} borderRadius={"full"} w={"286px"} disabled >Send Request</Button>
         </Flex>
       </DialogBody>
       <DialogCloseTrigger />

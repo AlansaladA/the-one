@@ -376,7 +376,7 @@ const TokenChart = ({
         </VStack>
         <Button onClick={fillFun}>filled</Button>
       </Flex>
-      {/* <Box position="relative" height="600px">
+      <Box position="relative" height="600px">
         {isLoading ? (
           <Loading></Loading>
         ) : <ResponsiveContainer width="100%" height="100%">
@@ -449,17 +449,17 @@ const TokenChart = ({
           </AreaChart>
         </ResponsiveContainer>
         }
-      </Box> */}
-      {isLoading ? (
+      </Box>
+      {/* {isLoading ? (
         <Loading></Loading>
-      ) : <Relation range={range} data={initialData.priceHistory} tweets={initialData.tweets} relation={initialData.tweetsRelation[0]} />}
+      ) : <Relation range={range} data={initialData.priceHistory} tweets={initialData.tweets} relation={initialData.tweetsRelation[0]} />} */}
 
-      {/* <Follow
+      
       {/* {isLoading ? (
         <Loading></Loading>
       ) : <Follow
         range={range}
-        priceHistory={initialData.priceHistory} tweets={initialData.tweets} tweetsRelation={initialData.tweetsRelation}></Follow>} */} */}
+        priceHistory={initialData.priceHistory} tweets={initialData.tweets} tweetsRelation={initialData.tweetsRelation}></Follow>}  */}
     </Box>
   );
 };

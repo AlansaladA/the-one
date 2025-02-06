@@ -51,7 +51,9 @@ function Follow({ priceHistory, tweets, tweetsRelation, range }: {
     // 提取时间戳数组
     const times = priceHistory
       .sort((a, b) => +new Date(a.download_time) - +new Date(b.download_time))
-
+    console.log(times,'times');
+    console.log(range,'range');
+    
     const totalCount = times.length;
     // 计算索引位置
     const startIndex = Math.floor((selectRange[0] / 100) * (totalCount - 1));
@@ -331,7 +333,7 @@ const CustomDotRelation = ({
             </AvatarGroup>
           ) : (
             <Link style={{ color: "inherit" }} to={`/detail/${tweets.screen_name}`}>
-              <Avatar w="15px" h="15px" src={tweets.profile_image_url}></Avatar>
+              <Avatar w="15px" h="15px" src={tweets.profile_image_url} name={tweets.screen_name}></Avatar>
             </Link>
           )
           }
