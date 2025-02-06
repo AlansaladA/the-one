@@ -407,7 +407,7 @@ function RequestModal({ openHow, setOpenHow, type }: {
               _placeholder={{
                 color: "rgba(0,0,0,.5)",
               }} 
-              variant="filled"
+              // variant="filled"
               py={6} 
               color={"rgba(0,0,0,.5)"} 
               textAlign={"center"} 
