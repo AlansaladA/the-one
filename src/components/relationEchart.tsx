@@ -212,6 +212,8 @@ const RelationChart = ({ data, relation, tweets, range }: {
                 x: node.x,
                 y: node.y,
                 value: [node.x, node.y],
+                symbolSize: node.profile_image_url ? 0 : 20,
+                symbol: "circle"
               }
             }),
           links,
