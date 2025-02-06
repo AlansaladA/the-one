@@ -4,7 +4,7 @@ export const getTickers = async () => {
   return await request<{
     tickers: Array<string[]>
   }>({
-    url: "/get-tickers",
+    url: "/get-tickers-v2",
     method: "get",
   })
 }

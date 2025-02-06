@@ -2,7 +2,7 @@ import { createSystem, defaultConfig, defineConfig } from "@chakra-ui/react"
 import buttonRecipe from "./button" 
 // import dialogRecipe from "./dialog"
 // import nativeSelectRecipe from "./nativeSelect"
-// import inputRecipe from "./input"
+import inputRecipe from "./input"
 // import textAreaRecipe from "./textArea"
 // import colors from "./color"
 // import layerStyles from "./layerStyles"
@@ -22,7 +22,7 @@ const customConfig = defineConfig({
     },
     recipes: {
       // button: buttonRecipe,
-      // input: inputRecipe,
+      input: inputRecipe,
       // textarea: textAreaRecipe, 
     },
     // layerStyles,

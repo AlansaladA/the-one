@@ -118,7 +118,7 @@ export default function TokenEChart({
   const [brushRange, setBrushRange] = useState<[number, number]>([0, 10]);
 
   useEffect(() => {
-    setBrushRange(range); // 确保 Brush 状态和 range 同步
+    setBrushRange(range);
   }, [range]);
 
   const fillFun = () => {
