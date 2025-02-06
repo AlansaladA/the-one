@@ -258,6 +258,7 @@ const TokenChart = ({
       price: parseFloat(item.close),
     }));
   }, [initialData.priceHistory]);
+  
   const [range, setRange] = useState<[number, number]>([0, processedChartData.length - 1])
 
   const getFollowerRange = (followersCount: number): string => {
