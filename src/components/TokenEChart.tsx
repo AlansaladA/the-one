@@ -540,14 +540,6 @@ export default function TokenEChart({
         )}
       </Box>
       {!isLoading && <RelationChart range={range} data={initialData.priceHistory} tweets={initialData.tweets} relation={initialData.tweetsRelation[0]} />}
-      {/* {isLoading ? (
-        <Loading></Loading>
-      ) : <Relation range={range} data={initialData.priceHistory} tweets={initialData.tweets} relation={initialData.tweetsRelation[0]} />} */}
-      {/* {isLoading ? (
-        <Loading></Loading>
-      ) : <Follow
-        range={range}
-        priceHistory={initialData.priceHistory} tweets={initialData.tweets} tweetsRelation={initialData.tweetsRelation}></Follow>} */}
     </Box>
   );
 };
