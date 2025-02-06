@@ -1,8 +1,8 @@
 import { PriceHistory } from '@/utils/types';
 import { Tweet } from '@/utils/types';
-import * as echarts from 'echarts'; 
-import { useRef, useEffect, useMemo } from 'react'; 
- 
+import * as echarts from 'echarts';
+import { useRef, useEffect, useMemo } from 'react';
+
 interface CustomNode {
   x: number;
   y: number;
@@ -36,19 +36,18 @@ const RelationChart = ({ data, relation, tweets, range }: {
   }
   range: [number, number]
 }) => {
-  const position: Record<string, number> = useMemo(() => relation?.position ? JSON.parse(relation.position) : {}, [relation]); 
+  const position: Record<string, number> = useMemo(() => relation?.position ? JSON.parse(relation.position) : {}, [relation]);
   const timeRage = useMemo(() => {
     const times = data.sort((a, b) => a.time - b.time).map(item => item.time)
-    console.log(times.length);
 
     return (
       {
         min: times[range[0]] ?? 0,
-        max: times[range[1] - 1] ?? 100
+        max: times[range[1]] ?? 100
       }
     )
   }, [data, range])
- 
+
   const sortedTweetMarkers = useMemo<CustomNode[]>(() => {
     if (!relation) return [];
     const relationData = relation.data || {};
@@ -130,8 +129,6 @@ const RelationChart = ({ data, relation, tweets, range }: {
         triggerOn: 'click',
         formatter: (params) => {
           const { data: node } = params.data;
-          console.log(node);
-
           return `
             <div style="max-height: 300px; padding: 16px; display: flex; flex-direction: column; gap: 16px; background: #2D2D4FF2; border-radius: 8px; color: #CBD5E0; width: 500px; overflow-y: auto;">
               <div style="border-color: #2D2D4F;">
@@ -190,11 +187,12 @@ const RelationChart = ({ data, relation, tweets, range }: {
         extraCssText: 'box-shadow: 0 0 10px rgba(0,0,0,0.3); border-radius: 8px;'
       },
       grid: {
-        left: '3%',
-        right: '3%',
-        bottom: '15%',
-        top: '3%',
-        containLabel: true
+        left: 0,
+        right: 0,
+        bottom: 0,
+        top: 0,
+        containLabel: true,
+
       },
       series: [
         {
@@ -300,7 +298,7 @@ const RelationChart = ({ data, relation, tweets, range }: {
     });
   }, [timeRage]);
 
-  return <div ref={chartRef} style={{ width: '100%', height: '600px', overflow: "hidden" }} />;
+  return <div ref={chartRef} style={{ width: '100%', height: '600px', overflow: "hidden", padding: "10px 20px 10px 80px" }} />;
 };
 
 export default RelationChart;

@@ -1,5 +1,5 @@
-import { useState, useMemo, useEffect, memo, Fragment, useRef } from "react";
-import { throttle, debounce } from 'lodash';
+import { useState, useMemo, useEffect, useRef } from "react";
+import _ from 'lodash';
 import {
   Box,
   Flex,
@@ -12,11 +12,9 @@ import { useNavigate } from 'react-router'
 import { Tweet, PriceHistory } from "@/utils/types";
 import Loading from "./loading";
 import { Button } from "@/components/ui/button"
-import { FaTwitter } from "react-icons/fa";
-import Relation from "./relation"
-import Follow from "./follow";
 import * as echarts from 'echarts';
 import ReactECharts from 'echarts-for-react';
+import RelationChart from "./relationEchart";
 
 
 export default function TokenEChart({
@@ -87,17 +85,6 @@ export default function TokenEChart({
       setIsLoading(false);
     }
   }, [processedChartData]);
-
-  const formatTime = (date: Date) => {
-    return date.toLocaleString([], {
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "numeric",
-      hour12: false,
-    });
-  }
-
   const [range, setRange] = useState<[number, number]>([0, initialData.priceHistory.length - 1])
 
   useEffect(() => {
@@ -114,12 +101,6 @@ export default function TokenEChart({
       }
     }
   }, [tweetMarkers, processedChartData]);
-  // const [brushRange, setBrushRange] = useState<[number, number]>([0, 10]);
-
-  // useEffect(() => {
-  //   setBrushRange(range); // 确保 Brush 状态和 range 同步
-  // }, [range]);
-
   const fillFun = () => {
     // 更新 range 为完整数据范围
     setRange([0, initialData.priceHistory.length - 1]);
@@ -159,6 +140,16 @@ export default function TokenEChart({
 
   const getChartOption = () => {
     return {
+      // // 优化性能的配置
+      progressive: 500,  // 渐进式渲染，每帧渲染的数据点数量
+      progressiveThreshold: 3000,  // 超过这个数量开启渐进式渲染
+
+      // 优化交互性能
+      animation: false,  // 关闭动画可以提升性能
+      throttle: 100,    // 设置节流阈值
+
+      // 优化图片加载
+      imageCache: true,  // 开启图片缓存
       backgroundColor: '#121212', // 深色背景
       tooltip: {
         trigger: 'item',
@@ -397,45 +388,45 @@ export default function TokenEChart({
                 type: 'group',
                 children: [
                   {
-                  // 修改触发区域的大小和位置
-                  type: 'circle',
-                  shape: {
-                    cx: point[0] + (index * 15) - (avatars.length * 7.5) + 10,
-                    cy: point[1],
-                    r: 12  // 增加触发区域半径
-                  },
-                  style: {
-                    fill: 'transparent',
-                    cursor: 'pointer'
-                  },
-                  // 添加鼠标事件
-                  emphasis: {
-                    style: {
-                      fill: 'rgba(255,255,255,0.1)'
-                    }
-                  },
-                  silent: false  // 确保事件可以被触发
-                },
-                  {
-                  // 原来的头像渲染
-                  type: 'image',
-                  style: {
-                    image: tweet.profile_image_url,
-                    x: point[0] + (index * 15) - (avatars.length * 7.5),
-                    y: point[1] - 10,
-                    width: 20,
-                    height: 20
-                  },
-                  clipPath: {
+                    // 修改触发区域的大小和位置
                     type: 'circle',
                     shape: {
                       cx: point[0] + (index * 15) - (avatars.length * 7.5) + 10,
                       cy: point[1],
-                      r: 10
-                    }
+                      r: 12  // 增加触发区域半径
+                    },
+                    style: {
+                      fill: 'transparent',
+                      cursor: 'pointer'
+                    },
+                    // 添加鼠标事件
+                    emphasis: {
+                      style: {
+                        fill: 'rgba(255,255,255,0.1)'
+                      }
+                    },
+                    silent: false  // 确保事件可以被触发
                   },
-                  silent: false  // 确保事件可以被触发
-                }]
+                  {
+                    // 原来的头像渲染
+                    type: 'image',
+                    style: {
+                      image: tweet.profile_image_url,
+                      x: point[0] + (index * 15) - (avatars.length * 7.5),
+                      y: point[1] - 10,
+                      width: 20,
+                      height: 20
+                    },
+                    clipPath: {
+                      type: 'circle',
+                      shape: {
+                        cx: point[0] + (index * 15) - (avatars.length * 7.5) + 10,
+                        cy: point[1],
+                        r: 10
+                      }
+                    },
+                    silent: false  // 确保事件可以被触发
+                  }]
               });
             });
 
@@ -474,7 +465,7 @@ export default function TokenEChart({
               silent: false  // 确保整个组都可以触发事件
             };
           },
-          data: visibleTweetMarkers.map(marker => [
+          data: processedChartData.map(marker => [
             marker.time.getTime(),
             marker.price,
             marker
@@ -493,23 +484,12 @@ export default function TokenEChart({
     };
   };
 
-  const debouncedSetRange = useMemo(
-    () => debounce((newRange: [number, number]) => {
-      setRange(newRange);
-    }, 500), // 500ms 的防抖延迟
-    []
-  );
 
- 
   const handleZoom = _.debounce((params: any) => {
-    console.log(params);
-    
     const newRange = [
       Math.floor(params.start * processedChartData.length / 100),
-      Math.ceil(params.end * processedChartData.length / 100)
+      Math.ceil(params.end * processedChartData.length / 100) - 1
     ];
-    console.log(newRange);
-    
     setRange(newRange as [number, number]);
   }, 500)
   return (
@@ -555,20 +535,11 @@ export default function TokenEChart({
             style={{ height: '100%' }}
             onEvents={{
               dataZoom: handleZoom
-              dataZoom: (params: any) => {
-                const newRange = [
-                  Math.floor(params.start * processedChartData.length / 100),
-                  Math.ceil(params.end * processedChartData.length / 100)-1
-                ];
-                debouncedSetRange(newRange as [number, number]);
-              }
             }}
           />
         )}
       </Box>
-      {isLoading ? (
-        <Loading></Loading>
-      ) : <RelationChart range={range} data={initialData.priceHistory} tweets={initialData.tweets} relation={initialData.tweetsRelation[0]} />}
+      {!isLoading && <RelationChart range={range} data={initialData.priceHistory} tweets={initialData.tweets} relation={initialData.tweetsRelation[0]} />}
       {/* {isLoading ? (
         <Loading></Loading>
       ) : <Relation range={range} data={initialData.priceHistory} tweets={initialData.tweets} relation={initialData.tweetsRelation[0]} />} */}
