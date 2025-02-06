@@ -465,7 +465,7 @@ export default function TokenEChart({
               silent: false  // 确保整个组都可以触发事件
             };
           },
-          data: processedChartData.map(marker => [
+          data: tweetMarkers.map(marker => [
             marker.time.getTime(),
             marker.price,
             marker

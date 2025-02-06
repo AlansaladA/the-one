@@ -258,7 +258,7 @@ const TokenChart = ({
       price: parseFloat(item.close),
     }));
   }, [initialData.priceHistory]);
-  
+
   const [range, setRange] = useState<[number, number]>([0, processedChartData.length - 1])
 
   const getFollowerRange = (followersCount: number): string => {
@@ -451,16 +451,6 @@ const TokenChart = ({
         </ResponsiveContainer>
         }
       </Box>
-      {/* {isLoading ? (
-        <Loading></Loading>
-      ) : <Relation range={range} data={initialData.priceHistory} tweets={initialData.tweets} relation={initialData.tweetsRelation[0]} />} */}
-
-      
-      {/* {isLoading ? (
-        <Loading></Loading>
-      ) : <Follow
-        range={range}
-        priceHistory={initialData.priceHistory} tweets={initialData.tweets} tweetsRelation={initialData.tweetsRelation}></Follow>}  */}
     </Box>
   );
 };
