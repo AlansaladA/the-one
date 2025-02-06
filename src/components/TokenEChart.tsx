@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, memo, Fragment, useRef } from "react";
+import { throttle,debounce } from 'lodash';
 import {
   AreaChart,
   Area,
@@ -369,8 +370,8 @@ export default function TokenEChart({
         splitLine: {
           show: false
         },
-        min: processedChartData[range[0]]?.time,
-        max: processedChartData[range[1]]?.time
+        // min: processedChartData[range[0]]?.time,
+        // max: processedChartData[range[1]]?.time
       },
       yAxis: {
         type: 'value',
@@ -524,6 +525,15 @@ export default function TokenEChart({
     };
   };
 
+  const [tempRange, setTempRange] = useState<[number, number]>(range);
+  
+  const debouncedSetRange = useMemo(
+    () => debounce((newRange: [number, number]) => {
+      setRange(newRange);
+    }, 500), // 500ms 的防抖延迟
+    []
+  );
+
   return (
     <Box mb={8}>
       <Flex gap={4} mb={4} justifyContent={"space-between"} w={"full"}>
@@ -572,7 +582,13 @@ export default function TokenEChart({
                   Math.floor(params.start * processedChartData.length / 100),
                   Math.ceil(params.end * processedChartData.length / 100)
                 ];
-                setRange(newRange as [number, number]);
+                debouncedSetRange(newRange as [number, number]);
+                // if (params.batch) {
+                //   setTempRange(newRange);
+                // } else {
+                //   setTempRange(newRange);
+                //   setRange(newRange);
+                // }
               }
             }}
           />
