@@ -1,62 +1,23 @@
 import { useState, useMemo, useEffect, memo, Fragment, useRef } from "react";
-import { throttle,debounce } from 'lodash';
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip as RechartsTooltip,
-  ResponsiveContainer,
-  ReferenceDot,
-  Brush,
-} from "recharts";
+import { throttle, debounce } from 'lodash';
 import {
   Box,
   Flex,
   Text,
-  Spinner,
-  // Button,
   VStack,
   HStack
 } from "@chakra-ui/react";
 import { FiSearch } from "react-icons/fi";
-import { Tooltip } from "@/components/ui/tooltip";
-import { useParams, useNavigate } from 'react-router'
+import { useNavigate } from 'react-router'
 import { Tweet, PriceHistory } from "@/utils/types";
-import { Avatar, AvatarGroup } from "@/components/ui/avatar"
 import Loading from "./loading";
 import { Button } from "@/components/ui/button"
 import { FaTwitter } from "react-icons/fa";
 import Relation from "./relation"
-import { Link } from "react-router";
 import Follow from "./follow";
 import * as echarts from 'echarts';
 import ReactECharts from 'echarts-for-react';
 
-const CustomTooltip = ({ active, payload, label }: any) => {
-  if (active && payload && payload.length) {
-    return (
-      <Box bg="gray.700" p={3} rounded="md" shadow="md">
-        <Text color="gray.300" mb={2}>
-          {new Date(label).toLocaleString([], {
-            month: "short",
-            day: "numeric",
-            hour: "numeric",
-            minute: "numeric",
-            hour12: false,
-          })}
-        </Text>
-        <Flex align="center">
-          <Text color="gray.400">Price:</Text>
-          <Text fontWeight="bold" ml={1} color="white">
-            ${Number(payload[0].value).toFixed(4)}
-          </Text>
-        </Flex>
-      </Box>
-    );
-  }
-  return null;
-};
 
 export default function TokenEChart({
   initialData,
@@ -153,7 +114,7 @@ export default function TokenEChart({
       }
     }
   }, [tweetMarkers, processedChartData])
-  
+
   const [brushRange, setBrushRange] = useState<[number, number]>([0, 10]);
 
   useEffect(() => {
@@ -240,9 +201,12 @@ export default function TokenEChart({
             const impact = calculateImpact(tweet, marker.price);
             return `
                   <div style="
-                    padding-bottom: 16px;
+                    padding-bottom: 8px;
                     margin-bottom: 16px;
                     border-bottom: ${index !== marker.tweets.length - 1 ? '1px solid #2D2D4F' : 'none'};
+                    display: flex;
+                    flex-direction: column;
+                    flex-wrap: wrap;
                   ">
                     <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px;">
                       <div style="display: flex; align-items: center; gap: 12px;">
@@ -319,8 +283,10 @@ export default function TokenEChart({
                       ` : ''}
                     </div>
 
-                    <div style="margin-top: 8px; color: white; font-size: 14px;">
-                      ${tweet.text}
+                    <div style="width: 200px;margin-top: 8px; color: white; font-size: 14px;display: flex;flex-direction: column;flex-wrap: wrap;">
+                      <span>
+                       ${tweet.text}
+                      </span>
                     </div>
                   </div>
                 `;
@@ -353,7 +319,8 @@ export default function TokenEChart({
         },
         textStyle: {
           color: '#666'
-        }
+        },
+        brushSelect: false,
       }],
       xAxis: {
         type: 'time',
@@ -525,8 +492,6 @@ export default function TokenEChart({
     };
   };
 
-  const [tempRange, setTempRange] = useState<[number, number]>(range);
-  
   const debouncedSetRange = useMemo(
     () => debounce((newRange: [number, number]) => {
       setRange(newRange);
@@ -555,7 +520,6 @@ export default function TokenEChart({
                         : [...prev, range]
                     );
                   }}
-                  // colorScheme={followerRange.includes(range) ? "blue" : "gray"}
                   bg={followerRange.includes(range) ? "blue.500" : "gray.800"}
                 >
                   {range}
@@ -580,15 +544,9 @@ export default function TokenEChart({
               dataZoom: (params: any) => {
                 const newRange = [
                   Math.floor(params.start * processedChartData.length / 100),
-                  Math.ceil(params.end * processedChartData.length / 100)
+                  Math.ceil(params.end * processedChartData.length / 100)-1
                 ];
                 debouncedSetRange(newRange as [number, number]);
-                // if (params.batch) {
-                //   setTempRange(newRange);
-                // } else {
-                //   setTempRange(newRange);
-                //   setRange(newRange);
-                // }
               }
             }}
           />
