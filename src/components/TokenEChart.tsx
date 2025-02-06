@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button"
 import * as echarts from 'echarts';
 import ReactECharts from 'echarts-for-react';
 import RelationChart from "./relationEchart";
-
+import { Tooltip } from "@/components/ui/tooltip"
 
 export default function TokenEChart({
   initialData,
@@ -494,6 +494,7 @@ export default function TokenEChart({
   }, 500)
   return (
     <Box mb={8}>
+        {/* <span style={{fontSize:"16px"}}>When did a KOL post a tweet about the token?</span> */}
       <Flex gap={4} mb={4} justifyContent={"space-between"} w={"full"}>
         <VStack align="start" w={"full"}>
           <Text fontSize="sm" color="gray.400">
@@ -525,7 +526,7 @@ export default function TokenEChart({
           </Flex>
         </VStack>
       </Flex>
-      <Box position="relative" height="600px">
+      <Box position="relative" height="600px" mb={4}>
         {isLoading ? (
           <Loading />
         ) : (
@@ -539,6 +540,9 @@ export default function TokenEChart({
           />
         )}
       </Box>
+      {/* <Tooltip content="How KOLs Are Potentially Influenced by Each Other" showArrow>
+        <span style={{fontSize:"16px"}}>Meme Propagation Map</span>
+      </Tooltip> */}
       {!isLoading && <RelationChart range={range} data={initialData.priceHistory} tweets={initialData.tweets} relation={initialData.tweetsRelation[0]} />}
     </Box>
   );
