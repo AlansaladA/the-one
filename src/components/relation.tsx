@@ -39,7 +39,54 @@ interface CustomLink {
 const CustomNodeComponent = memo(({ node }: { node: CustomNode }) => {
   // console.log(node, 'node');
   const navigate = useNavigate()
+  const ToolTipContent = useMemo(() => <Box overflowY={"auto"} maxHeight={"300px"} p={4} display={"flex"} flexDirection={"column"} gap={4} bg="#2D2D4FF2" borderRadius="lg" color="gray.300" >
 
+    <Box
+      // key={i}
+      // borderBottomWidth={i !== node.length - 1 ? "1px" : "none"}
+      borderColor="#2D2D4F"
+    // borderBottomWidth="1px"
+    >
+      <Flex justify="space-between" align="center" gap={3}>
+        <Flex align="center" gap={3}>
+          <Avatar
+            src={node.profile_image_url}
+            size="sm"
+            cursor="pointer"
+            _hover={{ opacity: 0.8 }}
+          />
+          <Flex alignItems={"flex-start"} flexDirection={"column"}>
+            <Text fontSize={"sm"} fontWeight="bold" color="white" _hover={{ textDecor: "underline" }}>
+              {node.user}
+            </Text>
+            <Text fontSize="sm" color="gray.400">
+              @{node.screen_name}·{node.followers_count.toLocaleString()}
+            </Text>
+            <Text color="gray.400">followers</Text>
+          </Flex>
+        </Flex>
+        <Flex gap={2}>
+          <Button onClick={() => { navigate(`/detail/${node.screen_name}`) }} borderRadius={"full"} size="sm" bg="gray.500" _hover={{ bg: "gray.700" }} color="white">
+            <Text fontWeight={"bold"}>Profile</Text>
+          </Button>
+          <Button
+            borderRadius={"full"}
+            size="sm"
+            bg="blue.500"
+            color="white"
+            onClick={() => window.open(`https://twitter.com/intent/follow?screen_name=${node.screen_name}`, '_blank')}
+          >
+            <FaTwitter className="text-xs" />
+            <Text fontWeight={"bold"}>Follow</Text>
+          </Button>
+        </Flex>
+      </Flex>
+
+      <Text mt={2} fontSize="sm" color="white">
+        {node.text}
+      </Text>
+    </Box>
+  </Box>, [node])
   return (
     <foreignObject
       x={-12}
@@ -54,54 +101,7 @@ const CustomNodeComponent = memo(({ node }: { node: CustomNode }) => {
         }
       }
         content={
-          <Box overflowY={"auto"} maxHeight={"300px"} p={4} display={"flex"} flexDirection={"column"} gap={4} bg="#2D2D4FF2" borderRadius="lg" color="gray.300" >
-
-            <Box
-              // key={i}
-              // borderBottomWidth={i !== node.length - 1 ? "1px" : "none"}
-              borderColor="#2D2D4F"
-            // borderBottomWidth="1px"
-            >
-              <Flex justify="space-between" align="center" gap={3}>
-                <Flex align="center" gap={3}>
-                  <Avatar
-                    src={node.profile_image_url}
-                    size="sm"
-                    cursor="pointer"
-                    _hover={{ opacity: 0.8 }}
-                  />
-                  <Flex alignItems={"flex-start"} flexDirection={"column"}>
-                    <Text fontSize={"sm"} fontWeight="bold" color="white" _hover={{ textDecor: "underline" }}>
-                      {node.user}
-                    </Text>
-                    <Text fontSize="sm" color="gray.400">
-                      @{node.screen_name}·{node.followers_count.toLocaleString()}
-                    </Text>
-                    <Text color="gray.400">followers</Text>
-                  </Flex>
-                </Flex>
-                <Flex gap={2}>
-                  <Button onClick={() => { navigate(`/detail/${node.screen_name}`) }} borderRadius={"full"} size="sm" bg="gray.500" _hover={{ bg: "gray.700" }} color="white">
-                    <Text fontWeight={"bold"}>Profile</Text>
-                  </Button>
-                  <Button
-                    borderRadius={"full"}
-                    size="sm"
-                    bg="blue.500"
-                    color="white"
-                    onClick={() => window.open(`https://twitter.com/intent/follow?screen_name=${node.screen_name}`, '_blank')}
-                  >
-                    <FaTwitter className="text-xs" />
-                    <Text fontWeight={"bold"}>Follow</Text>
-                  </Button>
-                </Flex>
-              </Flex>
-
-              <Text mt={2} fontSize="sm" color="white">
-                {node.text}
-              </Text>
-            </Box>
-          </Box>
+          ToolTipContent
         }
       >
         <Box position={"relative"} display={"flex"} alignItems={"center"} cursor={"pointer"}>
@@ -201,14 +201,14 @@ export default function Relation({ data, relation, tweets, range }: {
     };
   }, []);
   return (
-    <Box ref={ref} width={'full'} height={'full'} overflow={'hidden'}>
+    <Box ref={ref} width={'full'} height={'full'}  >
       <svg width={width} height={height}>
         <rect width={width} height={height} rx={14} fill='transparent' />
         <Graph<CustomLink, CustomNode>
           graph={graph}
           top={20}
           left={100}
-          nodeComponent={CustomNodeComponent}
+          nodeComponent={CustomNodeComponent as any}
           linkComponent={({ link: { source, target } }) => (
             <line
               x1={source.x}

@@ -31,6 +31,8 @@ import { Link } from "react-router";
 import Follow from "./follow";
 import * as echarts from 'echarts';
 import ReactECharts from 'echarts-for-react';
+import RelationChart from "./relationEchart";
+import _ from "lodash";
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -339,11 +341,11 @@ export default function TokenEChart({
       }
     }
   }, [tweetMarkers, processedChartData]);
-  const [brushRange, setBrushRange] = useState<[number, number]>([0, 10]);
+  // const [brushRange, setBrushRange] = useState<[number, number]>([0, 10]);
 
-  useEffect(() => {
-    setBrushRange(range); // 确保 Brush 状态和 range 同步
-  }, [range]);
+  // useEffect(() => {
+  //   setBrushRange(range); // 确保 Brush 状态和 range 同步
+  // }, [range]);
 
   const fillFun = () => {
     setRange([0, initialData.priceHistory.length - 1])
@@ -608,7 +610,8 @@ export default function TokenEChart({
             avatars.forEach((tweet, index) => {
               children.push({
                 type: 'group',
-                children: [{
+                children: [
+                  {
                   // 修改触发区域的大小和位置
                   type: 'circle',
                   shape: {
@@ -627,7 +630,8 @@ export default function TokenEChart({
                     }
                   },
                   silent: false  // 确保事件可以被触发
-                }, {
+                },
+                  {
                   // 原来的头像渲染
                   type: 'image',
                   style: {
@@ -704,6 +708,17 @@ export default function TokenEChart({
     };
   };
 
+  const handleZoom = _.debounce((params: any) => {
+    console.log(params);
+    
+    const newRange = [
+      Math.floor(params.start * processedChartData.length / 100),
+      Math.ceil(params.end * processedChartData.length / 100)
+    ];
+    console.log(newRange);
+    
+    setRange(newRange as [number, number]);
+  }, 500)
   return (
     <Box mb={8}>
       <Flex gap={4} mb={4} justifyContent={"space-between"} w={"full"}>
@@ -746,25 +761,22 @@ export default function TokenEChart({
             option={getChartOption()}
             style={{ height: '100%' }}
             onEvents={{
-              // dataZoom: (params: any) => {
-              //   const newRange = [
-              //     Math.floor(params.start * processedChartData.length / 100),
-              //     Math.ceil(params.end * processedChartData.length / 100)
-              //   ];
-              //   setRange(newRange as [number, number]);
-              // }
+              dataZoom: handleZoom
             }}
           />
         )}
       </Box>
+      {isLoading ? (
+        <Loading></Loading>
+      ) : <RelationChart range={range} data={initialData.priceHistory} tweets={initialData.tweets} relation={initialData.tweetsRelation[0]} />}
       {/* {isLoading ? (
         <Loading></Loading>
       ) : <Relation range={range} data={initialData.priceHistory} tweets={initialData.tweets} relation={initialData.tweetsRelation[0]} />} */}
-      {isLoading ? (
+      {/* {isLoading ? (
         <Loading></Loading>
       ) : <Follow
         range={range}
-        priceHistory={initialData.priceHistory} tweets={initialData.tweets} tweetsRelation={initialData.tweetsRelation}></Follow>}
+        priceHistory={initialData.priceHistory} tweets={initialData.tweets} tweetsRelation={initialData.tweetsRelation}></Follow>} */}
     </Box>
   );
 };
