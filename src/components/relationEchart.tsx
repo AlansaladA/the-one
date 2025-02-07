@@ -97,7 +97,6 @@ const RelationChart = ({ data, relation, tweets, range }: {
 }) => {
   const timeRage = useMemo(() => {
     const times = data.sort((a, b) => a.time - b.time).map(item => item.time)
-
     return (
       {
         min: times[range[0]] ?? 0,
@@ -312,6 +311,9 @@ const RelationChart = ({ data, relation, tweets, range }: {
           edgeSymbolSize: [8, 8],
           animationDelay: function (idx,) {
             return idx * itemDelay;
+          },
+          animationDelayUpdate: function (idx,) {
+            return idx * itemDelay;
           }
           // animation: false
         },
@@ -351,15 +353,14 @@ const RelationChart = ({ data, relation, tweets, range }: {
   }, [sortedTweetMarkers, links]);
 
   // 当 range 改变时只更新显示范围
-  // useEffect(() => {
-  //   if (!chartRef.current) return;
-  //   const chart = echarts.getInstanceByDom(chartRef.current);
-  //   if (!chart) return;
-
-  //   chart.setOption({
-  //     xAxis: timeRage
-  //   });
-  // }, [timeRage]);
+  useEffect(() => {
+    if (!chartRef.current) return;
+    const chart = echarts.getInstanceByDom(chartRef.current);
+    if (!chart) return
+    chart.setOption({
+      xAxis: timeRage
+    });
+  }, [timeRage]);
 
   return <div ref={chartRef} style={{ width: '100%', height: '600px', overflow: "hidden", padding: "10px 40px 10px 40px" }} />;
 };
