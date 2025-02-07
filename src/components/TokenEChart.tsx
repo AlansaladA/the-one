@@ -565,6 +565,8 @@ export default function TokenEChart({
         <span style={{fontSize:"16px"}}>Meme Propagation Map</span>
       </Tooltip> */}
       {!isLoading && <RelationChart range={range} data={initialData.priceHistory} tweets={initialData.tweets} relation={initialData.tweetsRelation[0]} />}
+      
+      {/* <RelationChart range={range} data={initialData.priceHistory} tweets={initialData.tweets} relation={initialData.tweetsRelation[0]} /> */}
     </Box>
   );
 };
