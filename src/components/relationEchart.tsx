@@ -111,20 +111,13 @@ const RelationChart = ({ data, relation, tweets, range }: {
   useEffect(() => {
     if (!chartRef.current) return;
 
-    // 保存图表实例
     chartInstance.current = echarts.init(chartRef.current);
     
     const option: echarts.EChartsOption = {
-      // // 优化性能的配置
-      progressive: 500,  // 渐进式渲染，每帧渲染的数据点数量
-      progressiveThreshold: 3000,  // 超过这个数量开启渐进式渲染
-
-      // 优化交互性能
-      animation: true,  // 关闭动画可以提升性能
-      throttle: 100,    // 设置节流阈值
-
-      // 优化图片加载
-      imageCache: true,  // 开启图片缓存
+      progressive: 200,  // 降低每帧渲染数量
+      progressiveThreshold: 1000,  // 降低渐进渲染阈值
+      animation: false,  // 关闭全局动画以提升性能
+      throttle: 200,    // 增加节流阈值
 
       xAxis: {
         type: 'time',
@@ -243,16 +236,14 @@ const RelationChart = ({ data, relation, tweets, range }: {
             show: false
           },
           silent: true,
-          data: sortedTweetMarkers.map(node => {
-            return {
-              name: node.name,
-              x: node.x,
-              y: node.y,
-              value: [node.x, node.y],
-              symbolSize: 20,
-              symbol: 'none'
-            }
-          }),
+          data: sortedTweetMarkers.map(node => ({
+            name: node.name,
+            x: node.x,
+            y: node.y,
+            value: [node.x, node.y],
+            symbolSize: 20,
+            symbol: 'none'
+          })),
           links,
           lineStyle: {
             color: 'rgba(136, 132, 216, 0.5)',
@@ -260,58 +251,56 @@ const RelationChart = ({ data, relation, tweets, range }: {
             opacity: 0.6,
             curveness: 0.3,
           },
-          edgeSymbolSize: [8, 8], // 设置双向箭头的大小
+          edgeSymbolSize: [8, 8],
           animation: false
         },
         {
           type: 'custom',
           renderItem: (params, api) => {
-            const point = api.coord([
-              api.value(0),
-              api.value(1)
-            ]);
-
-            const marker = sortedTweetMarkers[params.dataIndexInside]
-
+            const point = api.coord([api.value(0), api.value(1)]);
+            const marker = sortedTweetMarkers[params.dataIndexInside];
+            
             if (!marker || !point) return null;
+            
+            // 只在可视区域内渲染图片
+            const isInViewport = (
+              point[0] >= 0 && 
+              point[0] <= (chartInstance.current?.getWidth() ?? 0) && 
+              point[1] >= 0 && 
+              point[1] <= (chartInstance.current?.getHeight() ?? 0)
+            );
+            
+            if (!isInViewport) return null;
 
             return {
               type: 'group',
-              children: [
-                {
-                  type: 'image',
+              children: [{
+                type: 'image',
+                style: {
+                  image: marker.profile_image_url || 'https://pbs.twimg.com/profile_images/1867692977734254592/j-GvEEZI_normal.jpg',
+                  x: point[0] - 10,
+                  y: point[1] - 10,
+                  width: 20,
+                  height: 20,
+                  opacity: 1
+                },
+                emphasis: {
                   style: {
-                    image: marker.profile_image_url,
-                    x: point[0] - 10,
-                    y: point[1] - 10,
-                    width: 20,
-                    height: 20,
-                    opacity: 0  // 初始透明度为0
-                  },
-                  clipPath: {
-                    type: 'circle',
-                    shape: {
-                      cx: point[0],
-                      cy: point[1],
-                      r: 10
-                    }
-                  },
-                  keyframeAnimation: {
-                    duration: 100,  // 从500ms减少到300ms
-                    delay: params.dataIndexInside * 5,  // 从100ms减少到50ms
-                    keyframes: [
-                      {
-                        percent: 0,
-                        style: { opacity: 0, scale: 0.5 }
-                      },
-                      {
-                        percent: 1,
-                        style: { opacity: 1, scale: 1 }
-                      }
-                    ]
+                    image: marker.profile_image_url || 'https://pbs.twimg.com/profile_images/1867692977734254592/j-GvEEZI_normal.jpg'
+                  }
+                },
+                onerror: function(this: { style: { image: string } }) {
+                  this.style.image = 'https://pbs.twimg.com/profile_images/1867692977734254592/j-GvEEZI_normal.jpg';
+                },
+                clipPath: {
+                  type: 'circle',
+                  shape: {
+                    cx: point[0],
+                    cy: point[1],
+                    r: 10
                   }
                 }
-              ],
+              }],
               silent: false
             };
           },
@@ -335,14 +324,7 @@ const RelationChart = ({ data, relation, tweets, range }: {
       ]
     };
 
-    // 开启动画
-    chartInstance.current.setOption({
-      ...option,
-      animation: true,
-      animationDuration: 500,
-      animationEasing: 'cubicOut',
-      animationDelay: (idx) => idx * 50, // 让线条和图片同时出来
-    });
+    chartInstance.current.setOption(option);
 
     // 添加 resize 事件监听
     window.addEventListener('resize', handleResize);
@@ -364,7 +346,7 @@ const RelationChart = ({ data, relation, tweets, range }: {
     });
   }, [timeRage]);
 
-  return <div ref={chartRef} style={{ width: '100%', height: '600px', overflow: "hidden", padding: "10px 20px 10px 80px" }} />;
+  return <div ref={chartRef} style={{ width: '100%', height: '600px', overflow: "hidden", padding: "10px 40px 10px 40px" }} />;
 };
 
 export default RelationChart;

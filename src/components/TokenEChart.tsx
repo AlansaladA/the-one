@@ -101,6 +101,7 @@ export default function TokenEChart({
       }
     }
   }, [tweetMarkers, processedChartData]);
+  
   const fillFun = () => {
     // 更新 range 为完整数据范围
     setRange([0, initialData.priceHistory.length - 1]);
@@ -292,7 +293,7 @@ export default function TokenEChart({
         left: '3%',
         right: '3%',
         bottom: '15%',
-        top: '3%',
+        top: '8%',
         containLabel: true
       },
       dataZoom: [{
@@ -344,6 +345,14 @@ export default function TokenEChart({
       },
       yAxis: {
         type: 'value',
+        name: 'Price',  // y轴标签
+        nameLocation: 'end', // 将标签位置改为end（顶部）
+        nameGap: 15,  // 减小标签与轴的距离
+        nameTextStyle: {  // 标签文字样式
+          color: '#666',
+          fontSize: 14,
+          padding: [0, 0, 0, -20]
+        },
         axisLine: {
           show: true,
           lineStyle: {
@@ -514,7 +523,7 @@ export default function TokenEChart({
           </Text>
           <Flex justifyContent={"space-between"} w={"full"}>
             <HStack>
-              {(["0-5k", "5k-10k", "10k-50k", "50k+"] as const).map((range) => (
+              {(["10k-50k", "50k+"] as const).map((range) => (
                 <Button
                   key={range}
                   size="sm"

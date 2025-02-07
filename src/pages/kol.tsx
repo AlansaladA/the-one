@@ -172,35 +172,18 @@ export default function kol() {
 
   useEffect(() => {
     setOption({
-      toolbox: {
-        show: true,
-        feature: {
-          dataZoom: {
-            show: true
-          },
-          restore: {
-            show: true
-          },
-          saveAsImage: {
-            show: true
-          }
-        },
-        iconStyle: {
-          borderColor: '#fff'
-        }
-      },
       series: [
         {
           type: "graph",
-          layout: "force", // 使用力导向布局
+          layout: "force",
           force: {
-            repulsion: 50, // 节点之间的斥力
-            edgeLength: [50, 150], // 边的长度范围
+            repulsion: 50,
+            edgeLength: [50, 150],
           },
-          roam: true, // 启用缩放和平移
+          roam: true,
           scaleLimit: {
-            min: 0.4, // 最小缩放比例
-            max: 2    // 最大缩放比例
+            min: 0.4,
+            max: 2
           },
           data: graphData.data,
           links: graphData.links,
@@ -215,17 +198,9 @@ export default function kol() {
             position: "right",
           },
           lineStyle: {
-            color: "source", // 边的颜色与源节点一致
-            curveness: 0.3, // 弯曲度
-          },
-          toolbox: {
-            feature: {
-              dataZoom: {
-                show: true,
-                yAxisIndex: "none",
-              },
-            },
-          },
+            color: "source",
+            curveness: 0.3,
+          }
         },
       ],
     })
