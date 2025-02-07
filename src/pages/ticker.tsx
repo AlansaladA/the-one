@@ -1,5 +1,4 @@
-import { Suspense, useEffect, useState } from "react";
-import TokenChart from "@/components/TokenChart";
+import { Suspense, useEffect, useState } from "react"; 
 import { getTweetOne, getTickerOne, getRelation } from "@/api";
 import { useParams } from "react-router";
 import { Tweet, PriceHistory } from "@/utils/types";
