@@ -236,24 +236,43 @@ const RelationChart = ({ data, relation, tweets, range }: {
             if (!marker || !point) return null;
 
             return {
-              // 原来的头像渲染
-              type: 'image',
-              style: {
-                image: marker.profile_image_url,
-                x: point[0] - 10,
-                y: point[1] - 10,
-                width: 20,
-                height: 20
-              },
-              clipPath: {
-                type: 'circle',
-                shape: {
-                  cx: point[0],
-                  cy: point[1],
-                  r: 10
+              type: 'group',
+              children: [
+                {
+                  type: 'image',
+                  style: {
+                    image: marker.profile_image_url,
+                    x: point[0] - 10,
+                    y: point[1] - 10,
+                    width: 20,
+                    height: 20,
+                    opacity: 0  // 初始透明度为0
+                  },
+                  clipPath: {
+                    type: 'circle',
+                    shape: {
+                      cx: point[0],
+                      cy: point[1],
+                      r: 10
+                    }
+                  },
+                  keyframeAnimation: {
+                    duration: 300,  // 从500ms减少到300ms
+                    delay: params.dataIndexInside * 10,  // 从100ms减少到50ms
+                    keyframes: [
+                      {
+                        percent: 0,
+                        style: { opacity: 0, scale: 0.5 }
+                      },
+                      {
+                        percent: 1,
+                        style: { opacity: 1, scale: 1 }
+                      }
+                    ]
+                  }
                 }
-              },
-              silent: false  // 确保事件可以被触发
+              ],
+              silent: false
             };
           },
           data: sortedTweetMarkers.map(node => ({
@@ -276,7 +295,14 @@ const RelationChart = ({ data, relation, tweets, range }: {
       ]
     };
 
-    chart.setOption(option);
+    // 开启动画
+    chart.setOption({
+      ...option,
+      animation: true,
+      animationDuration: 1000,
+      animationEasing: 'cubicOut',
+      animationDelay: (idx) => idx * 100
+    });
 
     // 监听节点点击
     // chart.on('click', 'series.graph.nodes', (params: echarts.ECElementEvent) => {

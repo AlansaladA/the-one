@@ -305,7 +305,11 @@ export default function TokenEChart({
         backgroundColor: 'rgba(47, 69, 84, 0.3)',
         fillerColor: 'rgba(167,183,204,0.2)',
         handleStyle: {
-          color: '#8884d8'
+          color: '#8884d8',
+          cursor: 'pointer'
+        },
+        moveHandleStyle: {
+          cursor: 'pointer'
         },
         textStyle: {
           color: '#666'
