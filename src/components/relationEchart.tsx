@@ -2,7 +2,7 @@ import { PriceHistory } from '@/utils/types';
 import { Tweet } from '@/utils/types';
 import * as echarts from 'echarts';
 import _ from 'lodash';
-import { useRef, useEffect, useMemo, useCallback } from 'react';
+import { useRef, useEffect, useMemo, useCallback, useState } from 'react';
 
 interface CustomNode {
   x: number;
@@ -28,20 +28,22 @@ interface CustomLink {
   target: string;
   symbol?: [string, string];  // 添加可选的 symbol 属性
 }
-const itemDelay = 50
+const itemDelay = 2
 const customAvatar = 'https://pbs.twimg.com/profile_images/1867692977734254592/j-GvEEZI_normal.jpg'
 const getTooltipFormatter = (params) => {
   const { data: node } = params.data;
+  const imageUrl = node.profile_image_url || customAvatar;
   return `
     <div style="max-height: 300px; padding: 16px; display: flex; flex-direction: column; gap: 16px; background: #2D2D4FF2; border-radius: 8px; color: #CBD5E0; width: 500px; overflow-y: auto;">
       <div style="border-color: #2D2D4F;">
         <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px;">
           <div style="display: flex; align-items: center; gap: 12px;">
             <img 
-              src="${node.profile_image_url}" 
+              src="${imageUrl}" 
               style="width: 32px; height: 32px; border-radius: 9999px; cursor: pointer;"
               onmouseover="this.style.opacity=0.8"
               onmouseout="this.style.opacity=1"
+              onerror="this.src='${customAvatar}'"
             />
             <div style="display: flex; flex-direction: column; align-items: flex-start;">
               <div style="font-size: 14px; font-weight: bold; color: white; text-decoration: none;">
@@ -129,11 +131,6 @@ const RelationChart = ({ data, relation, tweets, range }: {
     const makersMap = new Map<string, CustomNode>(sortedTweetMarkers.map(tweet => [tweet.name, tweet]));
 
     sortedTweetMarkers.forEach(tweet => {
-      // 占位
-      result.push({
-        source: tweet.name,
-        target: tweet.name
-      })
       tweet.relation.forEach(targetId => {
         // 检查是否已经处理过这对关系
         const pairKey = [tweet.name, targetId].sort().join('-');
@@ -144,9 +141,9 @@ const RelationChart = ({ data, relation, tweets, range }: {
         const target = makersMap.get(targetId);
         const isBidirectional = target?.relation.includes(tweet.name);
         result.push({
-          source: tweet.name,
-          target: targetId,
-          symbol: isBidirectional ? ['arrow', 'arrow'] : ['none', 'arrow']
+          target: tweet.name,
+          source: targetId,
+          symbol: isBidirectional ? ['none', 'none'] : ['none', 'arrow']
         });
       });
     });
@@ -165,26 +162,85 @@ const RelationChart = ({ data, relation, tweets, range }: {
     }, 300),
     []
   );
+
+  // 添加一个预加载图片的函数
+  const preloadImage = (url: string): Promise<boolean> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve(true);
+      img.onerror = () => resolve(false);
+      img.src = url;
+    });
+  };
+
+  // 在组件中添加图片加载状态的 state
+  const [validImageUrls, setValidImageUrls] = useState<Record<string, boolean>>({});
+
+  // 在数据加载后预加载图片
+  useEffect(() => {
+    const loadImages = async () => {
+      const imageLoadResults: Record<string, boolean> = {};
+
+      // 并行加载所有图片
+      const loadPromises = sortedTweetMarkers.map(async (marker) => {
+        if (marker.profile_image_url) {
+          const isValid = await preloadImage(marker.profile_image_url);
+          imageLoadResults[marker.profile_image_url] = isValid;
+        }
+      });
+
+      await Promise.all(loadPromises);
+      setValidImageUrls(imageLoadResults);
+    };
+
+    if (sortedTweetMarkers.length > 0) {
+      loadImages();
+    }
+  }, [sortedTweetMarkers]);
+
   const renderCustomNode: echarts.CustomSeriesRenderItem = useCallback((params, api) => {
     const point = api.coord([api.value(0), api.value(1)]);
     const marker = sortedTweetMarkers[params.dataIndexInside];
 
     if (!marker || !point) return null;
 
-    // 只在可视区域内渲染图片
-    const isInViewport = (
-      point[0] >= 0 &&
-      point[0] <= (chartInstance.current?.getWidth() ?? 0) &&
-      point[1] >= 0 &&
-      point[1] <= (chartInstance.current?.getHeight() ?? 0)
-    );
+    // 检查图片是否有效
+    const imageUrl = marker.profile_image_url;
+    const isImageValid = imageUrl ? validImageUrls[imageUrl] : false;
 
-    if (!isInViewport) return null;
+    // 如果图片无效，直接返回圆形
+    if (!isImageValid) {
+      return {
+        type: 'image',
+        shape: {
+          cx: point[0],
+          cy: point[1],
+          r: 10
+        },
+        style: {
+          image: customAvatar,
+          x: point[0] - 10,
+          y: point[1] - 10,
+          width: 20,
+          height: 20,
+          opacity: 1
+        },
+        clipPath: {
+          type: 'circle',
+          shape: {
+            cx: point[0],
+            cy: point[1],
+            r: 10
+          }
+        },
+      };
+    }
 
+    // 如果图片有效，返回图片节点
     return {
       type: 'image',
       style: {
-        image: marker.profile_image_url || customAvatar,
+        image: marker.profile_image_url,
         x: point[0] - 10,
         y: point[1] - 10,
         width: 20,
@@ -195,9 +251,6 @@ const RelationChart = ({ data, relation, tweets, range }: {
         style: {
           image: marker.profile_image_url || customAvatar
         }
-      },
-      onerror: function (this: { style: { image: string } }) {
-        this.style.image = customAvatar;
       },
       clipPath: {
         type: 'circle',
@@ -217,6 +270,8 @@ const RelationChart = ({ data, relation, tweets, range }: {
       silent: false
     };
   }, [sortedTweetMarkers])
+  
+
   useEffect(() => {
     if (!chartRef.current) return;
 
@@ -277,7 +332,7 @@ const RelationChart = ({ data, relation, tweets, range }: {
         left: 0,
         right: 0,
         bottom: 0,
-        top: 0,
+        top: 10,
         containLabel: true,
 
       },
@@ -306,7 +361,7 @@ const RelationChart = ({ data, relation, tweets, range }: {
             color: 'rgba(136, 132, 216, 0.5)',
             width: 2,
             opacity: 0.6,
-            curveness: 0.3,
+            curveness: 0
           },
           edgeSymbolSize: [8, 8],
           animationDelay: function (idx,) {
