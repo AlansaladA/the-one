@@ -315,6 +315,14 @@ export default function TokenEChart({
           color: '#666'
         },
         brushSelect: false,
+        dataBackground: {
+          lineStyle: {
+            cursor: 'pointer'
+          },
+          areaStyle: {
+            cursor: 'pointer'
+          }
+        }
       }],
       xAxis: {
         type: 'time',

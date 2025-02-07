@@ -25,6 +25,7 @@ interface CustomNode {
 interface CustomLink {
   source: string;
   target: string;
+  symbol?: [string, string];  // 添加可选的 symbol 属性
 }
 
 const RelationChart = ({ data, relation, tweets, range }: {
@@ -63,25 +64,63 @@ const RelationChart = ({ data, relation, tweets, range }: {
     })
   }, [position, relation, tweets])
 
-  const links = useMemo<CustomLink[]>(() => sortedTweetMarkers.reduce((a, b) => {
-    return [...a, ...b.relation.map(rela => ({
-      source: b.name,
-      target: rela
-    }))]
-  }, [] as CustomLink[]), [sortedTweetMarkers]);
+  const links = useMemo<CustomLink[]>(() => {
+    const result: CustomLink[] = [];
+    const processedPairs = new Set<string>();
+
+    sortedTweetMarkers.forEach(tweet => {
+      tweet.relation.forEach(targetId => {
+        // 检查是否已经处理过这对关系
+        const pairKey = [tweet.name, targetId].sort().join('-');
+        if (processedPairs.has(pairKey)) return;
+        processedPairs.add(pairKey);
+
+        // 检查是否存在双向关系
+        const target = sortedTweetMarkers.find(t => t.name === targetId);
+        const isBidirectional = target?.relation.includes(tweet.name);
+        
+        // 添加调试日志
+        // console.log('Relation:', {
+        //   source: tweet.name,
+        //   target: targetId,
+        //   targetRelations: target?.relation,
+        //   isBidirectional
+        // });
+
+        result.push({
+          source: tweet.name,
+          target: targetId,
+          symbol: isBidirectional ? ['arrow', 'arrow'] : ['none', 'arrow']
+        });
+      });
+    });
+    
+    console.log('Final links:', result);
+    return result;
+  }, [sortedTweetMarkers]);
   const chartRef = useRef<HTMLDivElement>(null);
+  const chartInstance = useRef<echarts.ECharts>();
+
+  // 添加 resize 处理函数
+  const handleResize = () => {
+    if (chartInstance.current) {
+      chartInstance.current.resize();
+    }
+  };
 
   useEffect(() => {
     if (!chartRef.current) return;
 
-    const chart = echarts.init(chartRef.current);
+    // 保存图表实例
+    chartInstance.current = echarts.init(chartRef.current);
+    
     const option: echarts.EChartsOption = {
       // // 优化性能的配置
       progressive: 500,  // 渐进式渲染，每帧渲染的数据点数量
       progressiveThreshold: 3000,  // 超过这个数量开启渐进式渲染
 
       // 优化交互性能
-      animation: false,  // 关闭动画可以提升性能
+      animation: true,  // 关闭动画可以提升性能
       throttle: 100,    // 设置节流阈值
 
       // 优化图片加载
@@ -198,30 +237,31 @@ const RelationChart = ({ data, relation, tweets, range }: {
         {
           type: 'graph',
           layout: 'none',
-          coordinateSystem: 'cartesian2d',  // 使用笛卡尔坐标系
-          symbolSize: 0,
-          // roam: true,
+          coordinateSystem: 'cartesian2d',
+          symbolSize: 20,
           label: {
             show: false
           },
           silent: true,
-          data:
-            sortedTweetMarkers.map(node => {
-              return {
-                name: node.name,
-                x: node.x,
-                y: node.y,
-                value: [node.x, node.y],
-                symbolSize: node.profile_image_url ? 0 : 20,
-                symbol: "circle"
-              }
-            }),
+          data: sortedTweetMarkers.map(node => {
+            return {
+              name: node.name,
+              x: node.x,
+              y: node.y,
+              value: [node.x, node.y],
+              symbolSize: 20,
+              symbol: 'none'
+            }
+          }),
           links,
           lineStyle: {
             color: 'rgba(136, 132, 216, 0.5)',
             width: 2,
             opacity: 0.6,
-          }
+            curveness: 0.3,
+          },
+          edgeSymbolSize: [8, 8], // 设置双向箭头的大小
+          animation: false
         },
         {
           type: 'custom',
@@ -257,8 +297,8 @@ const RelationChart = ({ data, relation, tweets, range }: {
                     }
                   },
                   keyframeAnimation: {
-                    duration: 300,  // 从500ms减少到300ms
-                    delay: params.dataIndexInside * 10,  // 从100ms减少到50ms
+                    duration: 100,  // 从500ms减少到300ms
+                    delay: params.dataIndexInside * 5,  // 从100ms减少到50ms
                     keyframes: [
                       {
                         percent: 0,
@@ -296,23 +336,21 @@ const RelationChart = ({ data, relation, tweets, range }: {
     };
 
     // 开启动画
-    chart.setOption({
+    chartInstance.current.setOption({
       ...option,
       animation: true,
-      animationDuration: 1000,
+      animationDuration: 500,
       animationEasing: 'cubicOut',
-      animationDelay: (idx) => idx * 100
+      animationDelay: (idx) => idx * 50, // 让线条和图片同时出来
     });
 
-    // 监听节点点击
-    // chart.on('click', 'series.graph.nodes', (params: echarts.ECElementEvent) => {
-    //   const data = params.data as CustomNode;
-    //   if (data) {
-    //     window.location.href = `/detail/${data.screen_name}`;
-    //   }
-    // });
+    // 添加 resize 事件监听
+    window.addEventListener('resize', handleResize);
 
-    return () => chart.dispose();
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      chartInstance.current?.dispose();
+    };
   }, [sortedTweetMarkers, links]);
 
   // 当 range 改变时只更新显示范围
