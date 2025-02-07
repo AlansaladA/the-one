@@ -28,7 +28,7 @@ interface CustomLink {
   target: string;
   symbol?: [string, string];  // 添加可选的 symbol 属性
 }
-const itemDelay = 50
+const itemDelay = 10
 const customAvatar = 'https://pbs.twimg.com/profile_images/1867692977734254592/j-GvEEZI_normal.jpg'
 const getTooltipFormatter = (params) => {
   const { data: node } = params.data;
@@ -207,22 +207,25 @@ const RelationChart = ({ data, relation, tweets, range }: {
           r: 10
         }
       },
-      enterAnimation: {
-        delay: params.dataIndexInside * itemDelay
-      },
+      // enterAnimation: {
+      //   delay: params.dataIndexInside * itemDelay,
+      //   duration: 500
+      // },
+      // updateAnimation: {
+      //   delay: 0,
+      //   duration: 0
+      // },
       enterFrom: {
         // 淡入
         style: { opacity: 0 },
       },
+
       silent: false
     };
-  }, [sortedTweetMarkers])
-  useEffect(() => {
-    if (!chartRef.current) return;
+  }, [ ])
 
-    chartInstance.current = echarts.init(chartRef.current);
-
-    const option: echarts.EChartsOption = {
+  const option = useMemo<echarts.EChartsOption>(() => {
+    return {
       progressive: 200,  // 降低每帧渲染数量
       progressiveThreshold: 1000,  // 降低渐进渲染阈值
 
@@ -312,10 +315,7 @@ const RelationChart = ({ data, relation, tweets, range }: {
           animationDelay: function (idx,) {
             return idx * itemDelay;
           },
-          animationDelayUpdate: function (idx,) {
-            return idx * itemDelay;
-          }
-          // animation: false
+          animationDelayUpdate: 0
         },
         {
           type: 'custom',
@@ -336,11 +336,26 @@ const RelationChart = ({ data, relation, tweets, range }: {
               return [point[0], point[1] + 20];
             }
           },
+
+          animationDelay: function (idx,) {
+            return idx * itemDelay;
+          },
+          animationDurationUpdate: 0,
+          animationDelayUpdate: 0,
+          universalTransition: {
+            enabled: true
+          }
         }
       ]
-    };
+    }
+  }, [renderCustomNode, sortedTweetMarkers])
 
-    chartInstance.current.setOption(option);
+  useEffect(() => {
+    if (!chartRef.current) return;
+
+
+    chartInstance.current = echarts.init(chartRef.current);
+    // chartInstance.current.setOption(option);
 
     // 添加 resize 事件监听
     // window.addEventListener('resize', debouncedResize);
@@ -350,15 +365,24 @@ const RelationChart = ({ data, relation, tweets, range }: {
       debouncedResize.cancel()
       chartInstance.current?.dispose();
     };
-  }, [sortedTweetMarkers, links]);
+  }, [sortedTweetMarkers, links,]);
 
+  const isfirst = useRef(false)
   // 当 range 改变时只更新显示范围
   useEffect(() => {
-    if (!chartRef.current) return;
-    const chart = echarts.getInstanceByDom(chartRef.current);
-    if (!chart) return
-    chart.setOption({
-      xAxis: timeRage
+    if (!chartInstance.current) return;
+    // if (!isfirst.current) {
+    //   isfirst.current = true
+    //   chartInstance.current.setOption({
+    //     ...option,
+    //     xAxis: { ...option.xAxis, ...timeRage }
+    //   });
+    //   return
+    // }
+    chartInstance.current.setOption({
+      // xAxis: timeRage
+      ...option,
+      xAxis: { ...option.xAxis, ...timeRage }
     });
   }, [timeRage]);
 
