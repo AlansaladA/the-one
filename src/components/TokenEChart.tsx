@@ -16,7 +16,7 @@ import * as echarts from 'echarts';
 import ReactECharts from 'echarts-for-react';
 import RelationChart from "./relationEchart";
 import { Tooltip } from "@/components/ui/tooltip"
-
+import { IoExpand } from "react-icons/io5";
 export default function TokenEChart({
   initialData,
 }: {
@@ -542,7 +542,7 @@ export default function TokenEChart({
               ))}
             </HStack>
             <Button onClick={fillFun}>
-              <FiSearch></FiSearch>
+              <IoExpand></IoExpand>
             </Button>
           </Flex>
         </VStack>

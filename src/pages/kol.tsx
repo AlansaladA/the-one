@@ -121,38 +121,15 @@ export default function kol() {
       setLoadShip(true);
       const res = await getFollowList(kol);
       setTweetsList(res.tweets);
-      const _data = res.tweets.filter((v) => v.Following === kol)[0] ?? {};
+      const _data =
+        res.tweets.filter((v) => v.Following === kol)[0] ?? {};
 
       const nodes = res.tweets.filter((v) => v.Following !== kol);
 
-      const defaultAvatar = '/images/default-avatar.png';
-
       const centerNode = {
         name: _data?.Following,
-        symbolSize: 30,
-        symbol: 'circle',
-        itemStyle: {
-          color: 'transparent'
-        },
-        label: {
-          show: false
-        },
-        emphasis: {
-          itemStyle: {
-            color: 'transparent'
-          }
-        },
-        clipPath: {
-          type: 'circle',
-          shape: {
-            r: 15
-          }
-        },
-        style: {
-          image: _data?.profile_image_url || defaultAvatar,
-          width: 30,
-          height: 30
-        }
+        symbolSize: 30, // 设置中心点大小
+        symbol: `image://${_data?.profile_image_url}`, // 可自定义样式
       };
 
       const formattedData = nodes.map((node: any, index: number) => ({
@@ -160,7 +137,7 @@ export default function kol() {
         symbolSize: node.size || 20,
         symbol: node.profile_image_url
           ? `image://${node.profile_image_url}`
-          : `image://${defaultAvatar}`,
+          : "circle", // 如果有图片，使用图片节点
       }));
       formattedData.push(centerNode);
       // 格式化链接数据
