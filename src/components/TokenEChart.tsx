@@ -74,10 +74,31 @@ export default function TokenEChart({
         });
       }
     });
-    // console.log(markers, 'markers');
 
     return markers;
   }, [initialData.tweets, processedChartData, followerRange]);
+
+
+  const filterTweets = useMemo(() => {
+    const filteredTweets = followerRange.length > 0
+      ? initialData.tweets.filter((tweet) =>
+          followerRange.includes(getFollowerRange(tweet.followers_count))
+        )
+      : initialData.tweets;
+
+    return filteredTweets.filter((tweet) => {
+      const tweetTime = new Date(tweet.created_at);
+      const closestPricePoint = processedChartData.find((pricePoint) => {
+        const timeDiff = Math.abs(
+          pricePoint.time.getTime() - tweetTime.getTime()
+        );
+        return timeDiff <= 3600000; // 1小时内
+      });
+      
+      return closestPricePoint !== undefined; // 只保留有对应价格点的推文
+    });
+  }, [initialData.tweets, followerRange, processedChartData]);
+
 
 
   useEffect(() => {
@@ -88,6 +109,9 @@ export default function TokenEChart({
   const [range, setRange] = useState<[number, number]>([0, initialData.priceHistory.length - 1])
 
   useEffect(() => {
+    console.log(processedChartData, 'processedChartData');
+    // Mon, 02 Dec 2024 15:10:25 GMT
+
     if (tweetMarkers.length > 0) {
       const firstTweetIndex = processedChartData.findIndex(
         (data) => tweetMarkers.some((marker) => marker.time.getTime() === data.time.getTime())
@@ -101,7 +125,7 @@ export default function TokenEChart({
       }
     }
   }, [tweetMarkers, processedChartData]);
-  
+
   const fillFun = () => {
     // 更新 range 为完整数据范围
     setRange([0, initialData.priceHistory.length - 1]);
@@ -515,7 +539,7 @@ export default function TokenEChart({
   }, 500)
   return (
     <Box mb={8}>
-        {/* <span style={{fontSize:"16px"}}>When did a KOL post a tweet about the token?</span> */}
+      {/* <span style={{fontSize:"16px"}}>When did a KOL post a tweet about the token?</span> */}
       <Flex gap={4} mb={4} justifyContent={"space-between"} w={"full"}>
         <VStack align="start" w={"full"}>
           <Text fontSize="sm" color="gray.400">
@@ -564,8 +588,8 @@ export default function TokenEChart({
       {/* <Tooltip content="How KOLs Are Potentially Influenced by Each Other" showArrow>
         <span style={{fontSize:"16px"}}>Meme Propagation Map</span>
       </Tooltip> */}
-      {!isLoading && <RelationChart range={range} data={initialData.priceHistory} tweets={initialData.tweets} relation={initialData.tweetsRelation[0]} />}
-      
+      {!isLoading && <RelationChart range={range} data={initialData.priceHistory} tweets={filterTweets} relation={initialData.tweetsRelation[0]} />}
+
       {/* <RelationChart range={range} data={initialData.priceHistory} tweets={initialData.tweets} relation={initialData.tweetsRelation[0]} /> */}
     </Box>
   );
