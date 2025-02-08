@@ -15,7 +15,7 @@ interface CustomNode {
   id: number
   impact: number
   pair_name_1: string
-  firestorage_image_url: string,
+  profile_image_url: string,
   relation: string[]
   screen_name: string
   text: string
@@ -86,7 +86,11 @@ const getTooltipFormatter = (params) => {
 }
 
 const RelationChart = ({ data, relation, tweets, range }: {
-  tweets: Tweet[]
+  tweets: {
+    time: Date;
+    price: number;
+    tweets: Tweet[];
+  }[]
   data: PriceHistory[],
   relation: {
 
@@ -107,21 +111,64 @@ const RelationChart = ({ data, relation, tweets, range }: {
 
   const sortedTweetMarkers = useMemo<CustomNode[]>(() => {
     if (!relation) return [];
+    console.log(tweets, 'tweets');
+
     const position = relation?.position ? JSON.parse(relation.position) : {}
     const relationMap = new Map(Object.entries(relation.data || {}));
     const positionMap = new Map<string, number>(Object.entries(position));
+    // const makers =
+    //   tweets.reduce((prev, tweet) => {
+    //     return [...prev, ...tweet.tweets.map(item => {
+    //       const tweetId = item.tweet_id;
+    //       return ({
+    //         ...item,
+    //         name: tweetId,
+    //         x: tweet.time.getTime(),
+    //         relation: relationMap.get(tweetId)?.filter(id => id !== tweetId) || [],
+    //         y: positionMap.get(tweetId) ?? 0
+    //       })
+    //     })]
+    //   }, [] as CustomNode[])
+    // 为每个时间点创建标记
+    const markers = tweets.flatMap(timePoint => {
+      // 如果这个时间点没有推文，也返回一个空的标记保持时间轴一致
+      if (timePoint.tweets.length === 0) {
+        return [{
+          name: `empty-${timePoint.time.getTime()}`,
+          x: timePoint.time.getTime(),
+          y: 0,
+          relation: [],
+          // 添加其他必需的 CustomNode 属性
+          created_at: timePoint.time.toISOString(),
+          followers_count: 0,
+          id: 0,
+          impact: 0,
+          pair_name_1: '',
+          profile_image_url: '',
+          screen_name: '',
+          text: '',
+          tweet_id: '',
+          user: ''
+        }];
+      }
 
-    return tweets.map(tweet => {
-      const tweetId = tweet.tweet_id;
-      return {
-        ...tweet,
-        name: tweet.tweet_id,
-        x: new Date(tweet.created_at).getTime(),
-        relation: relationMap.get(tweetId)?.filter(id => id !== tweetId) || [],
-        y: positionMap.get(tweetId) ?? 0
-      };
-    })
+      // 处理有推文的时间点
+      return timePoint.tweets.map(item => {
+        const tweetId = item.tweet_id;
+        return ({
+          ...item,
+          name: tweetId,
+          x: timePoint.time.getTime(),
+          relation: relationMap.get(tweetId)?.filter(id => id !== tweetId) || [],
+          y: positionMap.get(tweetId) ?? 0
+        });
+      });
+    });
+    console.log(markers, 'makers');
+
+    return markers
   }, [relation, tweets])
+
 
   const links = useMemo<CustomLink[]>(() => {
     const result: CustomLink[] = [];
@@ -164,8 +211,8 @@ const RelationChart = ({ data, relation, tweets, range }: {
     const point = api.coord([api.value(0), api.value(1)]);
     const marker = sortedTweetMarkers[params.dataIndexInside];
 
-    if (!marker || !point) return null;
-
+    if (!marker?.tweet_id || !point) return null;
+    // if(marker.tweet_id)
     // 只在可视区域内渲染图片
     const isInViewport = (
       point[0] >= 0 &&
@@ -179,37 +226,34 @@ const RelationChart = ({ data, relation, tweets, range }: {
     return {
       type: 'image',
       style: {
-        image: marker.firestorage_image_url || customAvatar,
+        image: marker.profile_image_url || customAvatar,
         x: point[0] - 10,
         y: point[1] - 10,
         width: 20,
         height: 20,
-        opacity: 1             
+        opacity: 1
       },
-      emphasis: {
-        style: {
-          image: marker.firestorage_image_url || customAvatar
-        }
-      },
-      onerror: () => {
-        // 更新图表中的图片
-        if (chartInstance.current) {
-          const currentOption = chartInstance.current.getOption();
-          if (currentOption.series && Array.isArray(currentOption.series)) {
-            const customSeries = currentOption.series.find(s => s.type === 'custom');
-            if (customSeries && customSeries.data) {
-              const dataIndex = params.dataIndexInside;
-              if (customSeries.data[dataIndex]) {
-                customSeries.data[dataIndex].style = {
-                  ...customSeries.data[dataIndex].style,
-                  image: customAvatar
-                };
-                chartInstance.current.setOption(currentOption);
-              }
-            }
-          }
-        }
-      },
+      transition: [],
+
+      // onerror: () => {
+      //   // 更新图表中的图片
+      //   if (chartInstance.current) {
+      //     const currentOption = chartInstance.current.getOption();
+      //     if (currentOption.series && Array.isArray(currentOption.series)) {
+      //       const customSeries = currentOption.series.find(s => s.type === 'custom');
+      //       if (customSeries && customSeries.data) {
+      //         const dataIndex = params.dataIndexInside;
+      //         if (customSeries.data[dataIndex]) {
+      //           customSeries.data[dataIndex].style = {
+      //             ...customSeries.data[dataIndex].style,
+      //             image: customAvatar
+      //           };
+      //           chartInstance.current.setOption(currentOption);
+      //         }
+      //       }
+      //     }
+      //   }
+      // },
       clipPath: {
         type: 'circle',
         shape: {
@@ -236,7 +280,7 @@ const RelationChart = ({ data, relation, tweets, range }: {
 
       xAxis: {
         type: 'time',
-        show: false,
+        // show: false,
         axisLine: {
           lineStyle: { color: '#333' }
         },
@@ -249,10 +293,10 @@ const RelationChart = ({ data, relation, tweets, range }: {
         },
         splitLine: {
           show: false
-        }
+        },
       },
       yAxis: {
-        show: false,
+        // show: false,
         type: 'value',
         axisLine: {
           show: true,
@@ -262,6 +306,7 @@ const RelationChart = ({ data, relation, tweets, range }: {
           }
         },
         axisLabel: {
+          // show:false,
           color: '#666',
           formatter: (value: number) => value.toFixed(2)
         },
@@ -316,8 +361,9 @@ const RelationChart = ({ data, relation, tweets, range }: {
             curveness: 0
           },
           edgeSymbolSize: [8, 8],
+          animationDuration: 800,
           animationDelay: function (idx,) {
-            return idx * itemDelay / 2;
+            return idx * itemDelay;
           },
           animationDelayUpdate: 0
         },
@@ -371,22 +417,13 @@ const RelationChart = ({ data, relation, tweets, range }: {
     };
   }, [sortedTweetMarkers, links,]);
 
-  const isfirst = useRef(false)
   // 当 range 改变时只更新显示范围
   useEffect(() => {
     if (!chartInstance.current) return;
-    // if (!isfirst.current) {
-    //   isfirst.current = true
-    //   chartInstance.current.setOption({
-    //     ...option,
-    //     xAxis: { ...option.xAxis, ...timeRage }
-    //   });
-    //   return
-    // }
     chartInstance.current.setOption({
       // xAxis: timeRage
       ...option,
-      xAxis: { ...option.xAxis, ...timeRage }
+      // xAxis: { ...option.xAxis, ...timeRage }
     });
   }, [timeRage]);
 

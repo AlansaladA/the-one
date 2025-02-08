@@ -49,30 +49,78 @@ export default function TokenEChart({
         )
         : initialData.tweets;
 
-    filteredTweets.forEach((tweet) => {
+    // filteredTweets.forEach((tweet) => {
+    // const tweetTime = new Date(tweet.created_at);
+    // const closestPricePoint = processedChartData.find((pricePoint) => {
+    //   const timeDiff = Math.abs(
+    //     pricePoint.time.getTime() - tweetTime.getTime()
+    //   );
+    //   return timeDiff <= 3600000;
+    // });
+
+    // if (!closestPricePoint) return;
+
+    // const existingMarker = markers.find(
+    //   (m) => m.time.getTime() === closestPricePoint.time.getTime()
+    // );
+
+    // if (existingMarker) {
+    //   existingMarker.tweets.push(tweet);
+    // } else {
+    //   markers.push({
+    //     time: closestPricePoint.time,
+    //     price: closestPricePoint.price,
+    //     tweets: [tweet],
+    //   });
+    // }
+    // }); 
+    // 创建一个排序后的时间点数组
+    const allTimePoints = [...processedChartData.map(point => point.time)];
+
+    // 添加推文时间点
+    filteredTweets.forEach(tweet => {
       const tweetTime = new Date(tweet.created_at);
-      const closestPricePoint = processedChartData.find((pricePoint) => {
-        const timeDiff = Math.abs(
-          pricePoint.time.getTime() - tweetTime.getTime()
-        );
-        return timeDiff <= 3600000;
-      });
+      allTimePoints.push(tweetTime);
+    });
 
-      if (!closestPricePoint) return;
-
-      const existingMarker = markers.find(
-        (m) => m.time.getTime() === closestPricePoint.time.getTime()
-      );
-
-      if (existingMarker) {
-        existingMarker.tweets.push(tweet);
+    // 按时间排序并去重
+    const uniqueTimePoints = Array.from(new Set(
+      allTimePoints.map(time => time.getTime())
+    )).sort((a, b) => a - b).map(time => new Date(time));
+    // 创建一个 Map 来存储推文时间和推文的对应关系
+    const tweetTimeMap = new Map<number, Tweet[]>();
+    filteredTweets.forEach(tweet => {
+      const time = new Date(tweet.created_at).getTime();
+      if (tweetTimeMap.has(time)) {
+        tweetTimeMap.get(time)!.push(tweet);
       } else {
-        markers.push({
-          time: closestPricePoint.time,
-          price: closestPricePoint.price,
-          tweets: [tweet],
-        });
+        tweetTimeMap.set(time, [tweet]);
       }
+    });
+
+    // 遍历所有时间点，进行插值
+    uniqueTimePoints.forEach(time => {
+      // 查找最近的价格点
+      const nearestPricePoint = processedChartData.reduce((nearest, current) => {
+        const currentDiff = Math.abs(current.time.getTime() - time.getTime());
+        const nearestDiff = Math.abs(nearest.time.getTime() - time.getTime());
+        return currentDiff < nearestDiff ? current : nearest;
+      }, processedChartData[0]);
+
+      // 检查这个时间点是否有对应的推文
+      const tweets = tweetTimeMap.get(time.getTime());
+      markers.push({
+        time,
+        price: nearestPricePoint.price,
+        tweets: tweets || [],
+      });
+      // if (tweets && tweets.length > 0) {
+      //   markers.push({
+      //     time,
+      //     price: nearestPricePoint.price,
+      //     tweets: tweets,
+      //   });
+      // }
     });
     // console.log(markers, 'markers');
 
@@ -101,7 +149,7 @@ export default function TokenEChart({
       }
     }
   }, [tweetMarkers, processedChartData]);
-  
+
   const fillFun = () => {
     // 更新 range 为完整数据范围
     setRange([0, initialData.priceHistory.length - 1]);
@@ -389,7 +437,7 @@ export default function TokenEChart({
         {
           type: 'custom',
           renderItem: (params: any, api: any) => { 
-            
+
             const point = api.coord([
               api.value(0),
               api.value(1)
@@ -516,7 +564,7 @@ export default function TokenEChart({
   }, 500)
   return (
     <Box mb={8}>
-        {/* <span style={{fontSize:"16px"}}>When did a KOL post a tweet about the token?</span> */}
+      {/* <span style={{fontSize:"16px"}}>When did a KOL post a tweet about the token?</span> */}
       <Flex gap={4} mb={4} justifyContent={"space-between"} w={"full"}>
         <VStack align="start" w={"full"}>
           <Text fontSize="sm" color="gray.400">
@@ -565,8 +613,8 @@ export default function TokenEChart({
       {/* <Tooltip content="How KOLs Are Potentially Influenced by Each Other" showArrow>
         <span style={{fontSize:"16px"}}>Meme Propagation Map</span>
       </Tooltip> */}
-      {!isLoading && <RelationChart range={range} data={initialData.priceHistory} tweets={initialData.tweets} relation={initialData.tweetsRelation[0]} />}
-      
+      {!isLoading && <RelationChart range={range} data={initialData.priceHistory} tweets={tweetMarkers} relation={initialData.tweetsRelation[0]} />}
+
       {/* <RelationChart range={range} data={initialData.priceHistory} tweets={initialData.tweets} relation={initialData.tweetsRelation[0]} /> */}
     </Box>
   );
