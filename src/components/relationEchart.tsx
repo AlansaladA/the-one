@@ -2,7 +2,7 @@ import { PriceHistory } from '@/utils/types';
 import { Tweet } from '@/utils/types';
 import * as echarts from 'echarts';
 import _ from 'lodash';
-import { useRef, useEffect, useMemo, useCallback, useState } from 'react';
+import { useRef, useEffect, useMemo, useCallback } from 'react';
 
 interface CustomNode {
   x: number;
@@ -32,18 +32,16 @@ const itemDelay = 2
 const customAvatar = 'https://pbs.twimg.com/profile_images/1867692977734254592/j-GvEEZI_normal.jpg'
 const getTooltipFormatter = (params) => {
   const { data: node } = params.data;
-  const imageUrl = node.profile_image_url || customAvatar;
   return `
     <div style="max-height: 300px; padding: 16px; display: flex; flex-direction: column; gap: 16px; background: #2D2D4FF2; border-radius: 8px; color: #CBD5E0; width: 500px; overflow-y: auto;">
       <div style="border-color: #2D2D4F;">
         <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px;">
           <div style="display: flex; align-items: center; gap: 12px;">
             <img 
-              src="${imageUrl}" 
+              src="${node.profile_image_url}" 
               style="width: 32px; height: 32px; border-radius: 9999px; cursor: pointer;"
               onmouseover="this.style.opacity=0.8"
               onmouseout="this.style.opacity=1"
-              onerror="this.src='${customAvatar}'"
             />
             <div style="display: flex; flex-direction: column; align-items: flex-start;">
               <div style="font-size: 14px; font-weight: bold; color: white; text-decoration: none;">
@@ -162,22 +160,55 @@ const RelationChart = ({ data, relation, tweets, range }: {
     }, 300),
     []
   );
-
   const renderCustomNode: echarts.CustomSeriesRenderItem = useCallback((params, api) => {
     const point = api.coord([api.value(0), api.value(1)]);
     const marker = sortedTweetMarkers[params.dataIndexInside];
 
     if (!marker || !point) return null;
-    // 如果图片有效，返回图片节点
+
+    // 只在可视区域内渲染图片
+    const isInViewport = (
+      point[0] >= 0 &&
+      point[0] <= (chartInstance.current?.getWidth() ?? 0) &&
+      point[1] >= 0 &&
+      point[1] <= (chartInstance.current?.getHeight() ?? 0)
+    );
+
+    if (!isInViewport) return null;
+
     return {
       type: 'image',
       style: {
-        image: marker.firestorage_image_url || '',
+        image: marker.firestorage_image_url || customAvatar,
         x: point[0] - 10,
         y: point[1] - 10,
         width: 20,
         height: 20,
-        opacity: 1
+        opacity: 1             
+      },
+      emphasis: {
+        style: {
+          image: marker.firestorage_image_url || customAvatar
+        }
+      },
+      onerror: () => {
+        // 更新图表中的图片
+        if (chartInstance.current) {
+          const currentOption = chartInstance.current.getOption();
+          if (currentOption.series && Array.isArray(currentOption.series)) {
+            const customSeries = currentOption.series.find(s => s.type === 'custom');
+            if (customSeries && customSeries.data) {
+              const dataIndex = params.dataIndexInside;
+              if (customSeries.data[dataIndex]) {
+                customSeries.data[dataIndex].style = {
+                  ...customSeries.data[dataIndex].style,
+                  image: customAvatar
+                };
+                chartInstance.current.setOption(currentOption);
+              }
+            }
+          }
+        }
       },
       clipPath: {
         type: 'circle',
