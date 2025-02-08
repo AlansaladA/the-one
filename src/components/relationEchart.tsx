@@ -1,7 +1,8 @@
-import { PriceHistory } from '@/utils/types';
+
 import { Tweet } from '@/utils/types';
 import * as echarts from 'echarts';
 import _ from 'lodash';
+import dayjs from 'dayjs';
 import { useRef, useEffect, useMemo, useCallback } from 'react';
 
 interface CustomNode {
@@ -55,6 +56,10 @@ const getTooltipFormatter = (params) => {
               </div>
             </div>
           </div>
+          <div>
+          <div style="font-size: 14px; color: #A0AEC0;margin-bottom: 8px;text-align: right;">
+                ${dayjs(node.created_at).format('YYYY-MM-DD HH:mm')} 
+              </div>
           <div style="display: flex; gap: 8px;">
             <button 
               onclick="window.location.href='/detail/${node.screen_name}'"
@@ -76,7 +81,7 @@ const getTooltipFormatter = (params) => {
               Follow
             </button>
           </div>
-        </div>
+        </div></div>
         <div style="margin-top: 8px; font-size: 14px; color: white;">
           ${node.text}
         </div>
@@ -85,13 +90,12 @@ const getTooltipFormatter = (params) => {
   `;
 }
 
-const RelationChart = ({ data, relation, tweets, range }: {
+const RelationChart = ({ relation, tweets, range }: {
   tweets: {
     time: Date;
     price: number;
     tweets: Tweet[];
   }[]
-  data: PriceHistory[],
   relation: {
 
     data: Record<string, string[]>
@@ -100,14 +104,14 @@ const RelationChart = ({ data, relation, tweets, range }: {
   range: [number, number]
 }) => {
   const timeRage = useMemo(() => {
-    const times = data.sort((a, b) => a.time - b.time).map(item => item.time)
+    const times = tweets.map(item => item.time.getTime()).sort((a, b) => a - b)
     return (
       {
         min: times[range[0]] ?? 0,
         max: times[range[1]] ?? 100
       }
     )
-  }, [data, range])
+  }, [tweets, range])
 
   const sortedTweetMarkers = useMemo<CustomNode[]>(() => {
     if (!relation) return [];
@@ -280,31 +284,17 @@ const RelationChart = ({ data, relation, tweets, range }: {
 
       xAxis: {
         type: 'time',
-        // show: false,
+        show: false,
         axisLine: {
           lineStyle: { color: '#333' }
-        },
-        axisLabel: {
-          color: '#666',
-          formatter: (value: number) => {
-            const date = new Date(value);
-            return `${date.getMonth() + 1}月${date.getDate()}日 ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-          }
         },
         splitLine: {
           show: false
         },
       },
       yAxis: {
-        // show: false,
+        show: false,
         type: 'value',
-        axisLine: {
-          show: true,
-          lineStyle: {
-            color: '#333',
-            width: 1
-          }
-        },
         axisLabel: {
           // show:false,
           color: '#666',
@@ -325,11 +315,11 @@ const RelationChart = ({ data, relation, tweets, range }: {
         extraCssText: 'box-shadow: 0 0 10px rgba(0,0,0,0.3); border-radius: 8px;'
       },
       grid: {
-        left: 0,
-        right: 0,
-        bottom: 0,
-        top: 10,
-        containLabel: true,
+        left: '3%',
+        right: '3%',
+        bottom: '15%',
+        top: '8%',
+        // containLabel: false
 
       },
       series: [
@@ -350,10 +340,11 @@ const RelationChart = ({ data, relation, tweets, range }: {
             symbolSize: 20,
             symbol: 'none'
             // symbol: `image://${node.profile_image_url}`
-            // symbol: 'circle'
+            // symbol: node.tweet_id ? 'circle' : 'none'
           })),
           links,
           // autoCurveness: true,
+
           lineStyle: {
             color: 'rgba(136, 132, 216, 0.5)',
             width: 2,
@@ -402,8 +393,6 @@ const RelationChart = ({ data, relation, tweets, range }: {
 
   useEffect(() => {
     if (!chartRef.current) return;
-
-
     chartInstance.current = echarts.init(chartRef.current);
     // chartInstance.current.setOption(option);
 
@@ -420,14 +409,16 @@ const RelationChart = ({ data, relation, tweets, range }: {
   // 当 range 改变时只更新显示范围
   useEffect(() => {
     if (!chartInstance.current) return;
+    console.log(timeRage);
+
     chartInstance.current.setOption({
       // xAxis: timeRage
       ...option,
-      // xAxis: { ...option.xAxis, ...timeRage }
+      xAxis: { ...option.xAxis, ...timeRage }
     });
   }, [timeRage]);
 
-  return <div ref={chartRef} style={{ width: '100%', height: '600px', overflow: "hidden", padding: "10px 40px 10px 40px" }} />;
+  return <div ref={chartRef} style={{ width: '100%', height: '600px', overflow: "hidden", }} />;
 };
 
 export default RelationChart;
