@@ -1,9 +1,10 @@
-import { Suspense, useEffect, useState } from "react"; 
+import { Suspense, useEffect, useState } from "react";
 import { getTweetOne, getTickerOne, getRelation } from "@/api";
 import { useParams } from "react-router";
-import { Tweet, PriceHistory } from "@/utils/types";
-import { Box, Heading, Spinner, Flex, Container } from "@chakra-ui/react";
+import { Tweet, Price } from "@/utils/types";
+import { Heading, Spinner, Flex, Container } from "@chakra-ui/react";
 import TokenEChart from "@/components/TokenEChart";
+import Loading from "@/components/loading";
 
 // import TokenChartVisx from '@/components/TokenChartVisx';
 type Params = {
@@ -12,23 +13,24 @@ type Params = {
 
 export default function Ticker() {
   const [data, setData] = useState<{
-    priceHistory: PriceHistory[];
+    priceData: Price[];
     tweets: Tweet[];
     tweetsRelation: {
       data: Record<string, string[]>;
       position: string;
     }[];
   }>({
-    priceHistory: [],
+    priceData: [],
     tweets: [],
     tweetsRelation: [],
   });
 
   const { ticker } = useParams<Params>();
-
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     const getfetchData = async () => {
       if (ticker) {
+        setLoading(true)
         try {
           const [priceRes, tweetsRes, tweetsRelation] = await Promise.all([
             getTickerOne(ticker),
@@ -37,21 +39,19 @@ export default function Ticker() {
           ]);
 
           setData({
-            priceHistory: priceRes.history.map(v => ({
-              ...v,
-              time: new Date(v.download_time).getTime()
-            })), // 根据接口返回的结构调整
-            // tweets: tweetsRes.tweets.map(v => {
-            //   return {
-            //     ...v,
-            //     tweet_id: BigInt(v.tweet_id).toString()
-            //   }
-            // }),
+            priceData: priceRes.history.map((item) => ({
+              time: new Date(item.download_time).getTime(),
+              price: parseFloat(item.close),
+              volume: parseFloat(item.volume),
+              name: item.name,
+            })), // 根据接口返回的结构调整 
             tweets: tweetsRes.tweets,
             tweetsRelation: tweetsRelation.tweets
           });
         } catch (error) {
           console.error(error); // 记录错误信息
+        } finally {
+          setLoading(false)
         }
       }
     };
@@ -72,8 +72,9 @@ export default function Ticker() {
           </Flex>
         }
       >
-        {/* <TokenChart initialData={data} /> */}
-        <TokenEChart initialData={data} />
+        {
+          loading ? <Loading /> : <TokenEChart initialData={data} />
+        }
       </Suspense>
     </Container>
   );

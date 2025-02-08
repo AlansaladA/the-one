@@ -44,11 +44,10 @@ export interface Tweet {
   relation?:string[]
 }
 
-export interface PriceHistory {
-  close: string;
-  download_time: string;
+export interface Price {
+  price: number; 
   name: string;
-  volume: string;
+  volume: number;
   time: number;
 }
 

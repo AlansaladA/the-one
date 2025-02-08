@@ -1,9 +1,9 @@
-
 import { Tweet } from '@/utils/types';
 import * as echarts from 'echarts';
 import _ from 'lodash';
 import dayjs from 'dayjs';
-import { useRef, useEffect, useMemo, useCallback } from 'react';
+import ReactECharts from 'echarts-for-react';
+import { useRef, useEffect, useMemo, useCallback, forwardRef, useImperativeHandle } from 'react';
 
 interface CustomNode {
   x: number;
@@ -89,61 +89,61 @@ const getTooltipFormatter = (params) => {
     </div>
   `;
 }
-
-const RelationChart = ({ relation, tweets, range }: {
+export type RelationChartRef = {
+  setRange: (newRange: number[]) => void;
+  initRange: (newRange: number[]) => void;
+}
+const RelationChart = forwardRef<RelationChartRef, {
+  defaultRange: number[];
   tweets: {
-    time: Date;
+    time: number;
     price: number;
     tweets: Tweet[];
+
   }[]
   relation: {
-
     data: Record<string, string[]>
     position: string
   }
-  range: [number, number]
-}) => {
-  const timeRage = useMemo(() => {
-    const times = tweets.map(item => item.time.getTime()).sort((a, b) => a - b)
-    return (
-      {
-        min: times[range[0]] ?? 0,
-        max: times[range[1]] ?? 100
-      }
-    )
-  }, [tweets, range])
+}>(({ relation, tweets, defaultRange }, ref) => {
+  useImperativeHandle(ref, () => ({
+    setRange(newRange: number[]) {
+      if (!chartInstance.current) return;
+      chartInstance.current.dispatchAction({
+        type: 'dataZoom',
+        start: newRange[0],
+        end: newRange[1]
+      })
+    },
+    initRange(newRange: number[]) {
+      if (!chartInstance.current) return;
+
+      chartInstance.current.dispatchAction({
+        type: 'dataZoom',
+        startValue: newRange[0],
+        endValue: newRange[1]
+      })
+    }
+  }), [])
 
   const sortedTweetMarkers = useMemo<CustomNode[]>(() => {
     if (!relation) return [];
-    console.log(tweets, 'tweets');
 
     const position = relation?.position ? JSON.parse(relation.position) : {}
     const relationMap = new Map(Object.entries(relation.data || {}));
     const positionMap = new Map<string, number>(Object.entries(position));
-    // const makers =
-    //   tweets.reduce((prev, tweet) => {
-    //     return [...prev, ...tweet.tweets.map(item => {
-    //       const tweetId = item.tweet_id;
-    //       return ({
-    //         ...item,
-    //         name: tweetId,
-    //         x: tweet.time.getTime(),
-    //         relation: relationMap.get(tweetId)?.filter(id => id !== tweetId) || [],
-    //         y: positionMap.get(tweetId) ?? 0
-    //       })
-    //     })]
-    //   }, [] as CustomNode[])
+
     // 为每个时间点创建标记
     const markers = tweets.flatMap(timePoint => {
       // 如果这个时间点没有推文，也返回一个空的标记保持时间轴一致
       if (timePoint.tweets.length === 0) {
         return [{
-          name: `empty-${timePoint.time.getTime()}`,
-          x: timePoint.time.getTime(),
+          name: `empty-${timePoint.time}`,
+          x: timePoint.time,
           y: 0,
           relation: [],
           // 添加其他必需的 CustomNode 属性
-          created_at: timePoint.time.toISOString(),
+          created_at: new Date(timePoint.time).toISOString(),
           followers_count: 0,
           id: 0,
           impact: 0,
@@ -162,16 +162,15 @@ const RelationChart = ({ relation, tweets, range }: {
         return ({
           ...item,
           name: tweetId,
-          x: timePoint.time.getTime(),
+          x: timePoint.time,
           relation: relationMap.get(tweetId)?.filter(id => id !== tweetId) || [],
           y: positionMap.get(tweetId) ?? 0
         });
       });
     });
-    console.log(markers, 'makers');
 
-    return markers
-  }, [relation, tweets])
+    return markers;
+  }, [relation, tweets]);
 
 
   const links = useMemo<CustomLink[]>(() => {
@@ -213,7 +212,7 @@ const RelationChart = ({ relation, tweets, range }: {
   );
   const renderCustomNode: echarts.CustomSeriesRenderItem = useCallback((params, api) => {
     const point = api.coord([api.value(0), api.value(1)]);
-    const marker = sortedTweetMarkers[params.dataIndexInside];
+    const marker = sortedTweetMarkers[params.dataIndex];
 
     if (!marker?.tweet_id || !point) return null;
     // if(marker.tweet_id)
@@ -238,26 +237,6 @@ const RelationChart = ({ relation, tweets, range }: {
         opacity: 1
       },
       transition: [],
-
-      // onerror: () => {
-      //   // 更新图表中的图片
-      //   if (chartInstance.current) {
-      //     const currentOption = chartInstance.current.getOption();
-      //     if (currentOption.series && Array.isArray(currentOption.series)) {
-      //       const customSeries = currentOption.series.find(s => s.type === 'custom');
-      //       if (customSeries && customSeries.data) {
-      //         const dataIndex = params.dataIndexInside;
-      //         if (customSeries.data[dataIndex]) {
-      //           customSeries.data[dataIndex].style = {
-      //             ...customSeries.data[dataIndex].style,
-      //             image: customAvatar
-      //           };
-      //           chartInstance.current.setOption(currentOption);
-      //         }
-      //       }
-      //     }
-      //   }
-      // },
       clipPath: {
         type: 'circle',
         shape: {
@@ -276,15 +255,21 @@ const RelationChart = ({ relation, tweets, range }: {
   }, [sortedTweetMarkers])
 
   const option = useMemo<echarts.EChartsOption>(() => {
+    console.log(defaultRange, 'defaultRange');
     return {
       progressive: 200,  // 降低每帧渲染数量
       progressiveThreshold: 1000,  // 降低渐进渲染阈值
 
       throttle: 200,    // 增加节流阈值
+      dataZoom: {
+        show: false,
+        start: defaultRange[0],
+        end: defaultRange[1]
+      },
 
       xAxis: {
         type: 'time',
-        show: false,
+        // show: false,
         axisLine: {
           lineStyle: { color: '#333' }
         },
@@ -315,10 +300,10 @@ const RelationChart = ({ relation, tweets, range }: {
         extraCssText: 'box-shadow: 0 0 10px rgba(0,0,0,0.3); border-radius: 8px;'
       },
       grid: {
-        left: '3%',
+        left: '6%',
         right: '3%',
-        bottom: '15%',
-        top: '8%',
+        bottom: 0,
+        top: '2%',
         // containLabel: false
 
       },
@@ -389,12 +374,14 @@ const RelationChart = ({ relation, tweets, range }: {
         }
       ]
     }
-  }, [renderCustomNode, sortedTweetMarkers])
+  }, [renderCustomNode, sortedTweetMarkers, defaultRange])
 
   useEffect(() => {
+    console.log('?');
+
     if (!chartRef.current) return;
     chartInstance.current = echarts.init(chartRef.current);
-    // chartInstance.current.setOption(option);
+    chartInstance.current.setOption(option);
 
     // 添加 resize 事件监听
     // window.addEventListener('resize', debouncedResize);
@@ -404,21 +391,17 @@ const RelationChart = ({ relation, tweets, range }: {
       debouncedResize.cancel()
       chartInstance.current?.dispose();
     };
-  }, [sortedTweetMarkers, links,]);
+  }, [sortedTweetMarkers, links, option]);
 
-  // 当 range 改变时只更新显示范围
-  useEffect(() => {
-    if (!chartInstance.current) return;
-    console.log(timeRage);
 
-    chartInstance.current.setOption({
-      // xAxis: timeRage
-      ...option,
-      xAxis: { ...option.xAxis, ...timeRage }
-    });
-  }, [timeRage]);
-
+  //   return  <ReactECharts
+  //   ref={echartRef}
+  //   option={getChartOption()}
+  //   style={{ height: '100%' }}
+  //   onEvents={{
+  //     dataZoom: handleZoom
+  //   }}
+  // /> 
   return <div ref={chartRef} style={{ width: '100%', height: '600px', overflow: "hidden", }} />;
-};
-
+});
 export default RelationChart;
