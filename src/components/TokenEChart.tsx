@@ -49,31 +49,7 @@ export default function TokenEChart({
         )
         : initialData.tweets;
 
-    // filteredTweets.forEach((tweet) => {
-    // const tweetTime = new Date(tweet.created_at);
-    // const closestPricePoint = processedChartData.find((pricePoint) => {
-    //   const timeDiff = Math.abs(
-    //     pricePoint.time.getTime() - tweetTime.getTime()
-    //   );
-    //   return timeDiff <= 3600000;
-    // });
-
-    // if (!closestPricePoint) return;
-
-    // const existingMarker = markers.find(
-    //   (m) => m.time.getTime() === closestPricePoint.time.getTime()
-    // );
-
-    // if (existingMarker) {
-    //   existingMarker.tweets.push(tweet);
-    // } else {
-    //   markers.push({
-    //     time: closestPricePoint.time,
-    //     price: closestPricePoint.price,
-    //     tweets: [tweet],
-    //   });
-    // }
-    // }); 
+    
     // 创建一个排序后的时间点数组
     const allTimePoints = [...processedChartData.map(point => point.time)];
 
@@ -122,10 +98,90 @@ export default function TokenEChart({
       //   });
       // }
     });
+
+    return markers;
+  }, [initialData.tweets, processedChartData, followerRange]);
+
+
+  const filterTweets = useMemo(() => {
+    const filteredTweets = followerRange.length > 0
+      ? initialData.tweets.filter((tweet) =>
+        followerRange.includes(getFollowerRange(tweet.followers_count))
+      )
+      : initialData.tweets;
+
+    return filteredTweets.filter((tweet) => {
+      const tweetTime = new Date(tweet.created_at);
+      const closestPricePoint = processedChartData.find((pricePoint) => {
+        const timeDiff = Math.abs(
+          pricePoint.time.getTime() - tweetTime.getTime()
+        );
+        return timeDiff <= 3600000;
+      });
+
+      if (!closestPricePoint) return;
+
+      const existingMarker = markers.find(
+        (m) => m.time.getTime() === closestPricePoint.time.getTime()
+      );
+
+      if (existingMarker) {
+        existingMarker.tweets.push(tweet);
+      } else {
+        tweetTimeMap.set(time, [tweet]);
+      }
+    });
+
+    // 遍历所有时间点，进行插值
+    uniqueTimePoints.forEach(time => {
+      // 查找最近的价格点
+      const nearestPricePoint = processedChartData.reduce((nearest, current) => {
+        const currentDiff = Math.abs(current.time.getTime() - time.getTime());
+        const nearestDiff = Math.abs(nearest.time.getTime() - time.getTime());
+        return currentDiff < nearestDiff ? current : nearest;
+      }, processedChartData[0]);
+
+      // 检查这个时间点是否有对应的推文
+      const tweets = tweetTimeMap.get(time.getTime());
+      markers.push({
+        time,
+        price: nearestPricePoint.price,
+        tweets: tweets || [],
+      });
+      // if (tweets && tweets.length > 0) {
+      //   markers.push({
+      //     time,
+      //     price: nearestPricePoint.price,
+      //     tweets: tweets,
+      //   });
+      // }
+    });
     // console.log(markers, 'markers');
 
     return markers;
   }, [initialData.tweets, processedChartData, followerRange]);
+
+
+  const filterTweets = useMemo(() => {
+    const filteredTweets = followerRange.length > 0
+      ? initialData.tweets.filter((tweet) =>
+        followerRange.includes(getFollowerRange(tweet.followers_count))
+      )
+      : initialData.tweets;
+
+    return filteredTweets.filter((tweet) => {
+      const tweetTime = new Date(tweet.created_at);
+      const closestPricePoint = processedChartData.find((pricePoint) => {
+        const timeDiff = Math.abs(
+          pricePoint.time.getTime() - tweetTime.getTime()
+        );
+        return timeDiff <= 3600000; // 1小时内
+      });
+
+      return closestPricePoint !== undefined; // 只保留有对应价格点的推文
+    });
+  }, [initialData.tweets, followerRange, processedChartData]);
+
 
 
   useEffect(() => {
@@ -136,6 +192,9 @@ export default function TokenEChart({
   const [range, setRange] = useState<[number, number]>([0, initialData.priceHistory.length - 1])
 
   useEffect(() => {
+    console.log(processedChartData, 'processedChartData');
+    // Mon, 02 Dec 2024 15:10:25 GMT
+
     if (tweetMarkers.length > 0) {
       const firstTweetIndex = processedChartData.findIndex(
         (data) => tweetMarkers.some((marker) => marker.time.getTime() === data.time.getTime())
@@ -564,7 +623,7 @@ export default function TokenEChart({
   }, 500)
   return (
     <Box mb={8}>
-      {/* <span style={{fontSize:"16px"}}>When did a KOL post a tweet about the token?</span> */}
+      <span style={{ fontSize: "16px" }}>When did a KOL post a tweet about the token?</span>
       <Flex gap={4} mb={4} justifyContent={"space-between"} w={"full"}>
         <VStack align="start" w={"full"}>
           <Text fontSize="sm" color="gray.400">
