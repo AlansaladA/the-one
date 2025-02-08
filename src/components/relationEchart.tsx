@@ -15,7 +15,7 @@ interface CustomNode {
   id: number
   impact: number
   pair_name_1: string
-  profile_image_url: string,
+  firestorage_image_url: string,
   relation: string[]
   screen_name: string
   text: string
@@ -163,94 +163,21 @@ const RelationChart = ({ data, relation, tweets, range }: {
     []
   );
 
-  // 添加一个预加载图片的函数
-  const preloadImage = (url: string): Promise<boolean> => {
-    return new Promise((resolve) => {
-      const img = new Image();
-      img.onload = () => resolve(true);
-      img.onerror = () => resolve(false);
-      img.src = url;
-    });
-  };
-
-  // 在组件中添加图片加载状态的 state
-  const [validImageUrls, setValidImageUrls] = useState<Record<string, boolean>>({});
-
-  // 在数据加载后预加载图片
-  useEffect(() => {
-    const loadImages = async () => {
-      const imageLoadResults: Record<string, boolean> = {};
-
-      // 并行加载所有图片
-      const loadPromises = sortedTweetMarkers.map(async (marker) => {
-        if (marker.profile_image_url) {
-          const isValid = await preloadImage(marker.profile_image_url);
-          imageLoadResults[marker.profile_image_url] = isValid;
-        }
-      });
-
-      await Promise.all(loadPromises);
-      setValidImageUrls(imageLoadResults);
-    };
-
-    if (sortedTweetMarkers.length > 0) {
-      loadImages();
-    }
-  }, [sortedTweetMarkers]);
-
   const renderCustomNode: echarts.CustomSeriesRenderItem = useCallback((params, api) => {
     const point = api.coord([api.value(0), api.value(1)]);
     const marker = sortedTweetMarkers[params.dataIndexInside];
 
     if (!marker || !point) return null;
-
-    // 检查图片是否有效
-    const imageUrl = marker.profile_image_url;
-    const isImageValid = imageUrl ? validImageUrls[imageUrl] : false;
-
-    // 如果图片无效，直接返回圆形
-    if (!isImageValid) {
-      return {
-        type: 'image',
-        shape: {
-          cx: point[0],
-          cy: point[1],
-          r: 10
-        },
-        style: {
-          image: customAvatar,
-          x: point[0] - 10,
-          y: point[1] - 10,
-          width: 20,
-          height: 20,
-          opacity: 1
-        },
-        clipPath: {
-          type: 'circle',
-          shape: {
-            cx: point[0],
-            cy: point[1],
-            r: 10
-          }
-        },
-      };
-    }
-
     // 如果图片有效，返回图片节点
     return {
       type: 'image',
       style: {
-        image: marker.profile_image_url,
+        image: marker.firestorage_image_url || '',
         x: point[0] - 10,
         y: point[1] - 10,
         width: 20,
         height: 20,
         opacity: 1
-      },
-      emphasis: {
-        style: {
-          image: marker.profile_image_url || customAvatar
-        }
       },
       clipPath: {
         type: 'circle',
@@ -260,14 +187,6 @@ const RelationChart = ({ data, relation, tweets, range }: {
           r: 10
         }
       },
-      // enterAnimation: {
-      //   delay: params.dataIndexInside * itemDelay,
-      //   duration: 500
-      // },
-      // updateAnimation: {
-      //   delay: 0,
-      //   duration: 0
-      // },
       enterFrom: {
         // 淡入
         style: { opacity: 0 },
@@ -275,8 +194,8 @@ const RelationChart = ({ data, relation, tweets, range }: {
 
       silent: false
     };
-  }, [sortedTweetMarkers]) 
-  
+  }, [sortedTweetMarkers])
+
   const option = useMemo<echarts.EChartsOption>(() => {
     return {
       progressive: 200,  // 降低每帧渲染数量
@@ -354,6 +273,7 @@ const RelationChart = ({ data, relation, tweets, range }: {
             value: [node.x, node.y],
             symbolSize: 20,
             symbol: 'none'
+            // symbol: `image://${node.profile_image_url}`
             // symbol: 'circle'
           })),
           links,
@@ -366,7 +286,7 @@ const RelationChart = ({ data, relation, tweets, range }: {
           },
           edgeSymbolSize: [8, 8],
           animationDelay: function (idx,) {
-            return idx * itemDelay;
+            return idx * itemDelay / 2;
           },
           animationDelayUpdate: 0
         },

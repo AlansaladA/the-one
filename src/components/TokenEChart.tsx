@@ -388,7 +388,8 @@ export default function TokenEChart({
         },
         {
           type: 'custom',
-          renderItem: (params: any, api: any) => {
+          renderItem: (params: any, api: any) => { 
+            
             const point = api.coord([
               api.value(0),
               api.value(1)
