@@ -4,6 +4,7 @@ import _ from 'lodash';
 import dayjs from 'dayjs';
 import ReactECharts from 'echarts-for-react';
 import { useRef, useEffect, useMemo, useCallback, forwardRef, useImperativeHandle } from 'react';
+import { useNavigate } from 'react-router';
 
 interface CustomNode {
   x: number;
@@ -62,7 +63,7 @@ const getTooltipFormatter = (params) => {
               </div>
           <div style="display: flex; gap: 8px;">
             <button 
-              onclick="window.location.href='/detail/${node.screen_name}'"
+              onclick="(() => { window.reactNavigate('/detail/${node.screen_name}') })()"
               style="border-radius: 9999px; padding: 6px 12px; background: #4A5568; color: white; font-weight: bold; border: none; cursor: pointer;"
               onmouseover="this.style.background='#2D3748'"
               onmouseout="this.style.background='#4A5568'"
@@ -106,6 +107,8 @@ const RelationChart = forwardRef<RelationChartRef, {
     position: string
   }
 }>(({ relation, tweets, defaultRange }, ref) => {
+  const navigate = useNavigate();
+
   useImperativeHandle(ref, () => ({
     setRange(newRange: number[]) {
       if (!chartInstance.current) return;
@@ -271,11 +274,18 @@ const RelationChart = forwardRef<RelationChartRef, {
         type: 'time',
         show: false,
         axisLine: {
+          show: false,
           lineStyle: { color: '#333' }
         },
         splitLine: {
           show: false
         },
+        axisTick: {
+          show: false
+        },
+        axisLabel: {
+          show: false
+        }
       },
       yAxis: {
         show: false,
@@ -377,21 +387,26 @@ const RelationChart = forwardRef<RelationChartRef, {
   }, [renderCustomNode, sortedTweetMarkers, defaultRange])
 
   useEffect(() => {
-    console.log('?');
-
     if (!chartRef.current) return;
     chartInstance.current = echarts.init(chartRef.current);
     chartInstance.current.setOption(option);
 
     // 添加 resize 事件监听
-    // window.addEventListener('resize', debouncedResize);
+    window.addEventListener('resize', debouncedResize);
+
+    // 将 navigate 函数挂载到 window 对象上
+    (window as any).reactNavigate = (path: string) => {
+      navigate(path);
+    };
 
     return () => {
       window.removeEventListener('resize', debouncedResize);
-      debouncedResize.cancel()
+      debouncedResize.cancel();
       chartInstance.current?.dispose();
+      // 清理
+      delete (window as any).reactNavigate;
     };
-  }, [sortedTweetMarkers, links, option]);
+  }, [sortedTweetMarkers, links, option, debouncedResize, navigate]);
 
 
   //   return  <ReactECharts
