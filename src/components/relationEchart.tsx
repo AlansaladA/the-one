@@ -257,8 +257,7 @@ const RelationChart = forwardRef<RelationChartRef, {
     };
   }, [sortedTweetMarkers])
 
-  const option = useMemo<echarts.EChartsOption>(() => {
-    console.log(defaultRange, 'defaultRange');
+  const option = useMemo<echarts.EChartsOption>(() => { 
     return {
       progressive: 200,  // 降低每帧渲染数量
       progressiveThreshold: 1000,  // 降低渐进渲染阈值

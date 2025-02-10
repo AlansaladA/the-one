@@ -171,7 +171,7 @@ export default function TokenEChart({
           return [point[0] - 10, point[1] + 10]; // 向左偏移10像素,向下偏移10像素
         },
         formatter: function (params: any) {
-          console.log(params);
+
 
           const marker = params.data[2];
           if (!marker) return '';
