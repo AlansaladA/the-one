@@ -10,7 +10,7 @@ import {
 import dayjs from "dayjs";
 import { FiSearch } from "react-icons/fi";
 import { useNavigate } from 'react-router'
-import { Tweet, PriceHistory, Price } from "@/utils/types";
+import { Tweet, Price } from "@/utils/types";
 import Loading from "../loading";
 import { Button } from "@/components/ui/button"
 import * as echarts from 'echarts';
