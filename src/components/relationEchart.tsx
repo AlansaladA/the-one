@@ -269,7 +269,7 @@ const RelationChart = forwardRef<RelationChartRef, {
 
       xAxis: {
         type: 'time',
-        // show: false,
+        show: false,
         axisLine: {
           lineStyle: { color: '#333' }
         },
@@ -302,7 +302,7 @@ const RelationChart = forwardRef<RelationChartRef, {
       grid: {
         left: '6%',
         right: '3%',
-        bottom: 0,
+        bottom: 20,
         top: '2%',
         // containLabel: false
 
