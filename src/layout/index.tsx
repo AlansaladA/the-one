@@ -4,7 +4,8 @@ import { Box, Flex } from "@chakra-ui/react";
 import useWallet from "@/hooks/useWallet";
 import useSolana from "@/hooks/useSolana";
 import { useEffect } from "react";
-import { getKols, getTickers } from '@/api';
+// import { getKols, getTickers } from '@/api';
+import { useToken } from '@/hooks/useToken';
 
 export default function Page() {
   const { updateTokenBalance, address } = useWallet()
@@ -43,6 +44,12 @@ export default function Page() {
   //   return () => clearInterval(interval);
   // }, [])
 
+  const { initToken, handleWalletConnect } = useToken()
+  useEffect(() => {
+    if(!address) {
+      initToken()
+    }
+  },[address])
 
   return <Flex height={'full'} flexDirection={'column'}>
     <Header />

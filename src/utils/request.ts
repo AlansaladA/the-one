@@ -1,5 +1,7 @@
 import axios, { AxiosRequestConfig, AxiosResponse, AxiosInstance } from "axios"
 // import { BaseError } from "viem"
+import store from '@/store' 
+import { aesEncrypt } from './crypto.ts'
 
 interface CustomAxiosInstance extends AxiosInstance {
   <T = any, R = AxiosResponse<T>, D = any>(
@@ -19,9 +21,21 @@ const request: CustomAxiosInstance = axios.create({
 // request interceptors
 request.interceptors.request.use(
   (config) => {
-    // if ("post" === config.method) {
-    //   config.headers["Authorization"] = `tma ${initDataRaw}`
+    // const token = store.getState().token.token
+    
+    // if(token){
+    //   config.headers["Authorization"] = `tma ${token}`
     // }
+    // 获取当前UTC时间戳
+    const timestamp = Math.floor(Date.now() / 1000).toString();
+    console.log(timestamp,'timestamp');
+    
+    // 加密时间戳
+    const encryptedTimestamp = aesEncrypt(timestamp);
+    
+    // 添加到请求头
+    config.headers['X-Timestamp'] = encryptedTimestamp;
+    
     return config
   },
   (error) => {

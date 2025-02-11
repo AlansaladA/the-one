@@ -3,7 +3,7 @@ import { getTweetOne, getTickerOne, getRelation } from "@/api";
 import { useParams } from "react-router";
 import { Tweet, Price } from "@/utils/types";
 import { Heading, Spinner, Flex, Container } from "@chakra-ui/react";
-import TokenEChart from "@/components/TokenEChart";
+import TokenEChart from "@/components/TokenEChart/index";
 import Loading from "@/components/loading";
 
 // import TokenChartVisx from '@/components/TokenChartVisx';

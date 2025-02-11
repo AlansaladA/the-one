@@ -42,12 +42,13 @@ export const processHistory = (
     .map((value) => ({
       [value.name]: value.close,
     }));
-    console.log(filteredHistory);
     
   // 获取最后一个有效项的 close 值
   const firstItem = filteredHistory[0];
   const baseValue = firstItem ? parseFloat(Object.values(firstItem)[0] as string) : 0;
 
+  console.log(filteredHistory,'filteredHistory');
+  
   // 计算相对于第一个值的增长率
   const growthRates = filteredHistory.map((current, index) => {
     const key = Object.keys(current)[0];
@@ -80,11 +81,9 @@ export const processHistory = (
 };
 
 
-
-// 动态合并不同数组的相同索引项
 export const mergeData = (dataList: Record<string, number>[][]): Record<string, number>[] => {
   return dataList[0].map((_, index) => {
-    const mergedEntry: Record<string, number> = { x: index  }; // 修改 x 坐标从1开始
+    const mergedEntry: Record<string, number> = { x: index  }
     dataList.forEach((subList) => {
       const entry = Object.entries(subList[index])[0];
       mergedEntry[entry[0]] = entry[1];
