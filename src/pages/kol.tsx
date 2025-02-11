@@ -1,12 +1,3 @@
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
 import ReactECharts from "echarts-for-react";
 import type { ECElementEvent } from 'echarts';
 import {
@@ -17,10 +8,8 @@ import {
 } from "@/api";
 import { Params, Follower, FollowTokens, ChartData, KolDetail } from "@/utils/types";
 import {
-  // Avatar,
   Box,
   Button,
-  // Divider,
   Flex,
   VStack,
   Card,
@@ -42,15 +31,14 @@ export default function kol() {
     data: [],
     links: [],
   });
-  const [chartData, setChartData] = useState<ChartData[]>()
+  const [chartData, setChartData] = useState<{ticker_name: string, growthRate: number[]}[]>([])
   const [Xlist, setXList] = useState<string[]>()
   const [loading, setLoading] = useState(false)
   const [loadship, setLoadShip] = useState(false)
-  const [loadTweet, setLoadTweet] = useState(false)
   const [tweetsList, setTweetsList] = useState<KolDetail[]>()
   const chartRef = useRef<ReactECharts | null>(null);
-  const [hiddenLines, setHiddenLines] = useState({});
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
+  const [selectedLines, setSelectedLines] = useState<string[]>([]);
 
   useEffect(() => {
     if (kol) {
@@ -59,6 +47,12 @@ export default function kol() {
       getFollowToken();
     }
   }, [kol]);
+
+  useEffect(() => {
+    if (Xlist) {
+      setSelectedLines(Xlist);
+    }
+  }, [Xlist]);
 
   const getFollow = async () => {
     if(!kol) return
@@ -77,7 +71,7 @@ export default function kol() {
       const res = await getFollowTime(kol);
       setFollowTokens(res.tweets);
       setXList(res.tweets.map((time) => time.pair_name_1));
-      fetchAllTokens(res.tweets);
+      await fetchAllTokens(res.tweets);
     } catch (error) {
       // toast.error(error instanceof Error ? error.message : "error");
     } finally {
@@ -86,33 +80,62 @@ export default function kol() {
   };
 
   const fetchAllTokens = async (followTokens: FollowTokens[]) => {
-    if (followTokens?.length) {
-      const res = await Promise.all(
-        followTokens.map(async (token) => {
-          try {
-            return await getTickerOne(token.pair_name_1);
-          } catch (error) {
-            // toast.error(error instanceof Error ? error.message : "error");
-            return null;
+    if (!followTokens?.length) return;
+    
+    const res = await Promise.all(
+      followTokens.map(async (token) => {
+        try {
+          const result = await getTickerOne(token.pair_name_1)
+          return {
+            ticker_name: result.ticker_name,
+            history: result.history.map((item) => ({ 
+              time: new Date(item.download_time).getTime(),
+              price: parseFloat(item.close),
+              volume: parseFloat(item.volume),
+              name: item.name, 
+            })).sort((a, b) => a.time - b.time),
+            first_created_at: new Date(token.first_created_at).getTime(),
           }
-        })
-      );
+        } catch (error) {
+          // toast.error(error instanceof Error ? error.message : "error");
+          return null;
+        }
+      })
+    );
+    
+    const validRes = res.map((item) => {
+      const filteredHistory = item?.history.filter((value) => {
+        return value.time >= item.first_created_at
+      }) || [];
 
-      // 过滤掉返回 null 的结果
-      const validRes = res.filter((item) => item !== null);
+      const paddedHistory = [...filteredHistory];
+      if (paddedHistory.length < 120 && paddedHistory.length > 0) {
+        const lastItem = paddedHistory[paddedHistory.length - 1];
+        while (paddedHistory.length < 120) {
+          paddedHistory.push({ ...lastItem });
+        }
+      }
 
-      const list = validRes.map((item, index) => {
-        const filterTime = followTokens.filter(
-          (v) => v.pair_name_1 === item.ticker_name
-        )[0]?.first_created_at;
-        return processHistory(item.history, filterTime);
+      return {
+        ticker_name: item?.ticker_name,
+        first_created_at: item?.first_created_at,
+        history: paddedHistory.slice(0, 120) 
+      }
+    })
+
+    const list = validRes
+      .filter(item => item?.ticker_name)
+      .map(item => {
+        const basePrice = item.history[0]?.price || 0;
+        return {
+          ticker_name: item.ticker_name as string,
+          growthRate: item.history.map(h => {
+            if (basePrice === 0) return 0;
+            return ((h.price - basePrice) / basePrice) * 100;
+          })
+        };
       });
-
-      const merged = mergeData(list);
-      // console.log(merged);
-
-      setChartData(merged);
-    }
+    setChartData(list)  
   };
 
   const relationship = async () => {
@@ -129,7 +152,7 @@ export default function kol() {
       const centerNode = {
         name: _data?.Following,
         symbolSize: 30, // 设置中心点大小
-        symbol: `image://${_data?.profile_image_url}`, // 可自定义样式
+        symbol: `image://${_data?.profile_image_url}`, 
       };
 
       const formattedData = nodes.map((node: any, index: number) => ({
@@ -158,7 +181,6 @@ export default function kol() {
     }
   };
 
-
   const KolDetail = useMemo(() => {
     if (tweetsList?.length) {
       return tweetsList.filter(v => v.Following === kol)[0] ?? {}
@@ -169,6 +191,89 @@ export default function kol() {
       }
     }
   }, [tweetsList]);
+
+  const getLineChartOption = useMemo(() => {
+    if (!chartData || !Xlist) return {};
+    
+    const series = Xlist.map((name, index) => ({
+      name: name,
+      type: 'line',
+      data: chartData.find(item => item.ticker_name === name)?.growthRate || [],
+      symbol: 'none',
+      lineStyle: {
+        width: 1,
+        color: getColorByIndex(index)
+      }
+    }));
+
+    return {
+      animation: false,
+      progressive: 500,
+      progressiveThreshold: 3000,
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: '#312d4c',
+        borderRadius: 8,
+        padding: 10,
+        textStyle: {
+          color: '#fff'
+        },
+        formatter: (params: any) => {
+          let result = `<div style="color: #fff">`;
+          result += `<div>${params[0].axisValue}</div>`;
+          params.forEach((item: any) => {
+            result += `<div><strong>${item.seriesName}:</strong> ${item.value}%</div>`;
+          });
+          result += '</div>';
+          return result;
+        },
+        showDelay: 50,
+      },
+      legend: {
+        type: 'scroll',
+        orient: 'horizontal',
+        top: 0,
+        textStyle: {
+          color: '#8c8c8c'
+        },
+        selected: Xlist.reduce((acc, name) => {
+          acc[name] = selectedLines.includes(name);
+          return acc;
+        }, {} as Record<string, boolean>)
+      },
+      grid: {
+        top: 60,
+        left: 50,
+        right: 50,
+        bottom: 30
+      },
+      xAxis: {
+        type: 'category',
+        data: Array.from({ length: chartData[0]?.growthRate?.length || 120 }, (_, index) => `${index}h`),
+        axisLabel: {
+          color: '#8c8c8c',
+          interval: 7  // 每8个点显示一个标签（因为索引从0开始）
+        }
+      },
+      yAxis: {
+        type: 'value',
+        min: -100,
+        axisLine: {
+          show: false  // 隐藏轴线
+        },
+        axisTick: {
+          show: false  // 隐藏刻度线
+        },
+        splitLine: {
+          show: false  // 隐藏网格线
+        },
+        axisLabel: {
+          formatter: (value: number) => `${value}%`
+        }
+      },
+      series
+    };
+  }, [chartData, Xlist, selectedLines]);
 
   useEffect(() => {
     setOption({
@@ -251,14 +356,6 @@ export default function kol() {
     };
   }, [chartRef.current])
 
-
-
-  const handleLegendClick = (e) => {
-    setHiddenLines((prev) => ({
-      ...prev,
-      [e.dataKey]: !prev[e.dataKey], // 切换折线的隐藏状态
-    }));
-  };
   return <VStack align="stretch" mt={4} px={{ base: 4, md: 40 }}>
     {/* Profile Section */}
     <Flex justify="space-between" align="center" mb={4}>
@@ -329,39 +426,21 @@ export default function kol() {
               {loading ? (
                 <Loading />
               ) : (
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart
-                    data={chartData}
-                    margin={{ top: 15, right: 30, left: 20, bottom: 5 }}
-                  >
-                    <Legend onClick={handleLegendClick}/>
-                    {Xlist?.map((v: string, index: number) => (
-                      <Line
-                        key={index}
-                        type="monotone"
-                        dataKey={v}
-                        stroke={getColorByIndex(index)}
-                        dot={false}
-                        hide={hiddenLines[v]}
-                      />
-                    ))}
-                    <XAxis
-                      stroke="#8c8c8c"
-                      tick={{ fill: "#8c8c8c" }}
-                      tickLine={false}
-                      // interval={window.innerWidth < 768 ? 24 : 6}
-                      tickFormatter={(value) => `${value + 1}h`}
-                    />
-                    <YAxis
-                      stroke="#8c8c8c"
-                      tick={{ fill: "#8c8c8c" }}
-                      tickLine={false}
-                      tickFormatter={(value) => `${value}%`}
-                      domain={[-100]}
-                    />
-                    <Tooltip content={<CustomTooltip />} />
-                  </LineChart>
-                </ResponsiveContainer>
+                <ReactECharts
+                  option={getLineChartOption}
+                  style={{ height: "100%", width: "100%" }}
+                  notMerge={true}
+                  lazyUpdate={true}
+                  onEvents={{
+                    legendselectchanged: (params) => {
+                      setSelectedLines(
+                        Object.entries(params.selected)
+                          .filter(([_, selected]) => selected)
+                          .map(([name]) => name)
+                      );
+                    }
+                  }}
+                />
               )}
             </Box>
           </Card.Body>
@@ -409,29 +488,3 @@ export default function kol() {
     </Flex>
   </VStack>
 }
-
-const CustomTooltip = ({ payload, label }: any) => {
-  if (!payload || payload.length === 0) return null;
-
-  return (
-    <Flex
-      flexDirection={"column"}
-      style={{
-        backgroundColor: "#312d4c",
-        borderRadius: "8px",
-        color: "#fff",
-        padding: "10px",
-      }}
-    >
-      <Text>{label+1+"h"}</Text>
-      {payload.map((entry: any, index: number) => {
-        const value = entry.value;
-        return (
-          <p key={index}>
-            <strong>{entry.name}:</strong> {value}%
-          </p>
-        );
-      })}
-    </Flex>
-  );
-};

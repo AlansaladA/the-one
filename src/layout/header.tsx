@@ -18,6 +18,7 @@ export default function Header() {
       <Button bgColor={"#000"} onClick={() => window.open(`https://dexscreener.com/solana/FfQ99V4Z74397VZBxz2iPfnZMWGeuobdWXpTfcHjuYno`, '_blank')}>
         <Image src={DexImg} height={{ base: "20px", md: "30px" }}></Image>
       </Button>
+
       {/* <Box mr={4}>
         {!isLogined ? (
           <Button px={"24px"} borderRadius={"full"} borderColor={"#8181E5"} bgColor={"transparent"} variant={'solid'} onClick={() => login()}
@@ -34,6 +35,7 @@ export default function Header() {
         <Text mr={4}>{shortenAddress(address)}</Text>
         <Text>{balance} $theOne</Text>
       </Flex>} */}
+      
     </Flex>
   </Flex>
 }

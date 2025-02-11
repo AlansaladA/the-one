@@ -3,6 +3,7 @@ import Layout from "@/layout/index"
 import Home from "@/pages/home"
 import Ticker from "@/pages/ticker"
 import Kol from "@/pages/kol"
+import NotFound from "@/pages/404"
 const router = createHashRouter([
   {
     path: "/",
@@ -29,22 +30,13 @@ const router = createHashRouter([
             Component:Kol
           }
         ]
-      },
-      // {
-      //   path: "trading",
-      //   children: [
-      //     {
-      //       path: ":address",
-      //       Component: Trading,
-      //     },
-      //   ],
-      // },
+      }
     ],
   },
-  // {
-  //   path: "*",
-  //   Component: NotFound,
-  // },
+  {
+    path: "*",
+    Component: NotFound,
+  },
 ])
 
 export default router
