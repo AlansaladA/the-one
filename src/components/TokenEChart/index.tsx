@@ -308,7 +308,7 @@ export default function TokenEChart({
       grid: {
         left: '3%',
         right: '3%',
-        bottom: 5lo0,
+        bottom: 50,
         top: '8%',
         containLabel: true
       },
