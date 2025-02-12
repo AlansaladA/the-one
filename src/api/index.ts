@@ -9,11 +9,44 @@ export const getTickers = async () => {
   })
 }
 
+export const searchTickers = async (token) => {
+  return await request<{
+    tickers: Array<{
+      fdv: number,
+      pair_name_1: string,
+      token_address: string,
+    }>
+  }>({
+    url: `/get-tickers-v3?token_keyword=${token}`,
+    method: "get",
+  })
+}
+
+export const getTokenNum = async () => {
+  return await request<{
+    kols_num:number,
+    tokens_num:number
+  }>({
+    url:`/get-home-data`,
+    method:"get"
+  })
+}
+
+
 export const getKols = async () => {
   return await request<{
     tickers: Array<string>
   }>({
     url: "/get-kols",
+    method: "get",
+  })
+}
+
+export const searchKols = async (kol) => {
+  return await request<{
+    tickers: Array<string>
+  }>({
+    url: `/get-kols-v2?kol_keyword=${kol}`,
     method: "get",
   })
 }
