@@ -44,8 +44,8 @@ export default function Ticker() {
               price: parseFloat(item.close),
               volume: parseFloat(item.volume),
               name: item.name,
-            })), // 根据接口返回的结构调整 
-            tweets: tweetsRes.tweets,
+            })), // 根据接口返回的结构调整  
+            tweets: tweetsRes.tweets.filter((tweet) => new Date(tweet.created_at).getTime() >= new Date(priceRes.history[0].download_time).getTime()),
             tweetsRelation: tweetsRelation.tweets
           });
         } catch (error) {

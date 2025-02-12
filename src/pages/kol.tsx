@@ -18,11 +18,11 @@ import {
 import { Avatar } from "@/components/ui/avatar"
 import { useEffect, useMemo, useState, Suspense, useRef } from "react";
 import { useParams, useNavigate } from 'react-router'
-import { mergeData, processHistory,getColorByIndex } from "@/utils/index"
+import { mergeData, processHistory, getColorByIndex } from "@/utils/index"
 import Loading from "@/components/loading";
 import { Link } from "react-router"
 
-export default function kol() {
+export default function Kol() {
   const [followerList, setFollowerList] = useState<Follower[] | undefined>();
   const { kol } = useParams<{ kol: string }>();
   const [followTokens, setFollowTokens] = useState<FollowTokens[]>();
@@ -31,7 +31,7 @@ export default function kol() {
     data: [],
     links: [],
   });
-  const [chartData, setChartData] = useState<{ticker_name: string, growthRate: number[]}[]>([])
+  const [chartData, setChartData] = useState<{ ticker_name: string, growthRate: number[] }[]>([])
   const [Xlist, setXList] = useState<string[]>()
   const [loading, setLoading] = useState(false)
   const [loadship, setLoadShip] = useState(false)
@@ -55,17 +55,17 @@ export default function kol() {
   }, [Xlist]);
 
   const getFollow = async () => {
-    if(!kol) return
+    if (!kol) return
     try {
       const res = await getFollowNum(kol);
       setFollowerList(res["following data"]);
     } catch (error) {
-
+      console.log(error);
     }
   };
 
   const getFollowToken = async () => {
-    if(!kol) return
+    if (!kol) return
     try {
       setLoading(true);
       const res = await getFollowTime(kol);
@@ -81,18 +81,18 @@ export default function kol() {
 
   const fetchAllTokens = async (followTokens: FollowTokens[]) => {
     if (!followTokens?.length) return;
-    
+
     const res = await Promise.all(
       followTokens.map(async (token) => {
         try {
           const result = await getTickerOne(token.pair_name_1)
           return {
             ticker_name: result.ticker_name,
-            history: result.history.map((item) => ({ 
+            history: result.history.map((item) => ({
               time: new Date(item.download_time).getTime(),
               price: parseFloat(item.close),
               volume: parseFloat(item.volume),
-              name: item.name, 
+              name: item.name,
             })).sort((a, b) => a.time - b.time),
             first_created_at: new Date(token.first_created_at).getTime(),
           }
@@ -102,7 +102,7 @@ export default function kol() {
         }
       })
     );
-    
+
     const validRes = res.map((item) => {
       const filteredHistory = item?.history.filter((value) => {
         return value.time >= item.first_created_at
@@ -119,7 +119,7 @@ export default function kol() {
       return {
         ticker_name: item?.ticker_name,
         first_created_at: item?.first_created_at,
-        history: paddedHistory.slice(0, 120) 
+        history: paddedHistory.slice(0, 120)
       }
     })
 
@@ -135,11 +135,11 @@ export default function kol() {
           })
         };
       });
-    setChartData(list)  
+    setChartData(list)
   };
 
   const relationship = async () => {
-    if(!kol) return
+    if (!kol) return
     try {
       setLoadShip(true);
       const res = await getFollowList(kol);
@@ -152,11 +152,11 @@ export default function kol() {
       const centerNode = {
         name: _data?.Following,
         symbolSize: 30, // 设置中心点大小
-        symbol: `image://${_data?.profile_image_url}`, 
+        symbol: `image://${_data?.profile_image_url}`,
       };
 
       const formattedData = nodes.map((node: any, index: number) => ({
-        name: node.Following +"-"+ index,
+        name: node.Following + "-" + index,
         symbolSize: node.size || 20,
         symbol: node.profile_image_url
           ? `image://${node.profile_image_url}`
@@ -166,7 +166,7 @@ export default function kol() {
       // 格式化链接数据
       const formattedLinks = nodes.map((node: any, index: number) => ({
         source: centerNode.name, // 中心节点作为 source
-        target: node.Following +"-"+ index, // 指向每个节点
+        target: node.Following + "-" + index, // 指向每个节点
         value: node.relationship || 1, // 可自定义关系值
       }));
 
@@ -194,7 +194,7 @@ export default function kol() {
 
   const getLineChartOption = useMemo(() => {
     if (!chartData || !Xlist) return {};
-    
+
     const series = Xlist.map((name, index) => ({
       name: name,
       type: 'line',
@@ -222,7 +222,7 @@ export default function kol() {
           let result = `<div style="color: #fff">`;
           result += `<div>${params[0].axisValue}</div>`;
           params.forEach((item: any) => {
-            result += `<div><strong>${item.seriesName}:</strong> ${item.value}%</div>`;
+            result += `<div><strong>${item.seriesName}:</strong> ${Number(item.value).toFixed(2)}%</div>`;
           });
           result += '</div>';
           return result;
@@ -317,12 +317,12 @@ export default function kol() {
 
     const onChartClick = (params: ECElementEvent) => {
       if (params.dataType === 'node') {
-        console.log(params.data,'nodeData');
-        
+        console.log(params.data, 'nodeData');
+
         const nodeData = params.data as { name: string }
         const userName = nodeData.name.replace(/-[^-]*$/, "");
         console.log(userName);
-        
+
         window.open(`https://x.com/${userName}`, '_blank');
         // 使用立即执行的异步函数来处理异步操作
         // (async () => {
@@ -375,16 +375,16 @@ export default function kol() {
     <Box w="full" h="1px" bgColor="rgba(255,255,255,.2)" />
 
     {/* Main Content */}
-    <Flex 
-      direction={{ base: "column", md: "row" }} 
-      gap={4} 
-      height={{ base: "auto", md: "750px" }} 
+    <Flex
+      direction={{ base: "column", md: "row" }}
+      gap={4}
+      height={{ base: "auto", md: "750px" }}
       mt={2}
     >
       {/* Left Section */}
-      <Flex 
-        direction="column" 
-        gap={4} 
+      <Flex
+        direction="column"
+        gap={4}
         flex="1"
         maxWidth={{ base: "100%", md: "60%" }}
       >
@@ -392,20 +392,20 @@ export default function kol() {
         <Card.Root bg="#1f1b23E1" variant="elevated">
           <Card.Body pb={2}>
             <Text fontWeight="bold" color="#fff">Token</Text>
-            <Flex 
-              gap={3} 
-              overflowX="auto" 
+            <Flex
+              gap={3}
+              overflowX="auto"
               pb={5}
 
-              // sx={{
-              //   '::-webkit-scrollbar': {
-              //     height: '4px',
-              //   },
-              //   '::-webkit-scrollbar-thumb': {
-              //     backgroundColor: 'rgba(255,255,255,0.2)',
-              //     borderRadius: '2px',
-              //   },
-              // }}
+            // sx={{
+            //   '::-webkit-scrollbar': {
+            //     height: '4px',
+            //   },
+            //   '::-webkit-scrollbar-thumb': {
+            //     backgroundColor: 'rgba(255,255,255,0.2)',
+            //     borderRadius: '2px',
+            //   },
+            // }}
             >
               {followTokens?.map((token: any, index: number) => (
                 <Link style={{ color: "inherit", flexShrink: 0 }} to={`/token/${token.pair_name_1}`} key={index}>
@@ -448,9 +448,9 @@ export default function kol() {
       </Flex>
 
       {/* Right Section */}
-      <Card.Root 
-        bg="#1f1b23E1" 
-        flex="1" 
+      <Card.Root
+        bg="#1f1b23E1"
+        flex="1"
         variant="elevated"
         minHeight={{ base: "400px", md: "auto" }}
       >

@@ -27,9 +27,7 @@ request.interceptors.request.use(
     //   config.headers["Authorization"] = `tma ${token}`
     // }
     // 获取当前UTC时间戳
-    const timestamp = Math.floor(Date.now() / 1000).toString();
-    console.log(timestamp,'timestamp');
-    
+    const timestamp = Math.floor(Date.now() / 1000).toString(); 
     // 加密时间戳
     const encryptedTimestamp = aesEncrypt(timestamp);
     
