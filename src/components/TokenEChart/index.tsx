@@ -308,14 +308,14 @@ export default function TokenEChart({
       grid: {
         left: '3%',
         right: '3%',
-        bottom: 40,
+        bottom: 5lo0,
         top: '8%',
         containLabel: true
       },
       dataZoom: [{ 
-        showDataShadow: false,
+        // showDataShadow: false,
         type: 'slider',
-        height: 30,
+        height: 40,
         bottom: 0,
         borderColor: 'transparent',
         backgroundColor: 'rgba(47, 69, 84, 0.3)',
