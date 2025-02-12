@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { getTickers, getKols, getRanks } from "@/api";
+import { getTickers, getKols, getRanks, searchTickers, searchKols,getTokenNum } from "@/api";
 import { Input, Box, VStack, HStack, Text, Spinner, Flex, Image, Table, Button } from "@chakra-ui/react";
 import useDebounce from "@/hooks/useDebounce";
 import { shortenAddress } from "@/utils/formatter";
@@ -65,6 +65,7 @@ export default function Home() {
   const [kolsList, setKolsList] = useState<string[]>([]);
   const [tokenList, setTokenList] = useState<TokenList[]>([]);
   const [searchText, setSearchText] = useState<string>(""); // 搜索文本
+  const [tokenNum,setTokenNum] = useState<{kols_num:number,tokens_num:number}>()
   const [filteredKols, setFilteredKols] = useState<string[]>([]);
   const [filteredTokens, setFilteredTokens] = useState<TokenList[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -73,88 +74,90 @@ export default function Home() {
   const [ranks, setRanks] = useState<Ranks[]>([])
   const [loadRank, setLoadRank] = useState<boolean>(false)
   const navigate = useNavigate()
+  // useEffect(() => {
+  //   const cachedKols = localStorage.getItem("kolsList");
+  //   const cachedTokens = localStorage.getItem("tokenList");
+  //   if (!searchText) {
+  //     setFilteredKols([])
+  //     setFilteredTokens([])
+  //   }
+  //   if (cachedKols && cachedTokens) {
+  //     setKolsList(JSON.parse(cachedKols));
+  //     setTokenList(JSON.parse(cachedTokens));
+  //     if (searchText) {
+  //       setLoading(true);
+  //       checkfilter(searchText, JSON.parse(cachedKols), JSON.parse(cachedTokens));
+  //     }
+  //   } else {
+  //     setLoading(true);
+  //     const fetchApi = async () => {
+  //       const [kols, tokens] = await Promise.all([getKols(), getTickers()]);
+  //       console.log(kols, tokens);
+
+  //       setKolsList(kols.tickers);
+
+  //       const uniqueTokens = tokens.tickers.map(([name, address, num]) => ({ name, address, num }));
+
+  //       setTokenList(uniqueTokens);
+  //       if (searchText) {
+  //         checkfilter(searchText, kols.tickers, uniqueTokens);
+  //       }
+
+  //       localStorage.setItem("kolsList", JSON.stringify(kols.tickers));
+  //       localStorage.setItem("tokenList", JSON.stringify(uniqueTokens));
+  //     };
+  //     fetchApi();
+  //   }
+  // }, [searchText]);
+
   useEffect(() => {
-    const cachedKols = localStorage.getItem("kolsList");
-    const cachedTokens = localStorage.getItem("tokenList");
-    if(!searchText) {
-      setFilteredKols([])
-      setFilteredTokens([])
+    setFilteredKols([])
+    setFilteredTokens([])
+    if(searchText){
+      checkfilter(searchText)
     }
-    if (cachedKols && cachedTokens) {
-      setKolsList(JSON.parse(cachedKols));
-      setTokenList(JSON.parse(cachedTokens));
-      if (searchText) {
-        setLoading(true);
-        checkfilter(searchText, JSON.parse(cachedKols), JSON.parse(cachedTokens));
-      }
-    }  else {
-      setLoading(true);
-      const fetchApi = async () => {
-        const [kols, tokens] = await Promise.all([getKols(), getTickers()]);
-        console.log(kols, tokens);
+  },[searchText])
 
-        setKolsList(kols.tickers);
-
-        const uniqueTokens = tokens.tickers.map(([name, address, num]) => ({ name, address, num }));
-
-        setTokenList(uniqueTokens);
-        if (searchText) {
-          checkfilter(searchText, kols.tickers, uniqueTokens);
-        }
-
-        localStorage.setItem("kolsList", JSON.stringify(kols.tickers));
-        localStorage.setItem("tokenList", JSON.stringify(uniqueTokens));
-      };
-      fetchApi();
-    }
-  }, [searchText]);
-
-  useEffect(() => {
-    const updateCache = async () => {
-      try {
-        const [kols, ticks] = await Promise.all([getKols(), getTickers()]);
-        const filterList = ticks.tickers.map(([name, address, num]) => ({ name, address, num }))
-
-        localStorage.setItem("kolsList", JSON.stringify(kols.tickers));
-        localStorage.setItem("tokenList", JSON.stringify(filterList));
-      } catch (error) {
-        console.error('缓存更新失败:', error);
-      }
-    };
-    updateCache();
-    const interval = setInterval(updateCache, 30 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, [])
-
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchText(e.target.value);
-  };
 
   const checkfilter = useDebounce(
-    (text: string, kolList: string[], tokenList: TokenList[]) => {
-      const kolsFiltered = kolList.filter((item) =>
-        item.toLowerCase().includes(text.toLowerCase())
-      ).slice(0, 10);
-      const tokensFiltered = tokenList.filter(
-        (item) =>
-          item.name.toLowerCase().includes(text.toLowerCase()) ||
-          item.address.toLowerCase().includes(text.toLowerCase())
-      ).slice(0, 10);
-
-      setTimeout(() => {
+    async (text: string) => {
+      try {
+        setLoading(true);
+        const [kols, tokens] = await Promise.all([searchKols(text), searchTickers(text)])
+        setFilteredKols(kols.tickers.slice(0, 10))
+        setFilteredTokens(tokens.tickers.map((v) => ({ name: v.pair_name_1, address: v.token_address, num: v.fdv })).slice(0, 10))
+      } catch (error) {
+        console.error('搜索失败:', error);
+      } finally {
         setLoading(false);
-        setFilteredKols(kolsFiltered);
-        setFilteredTokens(tokensFiltered);
-      },500);
-    }, 500)
+      }
+  }, 800)
+
+  // const checkfilter = useDebounce(
+  //   (text: string, kolList: string[], tokenList: TokenList[]) => {
+  //     const kolsFiltered = kolList.filter((item) =>
+  //       item.toLowerCase().includes(text.toLowerCase())
+  //     ).slice(0, 10);
+  //     const tokensFiltered = tokenList.filter(
+  //       (item) =>
+  //         item.name.toLowerCase().includes(text.toLowerCase()) ||
+  //         item.address.toLowerCase().includes(text.toLowerCase())
+  //     ).slice(0, 10);
+
+  //     setTimeout(() => {
+  //       setLoading(false);
+  //       setFilteredKols(kolsFiltered);
+  //       setFilteredTokens(tokensFiltered);
+  //     }, 500);
+  //   }, 500)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoadRank(true);
-        const res = await getRanks();
-        setRanks(res.return.slice(0, 20));
+        const [ranks,tokenNum] = await Promise.all([getRanks(),getTokenNum()])
+        setRanks(ranks.return.slice(0, 20));
+        setTokenNum(tokenNum) 
       } catch (error) {
         console.error("Error fetching ranks:", error);
       } finally {
@@ -164,11 +167,12 @@ export default function Home() {
     fetchData();
   }, []);
 
+ 
   return (
     <Flex w={"full"} h={"full"} >
       <Flex w="full" flexDirection={"column"} alignItems={"center"} >
         <Image mt={8} src={Title} ></Image>
-        <Text textAlign={"center"} fontSize={{ base: "lg", md: "3xl" }} color={"#fff"} mt={{ base: "-50px", md: "-80px" }} mb={50}>Supporting {kolsList.length.toLocaleString()} KOLs and {tokenList.length.toLocaleString()} tokens</Text>
+        <Text textAlign={"center"} fontSize={{ base: "lg", md: "3xl" }} color={"#fff"} mt={{ base: "-50px", md: "-80px" }} mb={50}>Supporting {tokenNum?.kols_num.toLocaleString()} KOLs and {tokenNum?.tokens_num.toLocaleString()} tokens</Text>
         <Flex mb={{ base: "", md: "" }} position={"relative"} flexDirection={"column"} alignItems={"center"} w="full">
           <Flex
             zIndex={999}
@@ -182,17 +186,17 @@ export default function Home() {
           >
             <Input
               value={searchText}
-              onChange={handleInputChange}
+              onChange={(e)=>setSearchText(e.target.value)}
               variant='flushed'
               position="relative"
               zIndex={1000}
-              fontSize={{ base: "md", md: "2xl" }} 
-              textAlign={"center"} 
-              color={"#8181E5"} 
-              bgColor="#fff" 
-              borderRadius="full" 
+              fontSize={{ base: "md", md: "2xl" }}
+              textAlign={"center"}
+              color={"#8181E5"}
+              bgColor="#fff"
+              borderRadius="full"
               h={{ base: "50px", md: "70px" }}
-              w="full" 
+              w="full"
               placeholder="Search KOL or Token"></Input>
             {searchText && (
               <Flex h="300px"
@@ -214,58 +218,66 @@ export default function Home() {
                     gap={4}
                     w="full"
                     pt={8}
+                    h="full"
                   >
-                    <Flex overflowY={"auto"} w="full" flexDirection={"column"} gap={3}>
-                      <Flex flexDirection={"column"} gap={3}>
-                        <Text color="whiteAlpha.500">Tokens</Text>
-                        <Flex flexDirection={"column"} gap={3}>
-                          {filteredTokens.length > 0 ? (
-                            filteredTokens.map((item, index) => {
-                              return (
-                                <Link style={{ color: "inherit" }} to={`/token/${item.name}`} key={index}>
-                                  <Flex alignItems={"center"} gap={4} cursor={"pointer"}>
-                                    <Avatar src={SolanaImg} size={{ base: "sm", md: "md" }}></Avatar>
-                                    <Text fontWeight="bold" fontSize={{ base: "md", md: "xl" }}>{"$" + item.name}</Text>
-                                    <Text color="whiteAlpha.500" fontSize={{ base: "sm", md: "md" }} className="text-xs  opacity-2">{(item.address)}</Text>
-                                  </Flex>
-                                </Link>
-                              )
-                            })
-                          ) : (
-                            <Flex alignItems={"center"} gap={4}>
-                              <Text fontSize={{ base: "md", md: "xl" }}>Oops! Your Token Seems To Be Hiding.</Text>
-                              {/* <Button borderRadius={"full"} onClick={() => { setOpenHow(true), setType("Token") }}>
+                    <Flex overflowY={"auto"} w="full" flexDirection={"column"} gap={5} h="full">
+                      {
+                        filteredTokens.length > 0 && <Flex flexDirection={"column"} gap={3}>
+                          <Text color="whiteAlpha.500">Tokens</Text>
+                          <Flex flexDirection={"column"} gap={3}>
+                            {filteredTokens.length > 0 ? (
+                              filteredTokens.map((item, index) => {
+                                return (
+                                  <Link style={{ color: "inherit" }} to={`/token/${item.name}`} key={index}>
+                                    <Flex alignItems={"center"} gap={4} cursor={"pointer"}>
+                                      <Avatar src={SolanaImg} size={{ base: "sm", md: "md" }}></Avatar>
+                                      <Text fontWeight="bold" fontSize={{ base: "md", md: "xl" }}>{"$" + item.name}</Text>
+                                      <Text color="whiteAlpha.500" fontSize={{ base: "sm", md: "md" }} className="text-xs  opacity-2">{(item.address)}</Text>
+                                    </Flex>
+                                  </Link>
+                                )
+                              })
+                            ) : (
+                              <Flex alignItems={"center"} gap={4}>
+                                <Text fontSize={{ base: "md", md: "xl" }}>Oops! Your Token Seems To Be Hiding.</Text>
+                                {/* <Button borderRadius={"full"} onClick={() => { setOpenHow(true), setType("Token") }}>
                               <Text>Request Token</Text>
                             </Button> */}
-                            </Flex>
-                          )}
+                              </Flex>
+                            )}
+                          </Flex>
                         </Flex>
-                      </Flex>
-                      <Box w="full" h="1px" bg={"rgba(255,255,255,0.3)"}></Box>
-                      <Flex flexDirection={"column"} gap={3}>
-                        <Text color="whiteAlpha.500">Kol</Text>
-                        <Flex flexDirection={"column"} gap={2}>
-                          {filteredKols.length > 0 ? (
-                            filteredKols.map((item, index) => {
-                              return (
-                                <Link style={{ color: "inherit" }} to={`/detail/${item}`} key={index}>
-                                  <Flex className="flex gap-2 items-center" cursor={"pointer"}>
-                                    {/* <Image src={"/token.svg"} width={28} height={28} alt=""></Image> */}
-                                    <Text fontSize={{ base: "md", md: "xl" }} fontWeight="bold">{item}</Text>
-                                  </Flex>
-                                </Link>
-                              )
-                            })
-                          ) : (
-                            <Flex alignItems={"center"} gap={4}>
-                              <Text fontSize={{ base: "md", md: "xl" }}>No KOL Found In The1.</Text>
-                              {/* <Button borderRadius={"full"} onClick={() => { setOpenHow(true), setType("KOL") }}>
+                      }
+                      {
+                        filteredKols.length > 0 &&
+                          <Flex flexDirection={"column"} gap={3}>
+                            <Text color="whiteAlpha.500">Kol</Text>
+                            <Flex flexDirection={"column"} gap={2}>
+                              {filteredKols.length > 0 ? (
+                                filteredKols.map((item, index) => {
+                                  return (
+                                    <Link style={{ color: "inherit" }} to={`/detail/${item}`} key={index}>
+                                      <Flex className="flex gap-2 items-center" cursor={"pointer"}>
+                                        {/* <Image src={"/token.svg"} width={28} height={28} alt=""></Image> */}
+                                        <Text fontSize={{ base: "md", md: "xl" }} fontWeight="bold">{item}</Text>
+                                      </Flex>
+                                    </Link>
+                                  )
+                                })
+                              ) : (
+                                <Flex alignItems={"center"} gap={4}>
+                                  <Text fontSize={{ base: "md", md: "xl" }}>No KOL Found In The1.</Text>
+                                  {/* <Button borderRadius={"full"} onClick={() => { setOpenHow(true), setType("KOL") }}>
                               <Text>Request KOL</Text>
                             </Button> */}
+                                </Flex>
+                              )}
                             </Flex>
-                          )}
-                        </Flex>
-                      </Flex>
+                          </Flex>
+                      }
+                      {
+                        !filteredTokens.length  && !filteredKols.length && <Box w="full" h="full" display={"flex"} alignItems={"center"} justifyContent={"center"}>Empty</Box>
+                      }
                     </Flex>
                   </Flex>
                 }
@@ -406,14 +418,14 @@ function RequestModal({ openHow, setOpenHow, type }: {
             <Input
               _placeholder={{
                 color: "rgba(0,0,0,.5)",
-              }} 
+              }}
               variant="subtle"
-              py={6} 
-              color={"rgba(0,0,0,.5)"} 
-              textAlign={"center"} 
-              bgColor="#fff" 
-              borderRadius="full" 
-              w="full" 
+              py={6}
+              color={"rgba(0,0,0,.5)"}
+              textAlign={"center"}
+              bgColor="#fff"
+              borderRadius="full"
+              w="full"
               placeholder="Enter Token CA"
             />
           </Flex>

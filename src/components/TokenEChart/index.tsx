@@ -42,12 +42,11 @@ export default function TokenEChart({
         )
         : initialData.tweets;
 
-
+   
     // 创建一个包含价格时间点和推文时间点的数组 
     const allTimePoints = [...initialData.priceData.map(point => point.time),
     ...filteredTweets.map(tweet => new Date(tweet.created_at).getTime())
     ]
-
 
     // 按时间排序并去重
     const uniqueTimePoints = Array.from(new Set(
@@ -64,6 +63,7 @@ export default function TokenEChart({
       }
     });
 
+    
     // 遍历所有时间点，进行插值
     const markers = uniqueTimePoints.map(time => {
       // 查找最近的价格点
@@ -86,6 +86,8 @@ export default function TokenEChart({
   }, [followerRange, initialData.tweets, initialData.priceData]);
 
   const markerRange = useMemo(() => {
+    console.log(tweetMarkers, "tweetMarkers");
+    
     if (tweetMarkers.length > 0) {
       let firstTweetIndex = -1;
       let lastTweetIndex = -1;
@@ -329,6 +331,7 @@ export default function TokenEChart({
         startValue: markerRange[0],
         endValue: markerRange[1]
       }],
+
       xAxis: {
         type: 'time',
 
@@ -366,7 +369,7 @@ export default function TokenEChart({
         },
         axisLabel: {
           color: '#666',
-          formatter: (value: number) => value.toFixed(2)
+          // formatter: (value: number) => value.toFixed(2)
         },
         splitLine: {
           show: false
