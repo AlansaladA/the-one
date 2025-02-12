@@ -167,7 +167,22 @@ export default function Home() {
     fetchData();
   }, []);
 
- 
+  // 添加高亮辅助函数
+  const highlightText = (text: string, highlight: string) => {
+    if (!highlight.trim()) return text;
+    const regex = new RegExp(`(${highlight})`, 'gi');
+    const parts = text.split(regex);
+    return parts.map((part, index) => 
+      regex.test(part) ? (
+        <Text as="span" key={index} color="#8181E5" display="inline">
+          {part}
+        </Text>
+      ) : (
+        part
+      )
+    );
+  };
+
   return (
     <Flex w={"full"} h={"full"} >
       <Flex w="full" flexDirection={"column"} alignItems={"center"} >
@@ -231,8 +246,14 @@ export default function Home() {
                                   <Link style={{ color: "inherit" }} to={`/token/${item.name}`} key={index}>
                                     <Flex alignItems={"center"} gap={4} cursor={"pointer"}>
                                       <Avatar src={SolanaImg} size={{ base: "sm", md: "md" }}></Avatar>
-                                      <Text fontWeight="bold" fontSize={{ base: "md", md: "xl" }}>{"$" + item.name}</Text>
-                                      <Text color="whiteAlpha.500" fontSize={{ base: "sm", md: "md" }} className="text-xs  opacity-2">{(item.address)}</Text>
+                                      <Text fontWeight="bold" fontSize={{ base: "md", md: "xl" }}>
+                                        $
+                                        {highlightText(item.name, searchText)}
+                                      </Text>
+                                      <Text color="whiteAlpha.500" fontSize={{ base: "sm", md: "md" }}>
+                                          {item.address}
+                                        {/* {highlightText(item.address, searchText)} */}
+                                      </Text>
                                     </Flex>
                                   </Link>
                                 )
@@ -259,7 +280,9 @@ export default function Home() {
                                     <Link style={{ color: "inherit" }} to={`/detail/${item}`} key={index}>
                                       <Flex className="flex gap-2 items-center" cursor={"pointer"}>
                                         {/* <Image src={"/token.svg"} width={28} height={28} alt=""></Image> */}
-                                        <Text fontSize={{ base: "md", md: "xl" }} fontWeight="bold">{item}</Text>
+                                        <Text fontSize={{ base: "md", md: "xl" }} fontWeight="bold">
+                                          {highlightText(item, searchText)}
+                                        </Text>
                                       </Flex>
                                     </Link>
                                   )
