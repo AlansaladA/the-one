@@ -1,5 +1,5 @@
 import ReactECharts from "echarts-for-react";
-import type { ECElementEvent } from 'echarts';
+import type { ECElementEvent, EChartsOption } from 'echarts';
 import {
   getFollowNum,
   getFollowList,
@@ -26,7 +26,7 @@ export default function Kol() {
   const [followerList, setFollowerList] = useState<Follower[] | undefined>();
   const { kol } = useParams<{ kol: string }>();
   const [followTokens, setFollowTokens] = useState<FollowTokens[]>();
-  const [option, setOption] = useState({});
+  const [option, setOption] = useState<EChartsOption>({});
   const [graphData, setGraphData] = useState<{ data: any[]; links: any[] }>({
     data: [],
     links: [],
@@ -167,7 +167,7 @@ export default function Kol() {
       const formattedLinks = nodes.map((node: any, index: number) => ({
         source: centerNode.name, // 中心节点作为 source
         target: node.Following + "-" + index, // 指向每个节点
-        value: node.relationship || 1, // 可自定义关系值
+        value: [0, 100, 200][index % 3], // 线长
       }));
 
       setGraphData({
@@ -279,16 +279,19 @@ export default function Kol() {
     setOption({
       series: [
         {
+          zoom: 0.5,
+          animation: false,
           type: "graph",
           layout: "force",
           force: {
-            repulsion: 50,
-            edgeLength: [50, 150],
+            initLayout: "circular",
+            repulsion: 100,
+            edgeLength: [50, graphData.data.length],
           },
           roam: true,
           scaleLimit: {
-            min: 0.4,
-            max: 2
+            // min: 0.4,
+            max: 5
           },
           data: graphData.data,
           links: graphData.links,
@@ -311,51 +314,6 @@ export default function Kol() {
     })
   }, [graphData]);
 
-  useEffect(() => {
-    if (!chartRef.current) return;
-    const chartInstance = chartRef.current.getEchartsInstance();
-
-    const onChartClick = (params: ECElementEvent) => {
-      if (params.dataType === 'node') {
-        console.log(params.data, 'nodeData');
-
-        const nodeData = params.data as { name: string }
-        const userName = nodeData.name.replace(/-[^-]*$/, "");
-        console.log(userName);
-
-        window.open(`https://x.com/${userName}`, '_blank');
-        // 使用立即执行的异步函数来处理异步操作
-        // (async () => {
-        //   try {
-        //     // setLoadTweet(true)
-        //     const res = await getFollowList(userName);
-        //     console.log("231");
-
-        //     if (res.tweets.length > 0) {
-        //       console.log('ioioioiotytuytu');
-        //       navigate.push(`/detail/${userName}`);
-        //     } else {
-        //       console.log('ioioioio');
-
-        //       window.open(`https://x.com/${userName}`, '_blank');
-        //     }
-        //   } catch (error) {  
-        //     console.log(error);
-
-        //     window.open(`https://x.com/${userName}`, '_blank');    
-        //   }
-        // })();
-      }
-    };
-
-    chartInstance.on('click', onChartClick);
-
-    // 清理函数
-    return () => {
-      chartInstance.off('click', onChartClick);
-    };
-  }, [chartRef.current])
-
   return <VStack align="stretch" mt={4} px={{ base: 4, md: 40 }}>
     {/* Profile Section */}
     <Flex justify="space-between" align="center" mb={4}>
@@ -373,7 +331,6 @@ export default function Kol() {
     </Flex>
 
     <Box w="full" h="1px" bgColor="rgba(255,255,255,.2)" />
-
     {/* Main Content */}
     <Flex
       direction={{ base: "column", md: "row" }}
@@ -480,6 +437,15 @@ export default function Kol() {
                 ref={chartRef}
                 option={option}
                 style={{ height: "100%", width: "100%" }}
+                onEvents={{
+                  click: (params) => {
+                    if (params.dataType === 'node') {
+                      const nodeData = params.data as { name: string }
+                      const userName = nodeData.name.replace(/-[^-]*$/, "");
+                      window.open(`https://x.com/${userName}`, '_blank');
+                    }
+                  }
+                }}
               />
             )}
           </Box>
