@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { getTickers, getKols, getRanks, searchTickers, searchKols,getTokenNum } from "@/api";
+import { getTickers, getKols, getRanks, searchTickers, searchKols, getTokenNum } from "@/api";
 import { Input, Box, VStack, HStack, Text, Spinner, Flex, Image, Table, Button } from "@chakra-ui/react";
 import useDebounce from "@/hooks/useDebounce";
 import { shortenAddress } from "@/utils/formatter";
@@ -65,7 +65,7 @@ export default function Home() {
   const [kolsList, setKolsList] = useState<string[]>([]);
   const [tokenList, setTokenList] = useState<TokenList[]>([]);
   const [searchText, setSearchText] = useState<string>(""); // 搜索文本
-  const [tokenNum,setTokenNum] = useState<{kols_num:number,tokens_num:number}>()
+  const [tokenNum, setTokenNum] = useState<{ kols_num: number, tokens_num: number }>()
   const [filteredKols, setFilteredKols] = useState<string[]>([]);
   const [filteredTokens, setFilteredTokens] = useState<TokenList[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -113,10 +113,10 @@ export default function Home() {
   useEffect(() => {
     setFilteredKols([])
     setFilteredTokens([])
-    if(searchText){
+    if (searchText) {
       checkfilter(searchText)
     }
-  },[searchText])
+  }, [searchText])
 
 
   const checkfilter = useDebounce(
@@ -131,7 +131,7 @@ export default function Home() {
       } finally {
         setLoading(false);
       }
-  }, 800)
+    }, 800)
 
   // const checkfilter = useDebounce(
   //   (text: string, kolList: string[], tokenList: TokenList[]) => {
@@ -155,9 +155,9 @@ export default function Home() {
     const fetchData = async () => {
       try {
         setLoadRank(true);
-        const [ranks,tokenNum] = await Promise.all([getRanks(),getTokenNum()])
+        const [ranks, tokenNum] = await Promise.all([getRanks(), getTokenNum()])
         setRanks(ranks.return.slice(0, 20));
-        setTokenNum(tokenNum) 
+        setTokenNum(tokenNum)
       } catch (error) {
         console.error("Error fetching ranks:", error);
       } finally {
@@ -172,7 +172,7 @@ export default function Home() {
     if (!highlight.trim()) return text;
     const regex = new RegExp(`(${highlight})`, 'gi');
     const parts = text.split(regex);
-    return parts.map((part, index) => 
+    return parts.map((part, index) =>
       regex.test(part) ? (
         <Text as="span" key={index} color="#8181E5" display="inline">
           {part}
@@ -184,10 +184,10 @@ export default function Home() {
   };
 
   return (
-    <Flex w={"full"} 
-    //  h={"full"}
-     pb={10}
-     >
+    <Flex w={"full"}
+      //  h={"full"}
+      pb={10}
+    >
       <Flex w="full" flexDirection={"column"} alignItems={"center"} >
         <Image mt={8} src={Title} ></Image>
         <Text textAlign={"center"} fontSize={{ base: "lg", md: "3xl" }} color={"#fff"} mt={{ base: "-50px", md: "-80px" }} mb={50}>Supporting {tokenNum?.kols_num.toLocaleString()} KOLs and {tokenNum?.tokens_num.toLocaleString()} tokens</Text>
@@ -204,7 +204,7 @@ export default function Home() {
           >
             <Input
               value={searchText}
-              onChange={(e)=>setSearchText(e.target.value)}
+              onChange={(e) => setSearchText(e.target.value)}
               variant='flushed'
               position="relative"
               zIndex={1000}
@@ -254,7 +254,7 @@ export default function Home() {
                                         {highlightText(item.name, searchText)}
                                       </Text>
                                       <Text color="whiteAlpha.500" fontSize={{ base: "sm", md: "md" }}>
-                                          {item.address}
+                                        {item.address}
                                         {/* {highlightText(item.address, searchText)} */}
                                       </Text>
                                     </Flex>
@@ -274,35 +274,35 @@ export default function Home() {
                       }
                       {
                         filteredKols.length > 0 &&
-                          <Flex flexDirection={"column"} gap={3}>
-                            <Text color="whiteAlpha.500">Kol</Text>
-                            <Flex flexDirection={"column"} gap={2}>
-                              {filteredKols.length > 0 ? (
-                                filteredKols.map((item, index) => {
-                                  return (
-                                    <Link style={{ color: "inherit" }} to={`/detail/${item}`} key={index}>
-                                      <Flex className="flex gap-2 items-center" cursor={"pointer"}>
-                                        {/* <Image src={"/token.svg"} width={28} height={28} alt=""></Image> */}
-                                        <Text fontSize={{ base: "md", md: "xl" }} fontWeight="bold">
-                                          {highlightText(item, searchText)}
-                                        </Text>
-                                      </Flex>
-                                    </Link>
-                                  )
-                                })
-                              ) : (
-                                <Flex alignItems={"center"} gap={4}>
-                                  <Text fontSize={{ base: "md", md: "xl" }}>No KOL Found In The1.</Text>
-                                  {/* <Button borderRadius={"full"} onClick={() => { setOpenHow(true), setType("KOL") }}>
+                        <Flex flexDirection={"column"} gap={3}>
+                          <Text color="whiteAlpha.500">Kol</Text>
+                          <Flex flexDirection={"column"} gap={2}>
+                            {filteredKols.length > 0 ? (
+                              filteredKols.map((item, index) => {
+                                return (
+                                  <Link style={{ color: "inherit" }} to={`/detail/${item}`} key={index}>
+                                    <Flex className="flex gap-2 items-center" cursor={"pointer"}>
+                                      {/* <Image src={"/token.svg"} width={28} height={28} alt=""></Image> */}
+                                      <Text fontSize={{ base: "md", md: "xl" }} fontWeight="bold">
+                                        {highlightText(item, searchText)}
+                                      </Text>
+                                    </Flex>
+                                  </Link>
+                                )
+                              })
+                            ) : (
+                              <Flex alignItems={"center"} gap={4}>
+                                <Text fontSize={{ base: "md", md: "xl" }}>No KOL Found In The1.</Text>
+                                {/* <Button borderRadius={"full"} onClick={() => { setOpenHow(true), setType("KOL") }}>
                               <Text>Request KOL</Text>
                             </Button> */}
-                                </Flex>
-                              )}
-                            </Flex>
+                              </Flex>
+                            )}
                           </Flex>
+                        </Flex>
                       }
                       {
-                        !filteredTokens.length  && !filteredKols.length && <Box w="full" h="full" display={"flex"} alignItems={"center"} justifyContent={"center"}>Empty</Box>
+                        !filteredTokens.length && !filteredKols.length && <Box w="full" h="full" display={"flex"} alignItems={"center"} justifyContent={"center"}>Empty</Box>
                       }
                     </Flex>
                   </Flex>
@@ -333,28 +333,30 @@ export default function Home() {
             pb={10}
           >
             <Flex w="full" h={{ base: "4", md: "45" }} mb={5} flexDirection={{ base: "column", md: "row" }}>
-              <Box display={"flex"} alignItems={"center"} w={{ base: "100%", md: "35%" }} mb={{ base: 4, md: 0 }}>
+              <Box display={"flex"} alignItems={"center"} w={{ base: "100%", md: "35%" }} mb={{ base: 4, md: 0 }} px={{ base: 4, md: 4 }}>
                 <Text fontSize={{ base: "xl", md: "3xl" }} fontWeight={"bold"}>Top KOLs</Text>
-                <Text display={{ base: "xl", md: "none" }} fontSize={{ base: "xl", md: "3xl" }}>&nbsp;& Calling</Text>
+                <Text display={{ base: "xl", md: "none" }} fontSize={{ base: "xl", md: "3xl" }} >&nbsp;& Calling</Text>
               </Box>
-              <Flex w={{ base: "100%", md: "65%" }} alignItems={"center"} display={{ base: "none", md: "flex" }}>
+              <Flex w={{ base: "100%", md: "65%" }} alignItems={"center"} display={{ base: "none", md: "flex" }} px={{ base: 4, md: 4 }}>
                 <Text fontSize={{ base: "2xl", md: "3xl" }} mr={2}>Calling</Text>
                 <Flex bgColor={"rgba(129, 129, 229, 0.2)"} px={2} borderRadius={3}>
                   <Text fontSize={{ base: "md", md: "lg" }}>peak price increase after call</Text>
                 </Flex>
               </Flex>
             </Flex>
-            <Flex flexDirection={"column"} 
-            // overflowY={"auto"} 
-            gap={4} maxHeight={{ base: "auto", md: 554 }}>
+            <Flex flexDirection={"column"}
+              // overflowY={"auto"} 
+              gap={4} maxHeight={{ base: "auto", md: 554 }}>
               {loadRank ? <Loading></Loading> :
                 ranks.map((item, index) => (
                   <Flex w="full"
                     key={index}
                     _hover={{ backgroundColor: "rgba(129, 129, 229, 0.2)" }}
                     flexDirection={{ base: "column", md: "row" }}
-                    p={{ base: 4, md: 0 }}
-                    gap={{ base: 4, md: 0 }}>
+                    p={{ base: 4, md: 4 }}
+                    gap={{ base: 4, md: 2 }}
+                    alignItems={"center"}
+                  >
                     <Flex w={{ base: "100%", md: "35%" }} alignItems={"center"} gap={8}>
                       <Text fontSize={{ base: "lg", md: "xl" }} w={{ base: "auto", md: "10%" }}>#{index + 1}</Text>
                       <Flex alignItems={"center"} gap={2} flex={1}>
