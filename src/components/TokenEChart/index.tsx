@@ -149,6 +149,31 @@ export default function TokenEChart({
   };
 
   const getChartOption = useCallback(() => {
+    // 获取容器宽度
+    const containerWidth = echartRef.current?.getEchartsInstance().getWidth() || window.innerWidth;
+    
+    // 根据容器宽度动态计算时间间隔
+    const getTimeIntervals = (width: number) => {
+      if (width < 600) {  // 移动设备
+        return {
+          minInterval: 672 * 3600 * 1000,  // 28天
+          maxInterval: 1344 * 3600 * 1000 
+        };
+      } else if (width < 1024) {  // 平板
+        return {
+          minInterval: 240 * 3600 * 1000,  // 10天
+          maxInterval: 480 * 3600 * 1000   // 20天
+        };
+      } else {  // 桌面设备
+        return {
+          minInterval: 168 * 3600 * 1000,  // 7天
+          maxInterval: 336 * 3600 * 1000   // 14天
+        };
+      }
+    };
+
+    const { minInterval, maxInterval } = getTimeIntervals(containerWidth);
+
     return {
       dataset: {
         source: tweetMarkers.map(marker => [marker.time, marker.price, marker])
@@ -343,15 +368,19 @@ export default function TokenEChart({
           color: '#666',
           interval: 'auto',
           formatter: (value: number) => {
-            const date = new Date(value);
-            return window.innerWidth < 768 
-              ? `${date.getMonth() + 1}/${date.getDate()}`
-              : `${date.getMonth() + 1}月${date.getDate()}日 ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-          }
+            const format = dayjs(value).format('MM-DD');
+            return format;
+          },
+          align: 'center',
         },
         splitLine: {
-          show: false
+          lineStyle: {
+            color: '#333',
+            type: 'dashed'
+          }
         },
+        minInterval,
+        maxInterval
       },
       yAxis: {
         type: 'value',
