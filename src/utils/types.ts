@@ -68,3 +68,13 @@ export interface Ranks {
   value_3:number,
   value_4:number
 }
+
+export type TickerData = {
+  ticker: string,
+  priceData: Price[];
+  tweets: Tweet[];
+  tweetsRelation: {
+    data: Record<string, string[]>;
+    position: string;
+  }[] 
+}

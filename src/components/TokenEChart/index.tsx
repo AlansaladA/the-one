@@ -8,10 +8,8 @@ import {
   HStack
 } from "@chakra-ui/react";
 import dayjs from "dayjs";
-import { FiSearch } from "react-icons/fi";
 import { useNavigate } from 'react-router'
-import { Tweet, Price } from "@/utils/types";
-import Loading from "../loading";
+import { Tweet, TickerData } from "@/utils/types";
 import { Button } from "@/components/ui/button"
 import * as echarts from 'echarts';
 import ReactECharts from 'echarts-for-react';
@@ -21,11 +19,10 @@ import { IoExpand } from "react-icons/io5";
 export default function TokenEChart({
   initialData,
 }: {
-  initialData: { priceData: Price[]; tweets: Tweet[], tweetsRelation: any };
+  initialData: TickerData;
 }) {
   const relationChartRef = useRef<RelationChartRef>(null);
   const navigate = useNavigate()
-  const [isLoading, setIsLoading] = useState(true);
   const [followerRange, setFollowerRange] = useState<string[]>(["10k-50k", "50k+"]);
 
   const getFollowerRange = (followersCount: number): string => {
@@ -43,7 +40,7 @@ export default function TokenEChart({
         )
         : initialData.tweets;
 
-   
+
     // 创建一个包含价格时间点和推文时间点的数组 
     const allTimePoints = [...initialData.priceData.map(point => point.time),
     ...filteredTweets.map(tweet => new Date(tweet.created_at).getTime())
@@ -64,7 +61,7 @@ export default function TokenEChart({
       }
     });
 
-    
+
     // 遍历所有时间点，进行插值
     const markers = uniqueTimePoints.map(time => {
       // 查找最近的价格点
@@ -88,7 +85,7 @@ export default function TokenEChart({
 
   const markerRange = useMemo(() => {
     console.log(tweetMarkers, "tweetMarkers");
-    
+
     if (tweetMarkers.length > 0) {
       let firstTweetIndex = -1;
       let lastTweetIndex = -1;
@@ -151,13 +148,13 @@ export default function TokenEChart({
   const getChartOption = useCallback(() => {
     // 获取容器宽度
     const containerWidth = echartRef.current?.getEchartsInstance().getWidth() || window.innerWidth;
-    
+
     // 根据容器宽度动态计算时间间隔
     const getTimeIntervals = (width: number) => {
       if (width < 600) {  // 移动设备
         return {
           minInterval: 672 * 3600 * 1000,  // 28天
-          maxInterval: 1344 * 3600 * 1000 
+          maxInterval: 1344 * 3600 * 1000
         };
       } else if (width < 1024) {  // 平板
         return {
