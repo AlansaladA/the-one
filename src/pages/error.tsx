@@ -1,6 +1,6 @@
 import { EmptyState } from "@/components/ui/empty-state";
 import { MdNoEncryptionGmailerrorred } from "react-icons/md";
-import { Center, Group, Text } from "@chakra-ui/react"
+import { Center, Text } from "@chakra-ui/react"
 import { Button } from "@/components/ui/button"
 import { useNavigate, useRouteError } from "react-router";
 
@@ -13,11 +13,10 @@ export default function Page() {
     <EmptyState icon={<MdNoEncryptionGmailerrorred />}
       title="ERROR"
     >
-      <Group>
-        <Text>状态码: {(error as any).status}</Text>
-        <Text>错误信息: {(error as any).statusText}</Text>
-        <Button onClick={() => navigate('/')}>返回首页</Button>
-      </Group>
+      <Center flexDirection={'column'}>
+        <Text>{`${error}` || 'There is something wrong with the page'}</Text>
+        <Button mt={4} onClick={() => navigate('/')}>返回首页</Button>
+      </Center>
     </EmptyState>
   </Center >
 }

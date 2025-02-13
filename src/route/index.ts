@@ -5,10 +5,12 @@ import Home from "@/pages/home"
 import Ticker from "@/pages/ticker"
 import Kol from "@/pages/kol"
 import NotFound from "@/pages/404"
+import ErrorBoundary from "@/pages/error"
 const router = createBrowserRouter([
   {
     path: "/",
     Component: Layout,
+    ErrorBoundary: ErrorBoundary,
     children: [
       {
         path: "",

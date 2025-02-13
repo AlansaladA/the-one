@@ -57,8 +57,7 @@ export default function Ticker() {
     };
     getfetchData();
   }, [ticker]);
-
-
+ 
   return (
     <Container maxW="container.lg" py={8}>
       <Heading size="2xl" mb={8} textAlign="left">
