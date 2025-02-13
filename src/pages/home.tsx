@@ -66,7 +66,7 @@ export default function Home() {
   const [tokenList, setTokenList] = useState<TokenList[]>([]);
   const [searchText, setSearchText] = useState<string>(""); // 搜索文本
   const [tokenNum, setTokenNum] = useState<{ kols_num: number, tokens_num: number }>()
-  const [filteredKols, setFilteredKols] = useState<string[]>([]);
+  const [filteredKols, setFilteredKols] = useState<{ url: string, user: string, screen_name: string }[]>([]);
   const [filteredTokens, setFilteredTokens] = useState<TokenList[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [openHow, setOpenHow] = useState<boolean>(false)
@@ -114,10 +114,8 @@ export default function Home() {
     setFilteredKols([])
     setFilteredTokens([])
     if (searchText) {
-    if (searchText) {
       checkfilter(searchText)
     }
-  }, [searchText])
   }, [searchText])
 
 
@@ -158,9 +156,7 @@ export default function Home() {
       try {
         setLoadRank(true);
         const [ranks, tokenNum] = await Promise.all([getRanks(), getTokenNum()])
-        const [ranks, tokenNum] = await Promise.all([getRanks(), getTokenNum()])
         setRanks(ranks.return.slice(0, 20));
-        setTokenNum(tokenNum)
         setTokenNum(tokenNum)
       } catch (error) {
         console.error("Error fetching ranks:", error);
@@ -177,7 +173,6 @@ export default function Home() {
     const regex = new RegExp(`(${highlight})`, 'gi');
     const parts = text.split(regex);
     return parts.map((part, index) =>
-    return parts.map((part, index) =>
       regex.test(part) ? (
         <Text as="span" key={index} color="#8181E5" display="inline">
           {part}
@@ -189,12 +184,8 @@ export default function Home() {
   };
 
   return (
-    <Flex w={"full"}
-      //  h={"full"}
-      pb={10}
-    >
-    <Flex w={"full"}
-      //  h={"full"}
+    <Flex
+      w={"full"}
       pb={10}
     >
       <Flex w="full" flexDirection={"column"} alignItems={"center"} >
@@ -213,7 +204,6 @@ export default function Home() {
           >
             <Input
               value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
               onChange={(e) => setSearchText(e.target.value)}
               variant='flushed'
               position="relative"
@@ -260,12 +250,12 @@ export default function Home() {
                                     <Flex alignItems={"center"} gap={4} cursor={"pointer"}>
                                       <Flex position={"relative"}>
                                         <Avatar src={item.url} size={{ base: "sm", md: "md" }} name={item.name}></Avatar>
-                                        <Avatar 
-                                          src={SolanaImg} 
-                                          h={"40%"} 
-                                          w={"40%"} 
-                                          position={"absolute"} 
-                                          bottom={0.5} 
+                                        <Avatar
+                                          src={SolanaImg}
+                                          h={"40%"}
+                                          w={"40%"}
+                                          position={"absolute"}
+                                          bottom={0.5}
                                           right={-1}
                                         ></Avatar>
                                       </Flex>
@@ -275,7 +265,6 @@ export default function Home() {
                                         {highlightText(item.name, searchText)}
                                       </Text>
                                       <Text color="whiteAlpha.500" fontSize={{ base: "sm", md: "md" }}>
-                                        {item.address}
                                         {item.address}
                                         {/* {highlightText(item.address, searchText)} */}
                                       </Text>
@@ -375,68 +364,69 @@ export default function Home() {
             <Flex flexDirection={"column"}
               // overflowY={"auto"} 
               gap={4} maxHeight={{ base: "auto", md: 554 }}>
-            <Flex flexDirection={"column"}
-              // overflowY={"auto"} 
-              gap={4} maxHeight={{ base: "auto", md: 554 }}>
-              {loadRank ? <Loading></Loading> :
-                ranks.map((item, index) => (
-                  <Flex w="full"
-                    key={index}
-                    _hover={{ backgroundColor: "rgba(129, 129, 229, 0.2)" }}
-                    flexDirection={{ base: "column", md: "row" }}
-                    p={{ base: 4, md: 4 }}
-                    gap={{ base: 4, md: 2 }}
-                    alignItems={"center"}
-                  >
-                    <Flex w={{ base: "100%", md: "35%" }} alignItems={"center"} gap={8}>
-                      <Text fontSize={{ base: "lg", md: "xl" }} w={{ base: "auto", md: "10%" }}>#{index + 1}</Text>
-                      <Flex alignItems={"center"} gap={2} flex={1}>
-                        <Avatar
-                          onClick={() => navigate(`/detail/${item.kol}`)}
-                          size={{ base: "lg", md: "xl" }}
-                          src={item.profile_link}
-                          name={item.kol}
-                        />
-                        <Flex flexDirection={"column"}>
-                          <Text fontSize={{ base: "lg", md: "xl" }}>{item.profile_id}</Text>
-                          <Text onClick={() => window.open(`https://x.com/${item.kol}`, '_blank')}
-                            cursor={"pointer"}
-                            color={"rgba(255,255,255,.4)"}
-                          >@{item.kol}</Text>
+              <Flex flexDirection={"column"}
+                // overflowY={"auto"} 
+                gap={4} maxHeight={{ base: "auto", md: 554 }}>
+                {loadRank ? <Loading></Loading> :
+                  ranks.map((item, index) => (
+                    <Flex w="full"
+                      key={index}
+                      _hover={{ backgroundColor: "rgba(129, 129, 229, 0.2)" }}
+                      flexDirection={{ base: "column", md: "row" }}
+                      p={{ base: 4, md: 4 }}
+                      gap={{ base: 4, md: 2 }}
+                      alignItems={"center"}
+                    >
+                      <Flex w={{ base: "100%", md: "35%" }} alignItems={"center"} gap={8}>
+                        <Text fontSize={{ base: "lg", md: "xl" }} w={{ base: "auto", md: "10%" }}>#{index + 1}</Text>
+                        <Flex alignItems={"center"} gap={2} flex={1}>
+                          <Avatar
+                            onClick={() => navigate(`/detail/${item.kol}`)}
+                            size={{ base: "lg", md: "xl" }}
+                            src={item.profile_link}
+                            name={item.kol}
+                          />
+                          <Flex flexDirection={"column"}>
+                            <Text fontSize={{ base: "lg", md: "xl" }}>{item.profile_id}</Text>
+                            <Text onClick={() => window.open(`https://x.com/${item.kol}`, '_blank')}
+                              cursor={"pointer"}
+                              color={"rgba(255,255,255,.4)"}
+                            >@{item.kol}</Text>
+                          </Flex>
                         </Flex>
                       </Flex>
+                      <Flex w={{ base: "100%", md: "65%" }}
+                        alignItems={"flex-start"}
+                        gap={4}
+                        flexWrap={{ base: "wrap", md: "wrap" }}>
+                        {[1, 2, 3, 4].map(num => (
+                          <Flex key={num}
+                            cursor={"pointer"}
+                            onClick={() => navigate(`/token/${item[`name_${num}`]}`)}
+                            gap={2}
+                            alignItems={"center"}
+                            textWrap={"nowrap"}
+                            bgColor={"rgba(129, 129, 229, 0.2)"}
+                            px={2}
+                            py={1}
+                            borderRadius={3}
+                            flex={{ base: "0 0 auto", md: "0 0 auto" }}> {/* 替换原来的 w 属性 */}
+                            <Text fontSize={{ base: "md", md: "xl" }}>{`$${item[`name_${num}`]}`}</Text>
+                            <Box bgColor={"#6EFFBB"} px={2} borderRadius={3}>
+                              <Text fontSize={{ base: "md", md: "xl" }} color={"#000"}>+{item[`value_${num}`]}%</Text>
+                            </Box>
+                          </Flex>
+                        ))}
+                      </Flex>
                     </Flex>
-                    <Flex w={{ base: "100%", md: "65%" }}
-                      alignItems={"flex-start"}
-                      gap={4}
-                      flexWrap={{ base: "wrap", md: "wrap" }}>
-                      {[1, 2, 3, 4].map(num => (
-                        <Flex key={num}
-                          cursor={"pointer"}
-                          onClick={() => navigate(`/token/${item[`name_${num}`]}`)}
-                          gap={2}
-                          alignItems={"center"}
-                          textWrap={"nowrap"}
-                          bgColor={"rgba(129, 129, 229, 0.2)"}
-                          px={2}
-                          py={1}
-                          borderRadius={3}
-                          flex={{ base: "0 0 auto", md: "0 0 auto" }}> {/* 替换原来的 w 属性 */}
-                          <Text fontSize={{ base: "md", md: "xl" }}>{`$${item[`name_${num}`]}`}</Text>
-                          <Box bgColor={"#6EFFBB"} px={2} borderRadius={3}>
-                            <Text fontSize={{ base: "md", md: "xl" }} color={"#000"}>+{item[`value_${num}`]}%</Text>
-                          </Box>
-                        </Flex>
-                      ))}
-                    </Flex>
-                  </Flex>
-                ))}
+                  ))}
+              </Flex>
             </Flex>
           </Flex>
         </Flex>
-      </Flex>
 
-      <RequestModal openHow={openHow} setOpenHow={setOpenHow} type={type}></RequestModal>
+        {/* <RequestModal openHow={openHow} setOpenHow={setOpenHow} type={type}></RequestModal> */}
+      </Flex>
     </Flex>
   );
 }
@@ -500,4 +490,4 @@ function RequestModal({ openHow, setOpenHow, type }: {
       <DialogCloseTrigger />
     </DialogContent>
   </DialogRoot>
-}
+} 
