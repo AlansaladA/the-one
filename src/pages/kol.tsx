@@ -16,9 +16,8 @@ import {
   Text
 } from "@chakra-ui/react";
 import { Avatar } from "@/components/ui/avatar"
-import { useEffect, useMemo, useState, Suspense, useRef } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { useParams, useNavigate } from 'react-router'
-import { mergeData, processHistory, getColorByIndex } from "@/utils/index"
 import Loading from "@/components/loading";
 import { Link } from "react-router"
 
@@ -202,7 +201,7 @@ export default function Kol() {
       symbol: 'none',
       lineStyle: {
         width: 1,
-        color: getColorByIndex(index)
+        // color: getColorByIndex(index)
       }
     }));
 
@@ -388,15 +387,15 @@ export default function Kol() {
                   style={{ height: "100%", width: "100%" }}
                   notMerge={true}
                   lazyUpdate={true}
-                  onEvents={{
-                    legendselectchanged: (params) => {
-                      setSelectedLines(
-                        Object.entries(params.selected)
-                          .filter(([_, selected]) => selected)
-                          .map(([name]) => name)
-                      );
-                    }
-                  }}
+                  // onEvents={{
+                  //   legendselectchanged: (params) => {
+                  //     setSelectedLines(
+                  //       Object.entries(params.selected)
+                  //         .filter(([_, selected]) => selected)
+                  //         .map(([name]) => name)
+                  //     );
+                  //   }
+                  // }}
                 />
               )}
             </Box>
