@@ -19,7 +19,6 @@ import { useEffect, useMemo, useState, useRef } from "react";
 import { useParams, useNavigate, useLoaderData } from 'react-router'
 import Loading from "@/components/loading";
 import { Link } from "react-router"
-import PrinceChange from "@/views/kol/price";
 import KolGraph from "@/views/kol/graph";
 export default function Kol() {
   const { kol } = useLoaderData<KolData>()
