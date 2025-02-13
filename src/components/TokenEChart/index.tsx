@@ -341,9 +341,12 @@ export default function TokenEChart({
         },
         axisLabel: {
           color: '#666',
+          interval: 'auto',
           formatter: (value: number) => {
             const date = new Date(value);
-            return `${date.getMonth() + 1}月${date.getDate()}日 ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+            return window.innerWidth < 768 
+              ? `${date.getMonth() + 1}/${date.getDate()}`
+              : `${date.getMonth() + 1}月${date.getDate()}日 ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
           }
         },
         splitLine: {

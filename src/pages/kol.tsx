@@ -251,7 +251,12 @@ export default function Kol() {
         data: Array.from({ length: chartData[0]?.growthRate?.length || 120 }, (_, index) => `${index}h`),
         axisLabel: {
           color: '#8c8c8c',
-          interval: 7  // 每8个点显示一个标签（因为索引从0开始）
+          interval: (index: number) => {
+            // const containerWidth = chartRef.current?.getEchartsInstance().getWidth() || 0;
+            // 当容器宽度小于 600px 时，增加间隔
+            return window.innerWidth < 768  ? index % 24 === 0 : index % 8 === 0;
+          },
+          hideOverlap: true  // 自动隐藏重叠的标签
         }
       },
       yAxis: {
