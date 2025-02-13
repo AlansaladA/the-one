@@ -1,10 +1,11 @@
 import { createBrowserRouter, createHashRouter } from "react-router"
+
 import Layout from "@/layout/index"
 import Home from "@/pages/home"
 import Ticker from "@/pages/ticker"
 import Kol from "@/pages/kol"
 import NotFound from "@/pages/404"
-const router = createHashRouter([
+const router = createBrowserRouter([
   {
     path: "/",
     Component: Layout,
@@ -15,22 +16,22 @@ const router = createHashRouter([
       },
       {
         path: "token",
-        children:[
+        children: [
           {
-            path:":ticker",
+            path: ":ticker",
             Component: Ticker,
-          }
-        ]
+          },
+        ],
       },
       {
         path: "detail",
-        children:[
+        children: [
           {
-            path:":kol",
-            Component:Kol
-          }
-        ]
-      }
+            path: ":kol",
+            Component: Kol,
+          },
+        ],
+      },
     ],
   },
   {
