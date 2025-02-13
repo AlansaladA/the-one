@@ -24,8 +24,16 @@ const router = createBrowserRouter([
           {
             path: ":ticker",
             Component: Ticker,
-            loader: tickerLoader,
-            hydrateFallbackElement: <Loading />,
+            loader: ({ params }) => {
+              if (!params.ticker) {
+                throw new Error("Token Not Found")
+              }
+              return {
+                ticker: params.ticker,
+              }
+            },
+            // loader: tickerLoader,
+            // hydrateFallbackElement: <Loading />,
           },
         ],
       },
