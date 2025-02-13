@@ -6,7 +6,7 @@ import Ticker from "@/pages/ticker"
 import Kol from "@/pages/kol"
 import NotFound from "@/pages/404"
 import ErrorBoundary from "@/pages/error"
-import { tickerLoader } from "./loader"
+import { kolLoader, tickerLoader } from "./loader"
 import Loading from "@/components/loading"
 const router = createBrowserRouter([
   {
@@ -35,6 +35,8 @@ const router = createBrowserRouter([
           {
             path: ":kol",
             Component: Kol,
+            loader: kolLoader,
+            hydrateFallbackElement: <Loading />,
           },
         ],
       },

@@ -1,5 +1,5 @@
-import { getTweetOne, getTickerOne, getRelation } from "@/api"
-import { TickerData } from "@/utils/types"
+import { getTweetOne, getTickerOne, getRelation, getFollowNum } from "@/api"
+import { KolData, TickerData } from "@/utils/types"
 import { LoaderFunction } from "react-router"
 
 export const tickerLoader: LoaderFunction = async ({ params }) => {
@@ -28,4 +28,12 @@ export const tickerLoader: LoaderFunction = async ({ params }) => {
     ),
     tweetsRelation: tweetsRelation.tweets,
   } satisfies TickerData
+}
+
+export const kolLoader: LoaderFunction = async ({ params }) => {
+  const { kol } = params
+  if (!kol) {
+    throw new Error("Kol not found")
+  }
+  return { kol } satisfies KolData
 }
