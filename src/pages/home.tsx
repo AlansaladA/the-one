@@ -291,7 +291,7 @@ export default function Home() {
                             {filteredKols.length > 0 ? (
                               filteredKols.map((item, index) => {
                                 return (
-                                  <Link style={{ color: "inherit" }} to={`/detail/${item}`} key={index}>
+                                  <Link style={{ color: "inherit" }} to={`/detail/${item.screen_name}`} key={index}>
                                     <Flex alignItems={"center"} gap={4} cursor={"pointer"}>
                                       <Avatar src={item.url} size={{ base: "sm", md: "md" }} name={item.user}></Avatar>
                                       <Flex flexDirection={"column"}>
