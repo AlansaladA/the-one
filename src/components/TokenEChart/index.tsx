@@ -25,6 +25,7 @@ export default function TokenEChart({
 }) {
   const relationChartRef = useRef<RelationChartRef>(null);
   const navigate = useNavigate()
+  const [isLoading, setIsLoading] = useState(true);
   const [followerRange, setFollowerRange] = useState<string[]>(["10k-50k", "50k+"]);
 
   const getFollowerRange = (followersCount: number): string => {
@@ -172,6 +173,8 @@ export default function TokenEChart({
           return [point[0] - 10, point[1] + 10]; // 向左偏移10像素,向下偏移10像素
         },
         formatter: function (params: any) {
+          console.log(params);
+
           const marker = params.data[2];
           if (!marker) return '';
 
@@ -308,15 +311,14 @@ export default function TokenEChart({
       grid: {
         left: '3%',
         right: '3%',
-        bottom: 50,
+        bottom: '15%',
         top: '8%',
         containLabel: true
       },
-      dataZoom: [{ 
-        // showDataShadow: false,
+      dataZoom: [{
         type: 'slider',
         height: 40,
-        bottom: 0,
+        bottom: '5%',
         borderColor: 'transparent',
         backgroundColor: 'rgba(47, 69, 84, 0.3)',
         fillerColor: 'rgba(167,183,204,0.2)',
@@ -334,8 +336,6 @@ export default function TokenEChart({
 
       xAxis: {
         type: 'time',
-
-        // type: 'category',
         axisLine: {
           lineStyle: { color: '#333' }
         },
