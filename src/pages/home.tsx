@@ -9,7 +9,7 @@ import Loading from "@/components/loading";
 import { Link } from "react-router"
 import { Avatar } from "@/components/ui/avatar";
 import HomeBg from "@/assets/bg7.png"
-import SolanaImg from "@/assets/solana.png"
+import SolanaImg from "@/assets/solana1.svg"
 import {
   DialogHeader,
   DialogBody,
@@ -114,8 +114,10 @@ export default function Home() {
     setFilteredKols([])
     setFilteredTokens([])
     if (searchText) {
+    if (searchText) {
       checkfilter(searchText)
     }
+  }, [searchText])
   }, [searchText])
 
 
@@ -124,8 +126,8 @@ export default function Home() {
       try {
         setLoading(true);
         const [kols, tokens] = await Promise.all([searchKols(text), searchTickers(text)])
-        setFilteredKols(kols.tickers.slice(0, 10))
-        setFilteredTokens(tokens.tickers.map((v) => ({ name: v.pair_name_1, address: v.token_address, num: v.fdv })).slice(0, 10))
+        setFilteredKols(kols.tickers.map((v) => ({ url: v.profile_image_url, user: v.user, screen_name: v.self })).slice(0, 10))
+        setFilteredTokens(tokens.tickers.map((v) => ({ name: v.pair_name_1, address: v.token_address, num: v.fdv, url: v.token_image_url })).slice(0, 10))
       } catch (error) {
         console.error('搜索失败:', error);
       } finally {
@@ -156,7 +158,9 @@ export default function Home() {
       try {
         setLoadRank(true);
         const [ranks, tokenNum] = await Promise.all([getRanks(), getTokenNum()])
+        const [ranks, tokenNum] = await Promise.all([getRanks(), getTokenNum()])
         setRanks(ranks.return.slice(0, 20));
+        setTokenNum(tokenNum)
         setTokenNum(tokenNum)
       } catch (error) {
         console.error("Error fetching ranks:", error);
@@ -173,6 +177,7 @@ export default function Home() {
     const regex = new RegExp(`(${highlight})`, 'gi');
     const parts = text.split(regex);
     return parts.map((part, index) =>
+    return parts.map((part, index) =>
       regex.test(part) ? (
         <Text as="span" key={index} color="#8181E5" display="inline">
           {part}
@@ -184,6 +189,10 @@ export default function Home() {
   };
 
   return (
+    <Flex w={"full"}
+      //  h={"full"}
+      pb={10}
+    >
     <Flex w={"full"}
       //  h={"full"}
       pb={10}
@@ -204,6 +213,7 @@ export default function Home() {
           >
             <Input
               value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
               onChange={(e) => setSearchText(e.target.value)}
               variant='flushed'
               position="relative"
@@ -248,12 +258,24 @@ export default function Home() {
                                 return (
                                   <Link style={{ color: "inherit" }} to={`/token/${item.name}`} key={index}>
                                     <Flex alignItems={"center"} gap={4} cursor={"pointer"}>
-                                      <Avatar src={SolanaImg} size={{ base: "sm", md: "md" }}></Avatar>
+                                      <Flex position={"relative"}>
+                                        <Avatar src={item.url} size={{ base: "sm", md: "md" }} name={item.name}></Avatar>
+                                        <Avatar 
+                                          src={SolanaImg} 
+                                          h={"40%"} 
+                                          w={"40%"} 
+                                          position={"absolute"} 
+                                          bottom={0.5} 
+                                          right={-1}
+                                        ></Avatar>
+                                      </Flex>
+
                                       <Text fontWeight="bold" fontSize={{ base: "md", md: "xl" }}>
                                         $
                                         {highlightText(item.name, searchText)}
                                       </Text>
                                       <Text color="whiteAlpha.500" fontSize={{ base: "sm", md: "md" }}>
+                                        {item.address}
                                         {item.address}
                                         {/* {highlightText(item.address, searchText)} */}
                                       </Text>
@@ -281,11 +303,17 @@ export default function Home() {
                               filteredKols.map((item, index) => {
                                 return (
                                   <Link style={{ color: "inherit" }} to={`/detail/${item}`} key={index}>
-                                    <Flex className="flex gap-2 items-center" cursor={"pointer"}>
-                                      {/* <Image src={"/token.svg"} width={28} height={28} alt=""></Image> */}
-                                      <Text fontSize={{ base: "md", md: "xl" }} fontWeight="bold">
-                                        {highlightText(item, searchText)}
-                                      </Text>
+                                    <Flex alignItems={"center"} gap={4} cursor={"pointer"}>
+                                      <Avatar src={item.url} size={{ base: "sm", md: "md" }} name={item.user}></Avatar>
+                                      <Flex flexDirection={"column"}>
+                                        <Text fontSize={{ base: "md", md: "xl" }} fontWeight="bold">
+                                          {item.user}
+                                        </Text>
+                                        <Text color="whiteAlpha.500" fontSize={{ base: "sm", md: "sm" }}>
+                                          @{highlightText(item.screen_name, searchText)}
+                                        </Text>
+                                      </Flex>
+
                                     </Flex>
                                   </Link>
                                 )
@@ -344,6 +372,9 @@ export default function Home() {
                 </Flex>
               </Flex>
             </Flex>
+            <Flex flexDirection={"column"}
+              // overflowY={"auto"} 
+              gap={4} maxHeight={{ base: "auto", md: 554 }}>
             <Flex flexDirection={"column"}
               // overflowY={"auto"} 
               gap={4} maxHeight={{ base: "auto", md: 554 }}>

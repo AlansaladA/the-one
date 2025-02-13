@@ -19,7 +19,8 @@ export type ChartData = {
 export type TokenList = {
   name: string
   address: string
-  num: number
+  num: number,
+  url:string
 }
 
 export type KolDetail = {

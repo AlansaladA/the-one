@@ -15,6 +15,7 @@ export const searchTickers = async (token) => {
       fdv: number,
       pair_name_1: string,
       token_address: string,
+      token_image_url: string
     }>
   }>({
     url: `/get-tickers-v3?token_keyword=${token}`,
@@ -44,7 +45,12 @@ export const getKols = async () => {
 
 export const searchKols = async (kol) => {
   return await request<{
-    tickers: Array<string>
+    tickers: Array<{
+      profile_image_url: string,
+      self:string,
+      // total_count:number,
+      user:string
+    }>
   }>({
     url: `/get-kols-v2?kol_keyword=${kol}`,
     method: "get",
