@@ -184,7 +184,10 @@ export default function Home() {
   };
 
   return (
-    <Flex w={"full"} h={"full"} >
+    <Flex w={"full"} 
+    //  h={"full"}
+     pb={10}
+     >
       <Flex w="full" flexDirection={"column"} alignItems={"center"} >
         <Image mt={8} src={Title} ></Image>
         <Text textAlign={"center"} fontSize={{ base: "lg", md: "3xl" }} color={"#fff"} mt={{ base: "-50px", md: "-80px" }} mb={50}>Supporting {tokenNum?.kols_num.toLocaleString()} KOLs and {tokenNum?.tokens_num.toLocaleString()} tokens</Text>
@@ -194,8 +197,8 @@ export default function Home() {
             position={"relative"}
             borderRadius={30}
             bgColor={"#2c2b4a"}
-            w={{ base: "90%", sm: "80%", md: "70%", lg: "55%" }}
-            minW={{ base: "auto", lg: "900px" }}
+            w={{ base: "70%", sm: "55%", md: "55%", lg: "55%" }}
+            // minW={{ base: "auto", lg: "900px" }}
             flexDirection={"column"}
             alignItems={"center"}
           >
@@ -311,19 +314,23 @@ export default function Home() {
         <Flex pt={{ base: "40px", md: "140px" }}
           px={{ base: 4, md: 20 }}
           pb={10}
-          minHeight={{ base: "100vh", md: "550px" }}
-          h={"full"}
+          minH={"400px"}
           w={"full"}
           bgImage={`url(${HomeBg})`}
           backgroundPosition={"top"}
           backgroundRepeat={"no-repeat"}
-          backgroundSize={{ base: "contain", md: "cover" }}
+          // backgroundSize={"100% auto"}
+          backgroundSize={"contain"}
+          style={{
+            backgroundAttachment: "local",
+          }}
           justifyContent="center"
         >
           <Flex
             w="full"
             flexDirection={"column"}
             maxW="1800px"
+            pb={10}
           >
             <Flex w="full" h={{ base: "4", md: "45" }} mb={5} flexDirection={{ base: "column", md: "row" }}>
               <Box display={"flex"} alignItems={"center"} w={{ base: "100%", md: "35%" }} mb={{ base: 4, md: 0 }}>
@@ -337,7 +344,9 @@ export default function Home() {
                 </Flex>
               </Flex>
             </Flex>
-            <Flex flexDirection={"column"} overflowY={"auto"} gap={4} maxHeight={{ base: "auto", md: 554 }}>
+            <Flex flexDirection={"column"} 
+            // overflowY={"auto"} 
+            gap={4} maxHeight={{ base: "auto", md: 554 }}>
               {loadRank ? <Loading></Loading> :
                 ranks.map((item, index) => (
                   <Flex w="full"
