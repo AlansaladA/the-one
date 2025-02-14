@@ -44,6 +44,7 @@ const getTooltipFormatter = (params) => {
               style="width: 32px; height: 32px; border-radius: 9999px; cursor: pointer;"
               onmouseover="this.style.opacity=0.8"
               onmouseout="this.style.opacity=1"
+              onerror="this.src='${customAvatar}'"
             />
             <div style="display: flex; flex-direction: column; align-items: flex-start;">
               <div style="font-size: 14px; font-weight: bold; color: white; text-decoration: none;">
@@ -229,10 +230,16 @@ const RelationChart = forwardRef<RelationChartRef, {
 
     if (!isInViewport) return null;
 
+    const img = document.createElement('img')
+    img.src = marker.profile_image_url
+    img.onerror = () => {
+      img.src = customAvatar
+    }
     return {
       type: 'image',
       style: {
-        image: marker.profile_image_url || customAvatar,
+        // image: marker.profile_image_url || customAvatar,
+        image: img, // marker.profile_image_url || customAvatar,
         x: point[0] - 10,
         y: point[1] - 10,
         width: 20,
@@ -252,12 +259,14 @@ const RelationChart = forwardRef<RelationChartRef, {
         // 淡入
         style: { opacity: 0 },
       },
-
+      onerror: () => {
+        console.log('error', '?');
+      },
       silent: false
     };
   }, [sortedTweetMarkers])
 
-  const option = useMemo<echarts.EChartsOption>(() => { 
+  const option = useMemo<echarts.EChartsOption>(() => {
     return {
       progressive: 200,  // 降低每帧渲染数量
       progressiveThreshold: 1000,  // 降低渐进渲染阈值
