@@ -37,6 +37,7 @@ export interface Tweet {
   impact: number
   pair_name_1: string
   profile_image_url: string
+  firestorage_image_url: string | null
   screen_name: string
   text: string
   tweet_id: string

@@ -16,6 +16,7 @@ import ReactECharts from 'echarts-for-react';
 import RelationChart, { RelationChartRef } from "../relationEchart";
 import { Tooltip } from "@/components/ui/tooltip"
 import { IoExpand } from "react-icons/io5";
+import { CUSTOM_AVATAR } from "@/lib/consts";
 export default function TokenEChart({
   initialData,
 }: {
@@ -238,7 +239,7 @@ export default function TokenEChart({
                     <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px;">
                       <div style="display: flex; align-items: center; gap: 12px;">
                         <img src="${tweet.profile_image_url}" 
-                             style="width: 32px; height: 32px; border-radius: 50%;"/>
+                             style="width: 32px; height: 32px; border-radius: 50%;" onerror="this.src='${CUSTOM_AVATAR}'"/>
                         <div>
                           <div style="color: white; font-weight: bold; font-size: 14px;">
                             ${tweet.user}
@@ -438,6 +439,12 @@ export default function TokenEChart({
 
             // 渲染头像组
             avatars.forEach((tweet, index) => {
+
+              // const img = document.createElement('img')
+              // img.src = tweet.profile_image_url
+              // img.onerror = () => {
+              //   img.src = CUSTOM_AVATAR
+              // }
               children.push({
                 type: 'group',
                 children: [
@@ -466,6 +473,7 @@ export default function TokenEChart({
                     type: 'image',
                     style: {
                       image: tweet.profile_image_url,
+                      // image: img,
                       x: point[0] + (index * 15) - (avatars.length * 7.5),
                       y: point[1] - 10,
                       width: 20,

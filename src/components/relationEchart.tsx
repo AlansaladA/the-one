@@ -5,6 +5,7 @@ import dayjs from 'dayjs';
 import ReactECharts from 'echarts-for-react';
 import { useRef, useEffect, useMemo, useCallback, forwardRef, useImperativeHandle } from 'react';
 import { useNavigate } from 'react-router';
+import { CUSTOM_AVATAR } from '@/lib/consts';
 
 interface CustomNode {
   x: number;
@@ -18,6 +19,7 @@ interface CustomNode {
   impact: number
   pair_name_1: string
   profile_image_url: string,
+  firestorage_image_url: string | null
   relation: string[]
   screen_name: string
   text: string
@@ -31,7 +33,6 @@ interface CustomLink {
   symbol?: [string, string];  // 添加可选的 symbol 属性
 }
 const itemDelay = 2
-const customAvatar = 'https://pbs.twimg.com/profile_images/1867692977734254592/j-GvEEZI_normal.jpg'
 const getTooltipFormatter = (params) => {
   const { data: node } = params.data;
   return `
@@ -44,7 +45,7 @@ const getTooltipFormatter = (params) => {
               style="width: 32px; height: 32px; border-radius: 9999px; cursor: pointer;"
               onmouseover="this.style.opacity=0.8"
               onmouseout="this.style.opacity=1"
-              onerror="this.src='${customAvatar}'"
+              onerror="this.src='${CUSTOM_AVATAR}'"
             />
             <div style="display: flex; flex-direction: column; align-items: flex-start;">
               <div style="font-size: 14px; font-weight: bold; color: white; text-decoration: none;">
@@ -153,6 +154,7 @@ const RelationChart = forwardRef<RelationChartRef, {
           impact: 0,
           pair_name_1: '',
           profile_image_url: '',
+          firestorage_image_url: '',
           screen_name: '',
           text: '',
           tweet_id: '',
@@ -231,15 +233,15 @@ const RelationChart = forwardRef<RelationChartRef, {
     if (!isInViewport) return null;
 
     const img = document.createElement('img')
-    img.src = marker.profile_image_url
+    img.src = marker.firestorage_image_url || marker.profile_image_url
     img.onerror = () => {
-      img.src = customAvatar
+      img.src = CUSTOM_AVATAR
     }
     return {
       type: 'image',
       style: {
         // image: marker.profile_image_url || customAvatar,
-        image: img, // marker.profile_image_url || customAvatar,
+        image: img,
         x: point[0] - 10,
         y: point[1] - 10,
         width: 20,
