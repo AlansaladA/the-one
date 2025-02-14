@@ -1,16 +1,10 @@
 import { Suspense, useEffect, useState } from "react";
 import { getTweetOne, getTickerOne, getRelation } from "@/api";
-import { useParams } from "react-router";
+import { useLoaderData, useParams } from "react-router";
 import { Tweet, Price, TickerData } from "@/utils/types";
 import { Heading, Spinner, Flex, Container } from "@chakra-ui/react";
 import TokenEChart from "@/components/TokenEChart/index";
 import Loading from "@/components/loading";
-
-// import TokenChartVisx from '@/components/TokenChartVisx';
-type Params = {
-  ticker: string;
-};
-
 export default function Ticker() {
   const [data, setData] = useState<TickerData>({
     ticker: "",
@@ -18,8 +12,8 @@ export default function Ticker() {
     tweets: [],
     tweetsRelation: [],
   });
-
-  const { ticker } = useParams<Params>();
+  const [isError, setIsError] = useState<Error>()
+  const { ticker } = useLoaderData<TickerData>();
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     const getfetchData = async () => {
@@ -45,31 +39,39 @@ export default function Ticker() {
           });
         } catch (error) {
           console.error(error); // 记录错误信息
+          setIsError(error as Error)
         } finally {
           setLoading(false)
         }
       }
     };
     getfetchData();
+    // throw new Error("Token Not Found")
   }, [ticker]);
- 
+
+  // if (isError) {
+  //   throw isError
+  // }
   return (
     <Container maxW="container.lg" py={8}>
-      <Heading size="2xl" mb={8} textAlign="left">
-        ${ticker?.toUpperCase()}
-      </Heading>
+      {loading ? <Loading /> :
+        <>
+          <Heading size="2xl" mb={8} textAlign="left">
+            ${ticker?.toUpperCase()}
+          </Heading>
 
-      <Suspense
-        fallback={
-          <Flex align="center" justify="center" h="600px">
-            <Spinner />
-          </Flex>
-        }
-      >
-        {
-          loading ? <Loading /> : <TokenEChart initialData={data} />
-        }
-      </Suspense>
+          <Suspense
+            fallback={
+              <Flex align="center" justify="center" h="600px">
+                <Spinner />
+              </Flex>
+            }
+          >
+
+            <TokenEChart initialData={data} />
+
+          </Suspense>
+        </>}
     </Container>
   );
 }

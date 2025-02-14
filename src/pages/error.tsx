@@ -15,7 +15,7 @@ export default function Page() {
     >
       <Center flexDirection={'column'}>
         <Text>{`${error}` || 'There is something wrong with the page'}</Text>
-        <Button mt={4} onClick={() => navigate('/')}>返回首页</Button>
+        <Button mt={4} onClick={() => navigate('/')}>Back to home</Button>
       </Center>
     </EmptyState>
   </Center >

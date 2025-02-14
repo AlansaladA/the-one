@@ -8,6 +8,7 @@ import NotFound from "@/pages/404"
 import ErrorBoundary from "@/pages/error"
 import { kolLoader, tickerLoader } from "./loader"
 import Loading from "@/components/loading"
+import { Fragment } from "react/jsx-runtime"
 const router = createBrowserRouter([
   {
     path: "/",
@@ -19,12 +20,12 @@ const router = createBrowserRouter([
         Component: Home,
       },
       {
-        path: "token",
+        path: "token", 
         children: [
           {
             path: ":ticker",
             Component: Ticker,
-            loader: ({ params }) => {
+            loader: ({ params }) => { 
               if (!params.ticker) {
                 throw new Error("Token Not Found")
               }
