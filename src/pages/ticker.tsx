@@ -5,6 +5,9 @@ import { Tweet, Price, TickerData } from "@/utils/types";
 import { Heading, Spinner, Flex, Container } from "@chakra-ui/react";
 import TokenEChart from "@/components/TokenEChart/index";
 import Loading from "@/components/loading";
+import { preloadImages } from "@/utils";
+
+// const defaultAvatarUrl = 'https://pbs.twimg.com/profile_images/1867692977734254592/j-GvEEZI_normal.jpg';
 export default function Ticker() {
   const [data, setData] = useState<TickerData>({
     ticker: "",
@@ -26,6 +29,8 @@ export default function Ticker() {
             getRelation(ticker)
           ]);
 
+          const processedTweets = await preloadImages(tweetsRes.tweets);
+
           setData({
             ticker: ticker,
             priceData: priceRes.history.map((item) => ({
@@ -34,7 +39,9 @@ export default function Ticker() {
               volume: parseFloat(item.volume),
               name: item.name,
             })), // 根据接口返回的结构调整  
-            tweets: tweetsRes.tweets.filter((tweet) => new Date(tweet.created_at).getTime() >= new Date(priceRes.history[0].download_time).getTime()),
+            tweets: processedTweets.filter((tweet) => 
+              new Date(tweet.created_at).getTime() >= new Date(priceRes.history[0].download_time).getTime()
+            ),
             tweetsRelation: tweetsRelation.tweets
           });
         } catch (error) {

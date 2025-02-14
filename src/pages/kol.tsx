@@ -20,6 +20,8 @@ import { useParams, useNavigate, useLoaderData } from 'react-router'
 import Loading from "@/components/loading";
 import { Link } from "react-router"
 import KolGraph from "@/views/kol/graph";
+import { preloadImages } from "@/utils";
+
 export default function Kol() {
   const { kol } = useLoaderData<KolData>()
   const [followTokens, setFollowTokens] = useState<FollowTokens[]>();
@@ -125,11 +127,14 @@ export default function Kol() {
     try {
       setLoadShip(true);
       const res = await getFollowList(kol);
-      setTweetsList(res.tweets);
-      const _data =
-        res.tweets.filter((v) => v.Following === kol)[0] ?? {};
+      const processedTweets = await preloadImages(res.tweets);
 
-      const nodes = res.tweets.filter((v) => v.Following !== kol);
+
+      setTweetsList(processedTweets);
+      const _data =
+       processedTweets.filter((v) => v.Following === kol)[0] ?? {};
+
+      const nodes = processedTweets.filter((v) => v.Following !== kol);
 
       const centerNode = {
         name: _data?.Following,
@@ -318,8 +323,7 @@ export default function Kol() {
             </Flex>
           </Card.Body>
         </Card.Root>
-
-        {/* Price Change Card */}
+        
         {/* {followTokens && <PrinceChange tokens={followTokens} />} */}
         <Card.Root bg="#1f1b23E1" flex="1" variant="elevated">
           <Card.Body p={4}>
@@ -333,15 +337,6 @@ export default function Kol() {
                   style={{ height: "100%", width: "100%" }}
                   notMerge={true}
                   lazyUpdate={true}
-                // onEvents={{
-                //   legendselectchanged: (params) => {
-                //     setSelectedLines(
-                //       Object.entries(params.selected)
-                //         .filter(([_, selected]) => selected)
-                //         .map(([name]) => name)
-                //     );
-                //   }
-                // }}
                 />
               )}
             </Box>

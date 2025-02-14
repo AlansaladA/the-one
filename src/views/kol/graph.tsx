@@ -16,7 +16,7 @@ function KolGraph({ kol, loading, graphData }: {
 }) {
   const [followData, setFollowData] = useState<{
     total_count: number;
-    common_count: number;
+    common_count: number; 
   }>({
     total_count: 0,
     common_count: 0
@@ -84,7 +84,8 @@ function KolGraph({ kol, loading, graphData }: {
         <Box>
           <Text fontWeight="bold" color="#fff">Key KOL Following</Text>
           <Text fontSize="xl" color="#8181E5">
-            {followData.common_count}
+            {/* {followData.common_count} */}
+            {graphData.data.length-1}
           </Text>
         </Box>
       </Flex>

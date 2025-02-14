@@ -1,3 +1,5 @@
+import defaultAvatarUrl from "@/assets/avater.png";
+
 const CHART_COLORS = [
   '#5470c6', // 蓝色
   '#91cc75', // 绿色
@@ -91,3 +93,27 @@ export const mergeData = (dataList: Record<string, number>[][]): Record<string, 
     return mergedEntry;
   });
 };
+
+
+export const preloadImages = async (tweets) => {
+  return Promise.all(
+    tweets.map(async (tweet) => {
+      try {
+        const img = new Image();
+        img.src = tweet.profile_image_url;
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = () => {
+            tweet.profile_image_url = defaultAvatarUrl;
+            resolve(null);
+          };
+        });
+        return tweet;
+      } catch {
+        tweet.profile_image_url = defaultAvatarUrl;
+        return tweet;
+      }
+    })
+  );
+};
+

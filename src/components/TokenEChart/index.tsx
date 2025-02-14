@@ -17,6 +17,7 @@ import RelationChart, { RelationChartRef } from "../relationEchart";
 import { Tooltip } from "@/components/ui/tooltip"
 import { IoExpand } from "react-icons/io5";
 import { CUSTOM_AVATAR } from "@/lib/consts";
+// import tweetImg from "@/assets/tweet.png"
 export default function TokenEChart({
   initialData,
 }: {
@@ -34,14 +35,18 @@ export default function TokenEChart({
   };
 
   const tweetMarkers = useMemo(() => {
+
     const filteredTweets =
       followerRange.length > 0
         ? initialData.tweets.filter((tweet) =>
           followerRange.includes(getFollowerRange(tweet.followers_count))
         )
-        : initialData.tweets;
+        : initialData.tweets.filter((tweet) => 
+          tweet.followers_count < 10000
+        );
 
-
+    console.log(filteredTweets, "filteredTweets");
+    
     // 创建一个包含价格时间点和推文时间点的数组 
     const allTimePoints = [...initialData.priceData.map(point => point.time),
     ...filteredTweets.map(tweet => new Date(tweet.created_at).getTime())
