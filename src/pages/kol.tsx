@@ -226,7 +226,7 @@ export default function Kol() {
       },
       grid: {
         top: 60,
-        left: 50,
+        left: 65,
         right: 50,
         bottom: 30
       },
@@ -245,7 +245,10 @@ export default function Kol() {
       },
       yAxis: {
         type: 'value',
-        min: -100,
+        min: function (value) {
+          // 如果最小值小于-100，则使用-100，否则使用向下取整后的最小值
+          return value.min < -100 ? -100 : Math.floor(value.min);
+        },
         axisLine: {
           show: false  // 隐藏轴线
         },
