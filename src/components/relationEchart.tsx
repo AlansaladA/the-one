@@ -19,7 +19,6 @@ interface CustomNode {
   impact: number
   pair_name_1: string
   profile_image_url: string,
-  firestorage_image_url: string | null
   relation: string[]
   screen_name: string
   text: string
@@ -154,7 +153,6 @@ const RelationChart = forwardRef<RelationChartRef, {
           impact: 0,
           pair_name_1: '',
           profile_image_url: '',
-          firestorage_image_url: '',
           screen_name: '',
           text: '',
           tweet_id: '',
@@ -232,16 +230,16 @@ const RelationChart = forwardRef<RelationChartRef, {
 
     if (!isInViewport) return null;
 
-    const img = document.createElement('img')
-    img.src = marker.firestorage_image_url || marker.profile_image_url
-    img.onerror = () => {
-      img.src = CUSTOM_AVATAR
-    }
+    // const img = document.createElement('img')
+    // img.src = marker.profile_image_url
+    // img.onerror = () => {
+    //   img.src = CUSTOM_AVATAR
+    // }
     return {
       type: 'image',
       style: {
-        // image: marker.profile_image_url || customAvatar,
-        image: img,
+        image: marker.profile_image_url,
+        // image: img,
         x: point[0] - 10,
         y: point[1] - 10,
         width: 20,
