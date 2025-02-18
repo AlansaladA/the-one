@@ -8,23 +8,38 @@ import TweetImg from "@/assets/tweet.png"
 import DexImg from "@/assets/dexscreener.png"
 import { FaTelegram } from "react-icons/fa";
 import { AiFillTwitterCircle } from "react-icons/ai";
+import { FaXTwitter } from "react-icons/fa6";
+import { FaTelegramPlane } from "react-icons/fa";
 
+const socialLinks = [
+  {
+    url: 'https://x.com/the1aiagent',
+    icon: <FaXTwitter color="#fff" />,
+  },
+  {
+    url: 'https://dexscreener.com/solana/FfQ99V4Z74397VZBxz2iPfnZMWGeuobdWXpTfcHjuYno',
+    icon: <Image src={DexImg} height={{ base: "15px", md: "22px" }} />,
+  },
+  {
+    url: 'https://t.me/the1life',
+    icon: <FaTelegramPlane color="#fff" />,
+  }
+]
 export default function Header() {
   const { address, balance, isLogined, login, logout } = useWallet()
   const navigate = useNavigate()
-  return <Flex justifyContent={"space-between"} px='8' height={'80px'} alignItems={"center"}>
+  return <Flex justifyContent={"space-between"} px='8' height={{ base: '60px', md: '80px' }} alignItems={"center"}>
     <Image cursor={'pointer'} src={Logo} height={{ base: "30px", md: "44px" }} onClick={() => navigate('/')} />
     <Flex alignItems={'center'} gap={2}>
-      <Button bgColor={"transparent"} onClick={() =>  window.open(`https://x.com/the1aiagent`, '_blank')}>
-        {/* <Image src={TweetImg} height={{ base: "20px", md: "30px" }}></Image> */}
-        <AiFillTwitterCircle color="#fff"/>
-      </Button>
-      <Button bgColor={"#000"} onClick={() => window.open(`https://dexscreener.com/solana/FfQ99V4Z74397VZBxz2iPfnZMWGeuobdWXpTfcHjuYno`, '_blank')}>
-        <Image src={DexImg} height={{ base: "15px", md: "22px" }}></Image>
-      </Button>
-      <Button bgColor={"#000"} onClick={() => window.open(`https://t.me/the1life`, '_blank')}>
-          <FaTelegram color="#fff"/>
-      </Button>
+      {socialLinks.map((link, index) => (
+        <Button
+          key={index}
+          bgColor="transparent"
+          onClick={() => window.open(link.url, '_blank')}
+        >
+          {link.icon}
+        </Button>
+      ))}
       {/* <Box mr={4}>
         {!isLogined ? (
           <Button px={"24px"} borderRadius={"full"} borderColor={"#8181E5"} bgColor={"transparent"} variant={'solid'} onClick={() => login()}
@@ -41,7 +56,7 @@ export default function Header() {
         <Text mr={4}>{shortenAddress(address)}</Text>
         <Text>{balance} $theOne</Text>
       </Flex>} */}
-      
+
     </Flex>
   </Flex>
 }

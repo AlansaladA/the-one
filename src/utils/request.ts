@@ -30,7 +30,7 @@ request.interceptors.request.use(
     const timestamp = Math.floor(Date.now() / 1000).toString(); 
     // 加密时间戳
     const encryptedTimestamp = aesEncrypt(timestamp);
-    
+
     // 添加到请求头
     config.headers['X-Timestamp'] = encryptedTimestamp;
     

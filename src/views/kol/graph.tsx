@@ -85,7 +85,9 @@ function KolGraph({ kol, loading, graphData }: {
           <Text fontWeight="bold" color="#fff">Key KOL Following</Text>
           <Text fontSize="xl" color="#8181E5">
             {/* {followData.common_count} */}
-            {graphData.data.length-1}
+            {
+              graphData.data.length && graphData.data.length - 1 
+            }
           </Text>
         </Box>
       </Flex>
