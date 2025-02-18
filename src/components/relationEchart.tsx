@@ -218,8 +218,7 @@ const RelationChart = forwardRef<RelationChartRef, {
     const point = api.coord([api.value(0), api.value(1)]);
     const marker = sortedTweetMarkers[params.dataIndex];
 
-    if (!marker?.tweet_id || !point) return null;
-    // if(marker.tweet_id)
+    if (!marker?.tweet_id || !point || !point[1]) return null;
     // 只在可视区域内渲染图片
     const isInViewport = (
       point[0] >= 0 &&
@@ -230,16 +229,10 @@ const RelationChart = forwardRef<RelationChartRef, {
 
     if (!isInViewport) return null;
 
-    // const img = document.createElement('img')
-    // img.src = marker.profile_image_url
-    // img.onerror = () => {
-    //   img.src = CUSTOM_AVATAR
-    // }
     return {
       type: 'image',
       style: {
         image: marker.profile_image_url,
-        // image: img,
         x: point[0] - 10,
         y: point[1] - 10,
         width: 20,

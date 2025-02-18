@@ -15,9 +15,7 @@ const tokenSlice = createSlice({
   initialState,
   reducers: {
     // 生成访客 token
-    setVisitorToken: (state, action) => {
-      console.log(action.payload,'action.payload');
-      
+    setVisitorToken: (state, action) => { 
       state.token = action.payload;
     },
     // 设置钱包连接 token

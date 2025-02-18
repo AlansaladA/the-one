@@ -2,54 +2,19 @@ import { Outlet } from "react-router";
 import Header from "./header";
 import { Box, Flex } from "@chakra-ui/react";
 import useWallet from "@/hooks/useWallet";
-import useSolana from "@/hooks/useSolana";
 import { useEffect } from "react";
 // import { getKols, getTickers } from '@/api';
 import { useToken } from '@/hooks/useToken';
 
 export default function Page() {
-  const { updateTokenBalance, address } = useWallet()
-  // const { getTokenBalance } = useSolana()
-
-  // const fetxhBalance = async (addr: string) => {
-  //   try {
-
-  //     const balance = await getTokenBalance(addr, import.meta.env.VITE_TOKEN_ADDRESS)
-  //     updateTokenBalance(parseFloat(balance))
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // }
-
-  // useEffect(() => {
-  //   if (address) {
-  //     fetxhBalance(address)
-  //   }
-  // }, [address])
-
-  // useEffect(() => {
-  //   const updateCache = async () => {
-  //     try {
-  //       const [kols, ticks] = await Promise.all([getKols(), getTickers()]);
-  //       const filterList = ticks.tickers.map(([name, address, num]) => ({ name, address, num }))
-
-  //       localStorage.setItem("kolsList", JSON.stringify(kols.tickers));
-  //       localStorage.setItem("tokenList", JSON.stringify(filterList));
-  //     } catch (error) {
-  //       console.error('缓存更新失败:', error);
-  //     }
-  //   };
-  //   updateCache();
-  //   const interval = setInterval(updateCache, 30 * 60 * 1000);
-  //   return () => clearInterval(interval);
-  // }, [])
+  const { address } = useWallet()
 
   const { initToken, handleWalletConnect } = useToken()
   useEffect(() => {
-    if(!address) {
+    if (!address) {
       initToken()
     }
-  },[address])
+  }, [address])
 
   return <Flex height={'full'} flexDirection={'column'}>
     <Header />
