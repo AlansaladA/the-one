@@ -19,7 +19,7 @@ export default function Ticker() {
   });
   const [isError, setIsError] = useState<Error>()
   const { ticker } = useLoaderData<TickerData>();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const { getTokenBalance } = useSolana()
   const { address } = useWallet()
   const { token_level } = useToken()
@@ -58,7 +58,7 @@ export default function Ticker() {
           //   name: priceRes.history[0].name,
           //   isMock: true
           // }));
-          
+
           setData({
             ticker: ticker,
             priceData: [
