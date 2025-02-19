@@ -9,7 +9,7 @@ export const tickerLoader: LoaderFunction = async ({ params }) => {
   }
   const [priceRes, tweetsRes, tweetsRelation] = await Promise.all([
     getTickerOne(ticker),
-    getTweetOne(ticker),
+    getTweetOne(ticker, "123"),
     getRelation(ticker),
   ])
 

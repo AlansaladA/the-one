@@ -20,6 +20,9 @@ import {
 import useSolana from "@/hooks/useSolana";
 import { useCallback, useState, useEffect } from "react";
 import { useInterval } from "@/hooks/useInterval";
+import { fetchLogin } from "@/api";
+import useToken from '@/hooks/useToken';
+
 const socialLinks = [
   {
     url: 'https://x.com/the1aiagent',
@@ -38,6 +41,7 @@ export default function Header() {
   const [balanceloading, setBalanceloading] = useState(false)
   const { address, balance, isLogined, login, logout, updateTokenBalance } = useWallet()
   const { getTokenBalance } = useSolana()
+  const { updateToken, updateTokenLevel } = useToken();
 
   const fetchBalance = useCallback(async () => {
     try {
@@ -55,6 +59,18 @@ export default function Header() {
   useEffect(() => {
     if (address) {
       fetchBalance()
+      fetchLoginApi()
+    }
+  }, [address])
+
+  const fetchLoginApi = useCallback(async () => {
+    try {
+      if (!address) return
+      const res = await fetchLogin(address)
+      updateToken(res.token)
+      updateTokenLevel(res.token_level)
+    } catch (error) {
+      console.log(error);
     }
   }, [address])
 
@@ -72,7 +88,7 @@ export default function Header() {
           {link.icon}
         </Button>
       ))}
-      <Box  >
+      <Box>
         {
           isLogined && address ? <Flex alignItems={"center"} gap={4}>
             <Flex alignItems={"center"} gap={2}>

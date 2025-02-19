@@ -9,7 +9,7 @@ import { CUSTOM_AVATAR } from '@/lib/consts';
 
 interface CustomNode {
   x: number;
-  y: number;
+  y: number | undefined;
   color?: string;
   name: string,
   created_at: string
@@ -134,6 +134,7 @@ const RelationChart = forwardRef<RelationChartRef, {
     if (!relation) return [];
 
     const position = relation?.position ? JSON.parse(relation.position) : {}
+    // console.log(position, 'position');
     const relationMap = new Map(Object.entries(relation.data || {}));
     const positionMap = new Map<string, number>(Object.entries(position));
 
@@ -144,7 +145,7 @@ const RelationChart = forwardRef<RelationChartRef, {
         return [{
           name: `empty-${timePoint.time}`,
           x: timePoint.time,
-          y: 0,
+          y: undefined,
           relation: [],
           // 添加其他必需的 CustomNode 属性
           created_at: new Date(timePoint.time).toISOString(),
@@ -168,11 +169,12 @@ const RelationChart = forwardRef<RelationChartRef, {
           name: tweetId,
           x: timePoint.time,
           relation: relationMap.get(tweetId)?.filter(id => id !== tweetId) || [],
-          y: positionMap.get(tweetId) ?? 0
+          y: positionMap.get(tweetId) ?? undefined
         });
       });
     });
-
+    console.log(markers, 'markers');
+    
     return markers;
   }, [relation, tweets]);
 
@@ -218,7 +220,8 @@ const RelationChart = forwardRef<RelationChartRef, {
     const point = api.coord([api.value(0), api.value(1)]);
     const marker = sortedTweetMarkers[params.dataIndex];
 
-    if (!marker?.tweet_id || !point || !point[1]) return null;
+    if (!marker?.tweet_id || !point) return null;
+    // if(marker.tweet_id)
     // 只在可视区域内渲染图片
     const isInViewport = (
       point[0] >= 0 &&
@@ -229,10 +232,16 @@ const RelationChart = forwardRef<RelationChartRef, {
 
     if (!isInViewport) return null;
 
+    // const img = document.createElement('img')
+    // img.src = marker.profile_image_url
+    // img.onerror = () => {
+    //   img.src = CUSTOM_AVATAR
+    // }
     return {
       type: 'image',
       style: {
         image: marker.profile_image_url,
+        // image: img,
         x: point[0] - 10,
         y: point[1] - 10,
         width: 20,

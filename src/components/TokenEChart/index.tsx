@@ -5,11 +5,12 @@ import {
   Flex,
   Text,
   VStack,
-  HStack
+  HStack,
+  Image,
 } from "@chakra-ui/react";
 import dayjs from "dayjs";
 import { useNavigate } from 'react-router'
-import { Tweet, TickerData } from "@/utils/types";
+import { Tweet, TickerData, TokenLevel } from "@/utils/types";
 import { Button } from "@/components/ui/button"
 import * as echarts from 'echarts';
 import ReactECharts from 'echarts-for-react';
@@ -17,15 +18,22 @@ import RelationChart, { RelationChartRef } from "../relationEchart";
 import { Tooltip } from "@/components/ui/tooltip"
 import { IoExpand } from "react-icons/io5";
 import { CUSTOM_AVATAR } from "@/lib/consts";
+import SearchImg from "@/assets/search1.svg";
 // import tweetImg from "@/assets/tweet.png"
+import { FaSearchPlus } from "react-icons/fa";
+import { FaLock } from "react-icons/fa";
+import { ReactIcon } from "../icon";
+import useToken from "@/hooks/useToken";
 export default function TokenEChart({
   initialData,
 }: {
   initialData: TickerData;
 }) {
+  const { token_level } = useToken()
   const relationChartRef = useRef<RelationChartRef>(null);
   const navigate = useNavigate()
   const [followerRange, setFollowerRange] = useState<string[]>(["10k-50k", "50k+"]);
+
 
   const getFollowerRange = (followersCount: number): string => {
     if (followersCount < 5000) return "0-5k";
@@ -41,12 +49,11 @@ export default function TokenEChart({
         ? initialData.tweets.filter((tweet) =>
           followerRange.includes(getFollowerRange(tweet.followers_count))
         )
-        : initialData.tweets.filter((tweet) => 
+        : initialData.tweets.filter((tweet) =>
           tweet.followers_count < 10000
         );
 
-    console.log(filteredTweets, "filteredTweets");
-    
+
     // 创建一个包含价格时间点和推文时间点的数组 
     const allTimePoints = [...initialData.priceData.map(point => point.time),
     ...filteredTweets.map(tweet => new Date(tweet.created_at).getTime())
@@ -112,6 +119,18 @@ export default function TokenEChart({
     return [0, 0]
   }, [tweetMarkers])
 
+  // const rangeRate = useMemo(() => {
+  //   console.log(tweetMarkers, 'tweetMarkers');
+
+  //   const twoDaysInMs = 2 * 24 * 60 * 60 * 1000;
+  //   const lastTweetTime = tweetMarkers[tweetMarkers.length - 1].time;
+  //   const twoDaysAfterLastTweet = lastTweetTime - twoDaysInMs;
+
+  //   console.log((tweetMarkers[tweetMarkers.length - 1].time - twoDaysAfterLastTweet) / (tweetMarkers[tweetMarkers.length - 1].time - tweetMarkers[0].time) * 100, 'rangeRate');
+
+  //   return (tweetMarkers[tweetMarkers.length - 1].time - twoDaysAfterLastTweet) / (tweetMarkers[tweetMarkers.length - 1].time - tweetMarkers[0].time) * 100
+  // }, [markerRange, tweetMarkers])
+
   // useEffect(() => {
   //   if (initialData.priceData.length > 0) {
   //     setIsLoading(false);
@@ -130,6 +149,8 @@ export default function TokenEChart({
   }, [tweetMarkers])
 
   useEffect(() => {
+    console.log(markerRange, 'markerRange');
+
     relationChartRef.current?.initRange(markerRange);
   }, [markerRange])
   // 添加 echartRef
@@ -201,7 +222,7 @@ export default function TokenEChart({
           return [point[0] - 10, point[1] + 10]; // 向左偏移10像素,向下偏移10像素
         },
         formatter: function (params: any) {
-          console.log(params);
+
 
           const marker = params.data[2];
           if (!marker) return '';
@@ -352,14 +373,19 @@ export default function TokenEChart({
         fillerColor: 'rgba(167,183,204,0.2)',
         handleStyle: {
           color: '#8884d8',
-          cursor: 'pointer'
+          cursor: 'pointer',
         },
         textStyle: {
           color: '#666'
         },
+        ...(token_level === TokenLevel.BASIC ? {
+          left: "5%",
+          right: "10%"
+        } : {}),
         brushSelect: false,
         startValue: markerRange[0],
-        endValue: markerRange[1]
+        endValue: markerRange[1],
+        rangeMode: ['value', 'value']
       }],
 
       xAxis: {
@@ -547,8 +573,46 @@ export default function TokenEChart({
   }, [tweetMarkers])
 
   const zoomFunc = useCallback((params: any) => {
-    relationChartRef.current?.setRange([params.start, params.end]);
+    // if (token_level === TokenLevel.BASIC) {
+    //   const twoDaysInMs = 2 * 24 * 60 * 60 * 1000;
+    //   const lastTweetTime = tweetMarkers[tweetMarkers.length - 1].time;
+    //   const twoDaysAfterLastTweet = lastTweetTime - twoDaysInMs;
+    //   //   const start = (markerRange[0] - tweetMarkers[0].time) / (tweetMarkers[tweetMarkers.length - 1].time - tweetMarkers[0].time) * 100
+    //   const end = (twoDaysAfterLastTweet - tweetMarkers[0].time) / (tweetMarkers[tweetMarkers.length - 1].time - tweetMarkers[0].time) * 100
+    //   console.log(end, 'end');
+    //   if (params.end > end) {
+    //     echartRef.current?.getEchartsInstance().dispatchAction({
+    //       type: 'dataZoom',
+    //       start: params.start,
+    //       end: end
+    //     });
+    //   } else {
+    //     relationChartRef.current?.setRange([params.start, params.end]);
+    //   }
+    //   //   let startValue = 0
+    //   //   let endValue = 0
+    //   //   if (params.start < start) {
+    //   //     startValue = start
+    //   //     endValue = params.end
+    //   //   } else if (params.end > end) {
+    //   //     startValue = params.start
+    //   //     endValue = end
+    //   //   } else {
+    //   //     startValue = params.start
+    //   //     endValue = params.end
+    //   //   }
+    //   //   echartRef.current?.getEchartsInstance().dispatchAction({
+    //   //     type: 'dataZoom',
+    //   //     start: startValue,
+    //   //     end: endValue
+    //   //   });
+    //   //   relationChartRef.current?.setRange([startValue, endValue]);
+    // }
+    // else {
+      relationChartRef.current?.setRange([params.start, params.end]);
+    // }
   }, [tweetMarkers])
+
   const handleZoom = _.debounce(zoomFunc, 500)
 
   return (
@@ -579,9 +643,27 @@ export default function TokenEChart({
                 </Button>
               ))}
             </HStack>
-            <Button onClick={fillFun}>
-              <IoExpand></IoExpand>
-            </Button>
+
+            <Flex gap={2}>
+              {/* <HStack>
+                {(["6hourBefore", "6hourAfter"] as const).map((range) => (
+                  <Button
+                    key={range}
+                    size="sm"
+                    variant="outline"
+                    onClick={() => { }}
+                    bg={followerRange.includes(range) ? "blue.500" : "gray.800"}
+                  >
+                    {range}
+                  </Button>
+                ))}
+              </HStack> */}
+
+              <Button onClick={fillFun} disabled={token_level === TokenLevel.BASIC}>
+                <FaSearchPlus />
+              </Button>
+            </Flex>
+
           </Flex>
         </VStack>
       </Flex>
@@ -594,6 +676,32 @@ export default function TokenEChart({
             dataZoom: handleZoom
           }}
         />
+        {
+          token_level === TokenLevel.BASIC && <Box
+            position="absolute"
+            // backgroundColor="red"
+            // zIndex={-1}
+            bottom="5%"
+            left="5%"
+            right="2.8%"
+            height="40px"
+            pointerEvents="none" // 确保不影响下方dataZoom的交互
+          >
+            {/* <Flex backdropFilter="blur(8px)"
+              backgroundColor="rgba(129, 129, 229, 0.1)" justifyContent={"center"} alignItems={"center"} w={rangeRate[0] + "%"} h={"100%"} position="absolute" left="0" top="0" >
+              <Button bgColor={"#8181E5"} size={"xs"} p={1} h={7} colorScheme="blue" borderRadius={"full"}>
+                <FaLock />
+              </Button>
+            </Flex> */}
+            <Flex backdropFilter="blur(8px)"
+              backgroundColor="rgba(129, 129, 229, 0.1)" justifyContent={"center"} alignItems={"center"} w={7.7 + "%"} h={"100%"} position="absolute" right="0" top="0" >
+              <Button w={"50%"} bgColor={"#8181E5"} size={"xs"} p={1} h={7} colorScheme="blue" borderRadius={"full"}>
+                <FaLock style={{width:"50%"}} />
+              </Button>
+            </Flex>
+          </Box>
+        }
+
       </Box>
       <Tooltip content="An A to B arrow indicates B may be influenced by A" showArrow>
         <span style={{ fontSize: "16px" }}>Meme propagation map: how KOLs are potentially influenced by each other</span>

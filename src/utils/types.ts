@@ -96,3 +96,8 @@ export type KolGraphData = {
     value: number
   }[]
 }
+
+export enum TokenLevel {
+  BASIC = "basic",
+  ADVANCED = "advanced"
+}
