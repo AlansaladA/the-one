@@ -8,7 +8,7 @@ import Loading from "@/components/loading";
 import { preloadImages } from "@/utils";
 import useSolana from "@/hooks/useSolana";
 import useWallet from "@/hooks/useWallet";
-import useToken from "@/hooks/useToken";
+import userUser from "@/hooks/useUser";
 
 export default function Ticker() {
   const [data, setData] = useState<TickerData>({
@@ -20,44 +20,24 @@ export default function Ticker() {
   const [isError, setIsError] = useState<Error>()
   const { ticker } = useLoaderData<TickerData>();
   const [loading, setLoading] = useState(false);
-  const { getTokenBalance } = useSolana()
   const { address } = useWallet()
-  const { token_level } = useToken()
+  const { token_level } = userUser()
 
 
 
   useEffect(() => {
     const getfetchData = async () => {
-      if (ticker && address && token_level) {
-        
+      if (ticker && token_level) {
+
         setLoading(true)
         try {
           const [priceRes, tweetsRes, tweetsRelation] = await Promise.all([
-            token_level === TokenLevel.BASIC ? getHistoryBasic(ticker) : getHistoryAdvanced(ticker),
-            token_level === TokenLevel.BASIC ? getTweetBasic(ticker, address) : getTweetAdvanced(ticker, address),
+            token_level === TokenLevel.ADVANCED ? getHistoryAdvanced(ticker) : getHistoryBasic(ticker),
+            token_level === TokenLevel.ADVANCED ? getTweetAdvanced(ticker) : getTweetBasic(ticker),
             getRelation(ticker)
           ]);
          
           const processedTweets = await preloadImages(tweetsRes.tweets);
-
-
-          // const firstTime = new Date(priceRes.history[0].download_time).getTime();
-          // const mockHistoryData = Array.from({ length: priceRes.history.length }).map((_, index) => ({
-          //   time: firstTime - ((index + 1) * 60 * 60 * 1000), // 每小时递减
-          //   price: 0,
-          //   volume: 0,
-          //   name: priceRes.history[0].name,
-          //   isMock: true
-          // }));
-
-          // const lastTime = new Date(priceRes.history[priceRes.history.length - 1].download_time).getTime();
-          // const mockFutureData = Array.from({ length: priceRes.history.length }).map((_, index) => ({
-          //   time: lastTime + ((index + 1) * 60 * 60 * 1000), // 每小时递增
-          //   price: 0,
-          //   volume: 0,
-          //   name: priceRes.history[0].name,
-          //   isMock: true
-          // }));
 
           setData({
             ticker: ticker,
@@ -84,11 +64,19 @@ export default function Ticker() {
     };
     getfetchData();
     // throw new Error("Token Not Found")
-  }, [ticker, address,token_level]);
+  }, [ticker, token_level]);
 
   // if (isError) {
   //   throw isError
   // }
+  // if(!address){
+  //   return <Container maxW="container.lg" py={8} height={'100%'} display={'flex'} justifyContent={'center'} alignItems={'center'}>
+  //     <Heading size="2xl" mb={8} textAlign="left">
+  //       Please connect your wallet
+  //     </Heading>
+  //   </Container>
+  // }
+
   return (
     <Container maxW="container.lg" py={8}>
       {loading ? <Loading /> :

@@ -126,7 +126,7 @@ export const getTweetOne = async (tickerName: string, address: string) => {
   })
 }
 
-export const getTweetBasic = async (tickerName: string, address: string) => {
+export const getTweetBasic = async (tickerName: string) => {
   return await request<{
     ticker_name: string
     tweets: Array<{
@@ -144,14 +144,14 @@ export const getTweetBasic = async (tickerName: string, address: string) => {
       firestorage_image_url: string | null
     }>
   }>({
-    url: `/get-ticker-tweet-basic?ticker_name=${tickerName}&wallet_address=${address}`,
+    url: `/get-ticker-tweet-basic?ticker_name=${tickerName}`,
     // url: `/get-ticker-tweet?ticker_name=${tickerName}`
     method: "get",
   })
 }
 
 
-export const getTweetAdvanced = async (tickerName: string, address: string) => {
+export const getTweetAdvanced = async (tickerName: string) => {
   return await request<{
     ticker_name: string
     tweets: Array<{
@@ -169,7 +169,7 @@ export const getTweetAdvanced = async (tickerName: string, address: string) => {
       firestorage_image_url: string | null
     }>
   }>({
-    url: `/get-ticker-tweet-advanced?ticker_name=${tickerName}&wallet_address=${address}`,
+    url: `/get-ticker-tweet-advanced?ticker_name=${tickerName}`,
     // url: `/get-ticker-tweet?ticker_name=${tickerName}`
     method: "get",
   })
@@ -272,5 +272,23 @@ export const fetchLogin = async (address: string) => {
     data: {
       wallet_address: address
     }
+  })
+}
+
+export const getTokenRate = async (kolName: string) => {
+  return await request<{
+    data: Array<{
+      first_created_at: string,
+      history: Array<{
+        download_time: string
+        name: string
+        open:string
+        volume: string
+      }>
+      pair_name_1: string
+    }>
+  }>({
+    url: `/get-kol-asset-with-history?kol_name=${kolName}`,
+    method: "get",
   })
 }

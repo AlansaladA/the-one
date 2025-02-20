@@ -4,6 +4,7 @@ import {
   getFollowList,
   getFollowTime,
   getTickerOne,
+  getTokenRate
 } from "@/api";
 import { Params, Follower, FollowTokens, ChartData, KolDetail, KolData, KolGraphData } from "@/utils/types";
 import {
@@ -40,7 +41,35 @@ export default function Kol() {
   useEffect(() => {
     relationship();
     getFollowToken();
+    getTokenRateApi()
   }, [kol]);
+
+  const getTokenRateApi = async () => {
+    if (!kol) return;
+    try {
+      setLoading(true);
+      const res = await getTokenRate(kol);
+      console.log(res,'res');
+      
+      const list = res.data.map(item => {
+          const basePrice = parseFloat(item.history[0]?.open) || 0;
+          return {
+            ticker_name: item.pair_name_1 as string,
+            growthRate: item.history.map(h => {
+              if (basePrice === 0) return 0;
+              return ((parseFloat(h.open) - basePrice) / basePrice) * 100;
+            })
+          };
+        });
+      setXList(list.map((time) => time.ticker_name));
+      setChartData(list)
+    } catch (error) {
+
+    } finally {
+      setLoading(false);
+    }
+
+  }
 
   useEffect(() => {
     if (Xlist) {
@@ -50,16 +79,17 @@ export default function Kol() {
 
   const getFollowToken = async () => {
     try {
-      setLoading(true);
+      // setLoading(true);
       const res = await getFollowTime(kol);
       setFollowTokens(res.tweets);
-      setXList(res.tweets.map((time) => time.pair_name_1));
-      await fetchAllTokens(res.tweets);
+
+      
+      // await fetchAllTokens(res.tweets);
     } catch (error) {
       console.log(error);
       // toast.error(error instanceof Error ? error.message : "error");
     } finally {
-      setLoading(false);
+      // setLoading(false);
     }
   };
 
@@ -107,6 +137,9 @@ export default function Kol() {
       }
     })
 
+    console.log(validRes, 'validRes4🌞4');
+
+
     const list = validRes
       .filter(item => item?.ticker_name)
       .map(item => {
@@ -119,8 +152,12 @@ export default function Kol() {
           })
         };
       });
+    setXList(list.map((time) => time.ticker_name));
     setChartData(list)
   };
+
+
+
 
   const relationship = async () => {
     if (!kol) return
@@ -132,7 +169,7 @@ export default function Kol() {
 
       setTweetsList(processedTweets);
       const _data =
-       processedTweets.filter((v) => v.Following === kol)[0] ?? {};
+        processedTweets.filter((v) => v.Following === kol)[0] ?? {};
 
       const nodes = processedTweets.filter((v) => v.Following !== kol);
 
@@ -323,7 +360,7 @@ export default function Kol() {
             </Flex>
           </Card.Body>
         </Card.Root>
-        
+
         {/* {followTokens && <PrinceChange tokens={followTokens} />} */}
         <Card.Root bg="#1f1b23E1" flex="1" variant="elevated">
           <Card.Body p={4}>

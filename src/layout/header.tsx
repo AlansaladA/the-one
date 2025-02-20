@@ -4,11 +4,7 @@ import { useNavigate } from "react-router";
 import { Button } from "@/components/ui/button"
 import useWallet from "@/hooks/useWallet";
 import { shortenAddress } from "@/utils/formatter";
-import TweetImg from "@/assets/tweet.png"
 import DexImg from "@/assets/dexscreener.png"
-import { FaTelegram, } from "react-icons/fa";
-import { ImSpinner8 } from "react-icons/im";
-import { AiFillTwitterCircle } from "react-icons/ai";
 import { FaXTwitter } from "react-icons/fa6";
 import { FaTelegramPlane } from "react-icons/fa";
 import {
@@ -21,8 +17,8 @@ import useSolana from "@/hooks/useSolana";
 import { useCallback, useState, useEffect } from "react";
 import { useInterval } from "@/hooks/useInterval";
 import { fetchLogin } from "@/api";
-import useToken from '@/hooks/useToken';
-
+import useUser from '@/hooks/useUser';
+import { Storage } from '@/utils/storage';
 const socialLinks = [
   {
     url: 'https://x.com/the1aiagent',
@@ -41,7 +37,8 @@ export default function Header() {
   const [balanceloading, setBalanceloading] = useState(false)
   const { address, balance, isLogined, login, logout, updateTokenBalance } = useWallet()
   const { getTokenBalance } = useSolana()
-  const { updateToken, updateTokenLevel } = useToken();
+  const {  updateTokenLevel } = useUser();
+  const navigate = useNavigate()
 
   const fetchBalance = useCallback(async () => {
     try {
@@ -67,15 +64,23 @@ export default function Header() {
     try {
       if (!address) return
       const res = await fetchLogin(address)
-      updateToken(res.token)
+      Storage.setToken(res.token)
+      Storage.setWalletAddress(address)
       updateTokenLevel(res.token_level)
     } catch (error) {
       console.log(error);
     }
   }, [address])
 
+  const logoutBtn = () => {
+    logout()
+    Storage.removeToken()
+    Storage.removeWalletAddress()
+    updateTokenLevel("basic")
+  }
+
   useInterval(fetchBalance, 30 * 1000,)
-  const navigate = useNavigate()
+  
   return <Flex justifyContent={"space-between"} px='8' height={{ base: '60px', md: '80px' }} alignItems={"center"}>
     <Image cursor={'pointer'} src={Logo} height={{ base: "30px", md: "44px" }} onClick={() => navigate('/')} />
     <Flex alignItems={'center'} gap={2}>
@@ -106,7 +111,7 @@ export default function Header() {
                 </Button>
               </MenuTrigger>
               <MenuContent>
-                <MenuItem value="disconnect" onClick={() => logout()}>Disconnect</MenuItem>
+                <MenuItem value="disconnect" onClick={logoutBtn}>Disconnect</MenuItem>
               </MenuContent>
             </MenuRoot>
           </Flex> : (
@@ -117,8 +122,6 @@ export default function Header() {
           )
         }
       </Box>
-
-
     </Flex>
   </Flex>
 }

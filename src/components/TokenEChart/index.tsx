@@ -23,13 +23,13 @@ import SearchImg from "@/assets/search1.svg";
 import { FaSearchPlus } from "react-icons/fa";
 import { FaLock } from "react-icons/fa";
 import { ReactIcon } from "../icon";
-import useToken from "@/hooks/useToken";
+import useUser from "@/hooks/useUser";
 export default function TokenEChart({
   initialData,
 }: {
   initialData: TickerData;
 }) {
-  const { token_level } = useToken()
+  const { token_level } = useUser()
   const relationChartRef = useRef<RelationChartRef>(null);
   const navigate = useNavigate()
   const [followerRange, setFollowerRange] = useState<string[]>(["10k-50k", "50k+"]);
@@ -378,10 +378,11 @@ export default function TokenEChart({
         textStyle: {
           color: '#666'
         },
-        ...(token_level === TokenLevel.BASIC ? {
+        ...(token_level === TokenLevel.ADVANCED ? {
+        } : {
           left: "5%",
           right: "10%"
-        } : {}),
+        }),
         brushSelect: false,
         startValue: markerRange[0],
         endValue: markerRange[1],
@@ -609,7 +610,7 @@ export default function TokenEChart({
     //   //   relationChartRef.current?.setRange([startValue, endValue]);
     // }
     // else {
-      relationChartRef.current?.setRange([params.start, params.end]);
+    relationChartRef.current?.setRange([params.start, params.end]);
     // }
   }, [tweetMarkers])
 
@@ -659,7 +660,7 @@ export default function TokenEChart({
                 ))}
               </HStack> */}
 
-              <Button onClick={fillFun} disabled={token_level === TokenLevel.BASIC}>
+              <Button onClick={fillFun}>
                 <FaSearchPlus />
               </Button>
             </Flex>
@@ -677,7 +678,7 @@ export default function TokenEChart({
           }}
         />
         {
-          token_level === TokenLevel.BASIC && <Box
+          token_level != TokenLevel.ADVANCED && <Box
             position="absolute"
             // backgroundColor="red"
             // zIndex={-1}
@@ -693,19 +694,28 @@ export default function TokenEChart({
                 <FaLock />
               </Button>
             </Flex> */}
-            <Flex backdropFilter="blur(8px)"
+            <Flex pointerEvents="auto" backdropFilter="blur(8px)"
               backgroundColor="rgba(129, 129, 229, 0.1)" justifyContent={"center"} alignItems={"center"} w={7.7 + "%"} h={"100%"} position="absolute" right="0" top="0" >
-              <Button w={"50%"} bgColor={"#8181E5"} size={"xs"} p={1} h={7} colorScheme="blue" borderRadius={"full"}>
-                <FaLock style={{width:"50%"}} />
-              </Button>
+              <Tooltip
+                content="Own 100000 $The1 to unlock latest data."
+                showArrow
+              >
+                <Button onClick={() => { console.log(1312) }} w={"50%"} bgColor={"#8181E5"} size={"xs"} p={1} h={7} colorScheme="blue" borderRadius={"full"}>
+                  <FaLock style={{ width: "50%" }} />
+                </Button>
+              </Tooltip>
             </Flex>
           </Box>
         }
 
       </Box>
-      <Tooltip content="An A to B arrow indicates B may be influenced by A" showArrow>
-        <span style={{ fontSize: "16px" }}>Meme propagation map: how KOLs are potentially influenced by each other</span>
-      </Tooltip>
+      <Flex justifyContent={"space-between"} w={"full"}>
+        <Tooltip content="An A to B arrow indicates B may be influenced by A" showArrow>
+          <span style={{ fontSize: "16px" }}>Meme propagation map: how KOLs are potentially influenced by each other</span>
+        </Tooltip>
+        <Text fontSize={"sm"} color={"gray.400"}>some user profiles may disappear due to data limitations</Text>
+      </Flex>
+
       <RelationChart defaultRange={markerRange} ref={relationChartRef} tweets={tweetMarkers} relation={initialData.tweetsRelation[0]} />
     </Box>
   );
