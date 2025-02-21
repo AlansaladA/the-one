@@ -89,6 +89,7 @@ export type KolGraphData = {
     name: string
     symbolSize: number
     symbol: string
+    relationship_status:string
   }[]
   links: {
     source: string

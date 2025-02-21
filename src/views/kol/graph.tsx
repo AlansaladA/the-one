@@ -21,6 +21,7 @@ function KolGraph({ kol, loading, graphData }: {
     total_count: 0,
     common_count: 0
   });
+  console.log( graphData,'graphData')
   const fetchFollowData = async () => {
     const data = await getFollowNum(kol)
     if (data["following data"][0])
@@ -35,7 +36,7 @@ function KolGraph({ kol, loading, graphData }: {
         layout: "force",
         force: {
           initLayout: "circular",
-          repulsion: 100,
+          // repulsion: 100,
           edgeLength: [50, graphData.data.length],
         },
         roam: true,

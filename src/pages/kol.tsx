@@ -4,7 +4,8 @@ import {
   getFollowList,
   getFollowTime,
   getTickerOne,
-  getTokenRate
+  getTokenRate,
+  getFollowListV2
 } from "@/api";
 import { Params, Follower, FollowTokens, ChartData, KolDetail, KolData, KolGraphData } from "@/utils/types";
 import {
@@ -163,7 +164,7 @@ export default function Kol() {
     if (!kol) return
     try {
       setLoadShip(true);
-      const res = await getFollowList(kol);
+      const res = await getFollowListV2(kol);
       const processedTweets = await preloadImages(res.tweets);
 
 
@@ -177,11 +178,13 @@ export default function Kol() {
         name: _data?.Following,
         symbolSize: 30, // 设置中心点大小
         symbol: `image://${_data?.profile_image_url}`,
+        relationship_status:_data?.relationship_status
       };
 
       const formattedData = nodes.map((node, index: number) => ({
         name: node.Following + "-" + index,
         symbolSize: 20,
+        relationship_status:node.relationship_status,
         symbol: node.profile_image_url
           ? `image://${node.profile_image_url}`
           : "circle", // 如果有图片，使用图片节点
@@ -191,7 +194,8 @@ export default function Kol() {
       const formattedLinks = nodes.map((node, index: number) => ({
         source: centerNode.name, // 中心节点作为 source
         target: node.Following + "-" + index, // 指向每个节点
-        value: [0, 100, 200][index % 3], // 线长 
+        value: node.relationship_status * 100 
+        // value: [0, 100, 200][index % 3], // 线长 
       }));
 
       setGraphData({

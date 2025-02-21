@@ -211,6 +211,22 @@ export const getFollowList = async (kolName: string) => {
   })
 }
 
+export const getFollowListV2 = async (kolName: string) => {
+  return await request<{
+    ticker_name: string
+    tweets: Array<{
+      FollowerNum: number
+      Following: string
+      profile_image_url: string
+      user: string,
+      relationship_status:string
+    }>
+  }>({
+    url: `/get-following-list-v2?kol_name=${kolName}`,
+    method: "get",
+  })
+}
+
 export const getFollowTime = async (kolName: string) => {
   return await request<{
     ticker_name: string
