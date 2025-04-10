@@ -37,5 +37,10 @@ export default defineConfig(({ mode }) => {
       tsconfigPaths(),
       htmlPlugin(env.VITE_GTAG_ID || ""),
     ],
+    server: {
+      host: true, // 监听所有地址，包括局域网和公网
+      port: 3000, // 指定端口号，可以根据需要修改
+      // https: true,
+    }
   }
 })

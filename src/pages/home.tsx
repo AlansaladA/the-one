@@ -10,6 +10,16 @@ import { Link } from "react-router"
 import { Avatar } from "@/components/ui/avatar";
 import HomeBg from "@/assets/bg7.png"
 import SolanaImg from "@/assets/solana1.svg"
+// import {
+//   SelectContent,
+//   SelectItem,
+//   SelectLabel,
+//   SelectRoot,
+//   SelectTrigger,
+//   SelectValueText,
+// } from "@/components/ui/select"
+import { NativeSelect } from "@chakra-ui/react"
+
 import {
   DialogHeader,
   DialogBody,
@@ -32,6 +42,7 @@ import Optimism from "@/assets/optimism.svg"
 import Solana from "@/assets/solana.svg"
 import { Ranks } from "@/utils/types"
 import { useNavigate } from "react-router";
+import { Tabs } from "@chakra-ui/react"
 
 const list = [
   {
@@ -74,41 +85,8 @@ export default function Home() {
   const [ranks, setRanks] = useState<Ranks[]>([])
   const [loadRank, setLoadRank] = useState<boolean>(false)
   const navigate = useNavigate()
-  // useEffect(() => {
-  //   const cachedKols = localStorage.getItem("kolsList");
-  //   const cachedTokens = localStorage.getItem("tokenList");
-  //   if (!searchText) {
-  //     setFilteredKols([])
-  //     setFilteredTokens([])
-  //   }
-  //   if (cachedKols && cachedTokens) {
-  //     setKolsList(JSON.parse(cachedKols));
-  //     setTokenList(JSON.parse(cachedTokens));
-  //     if (searchText) {
-  //       setLoading(true);
-  //       checkfilter(searchText, JSON.parse(cachedKols), JSON.parse(cachedTokens));
-  //     }
-  //   } else {
-  //     setLoading(true);
-  //     const fetchApi = async () => {
-  //       const [kols, tokens] = await Promise.all([getKols(), getTickers()]);
-  //       console.log(kols, tokens);
+  const [tab, setTab] = useState<"Kols" | "Address">("Kols")
 
-  //       setKolsList(kols.tickers);
-
-  //       const uniqueTokens = tokens.tickers.map(([name, address, num]) => ({ name, address, num }));
-
-  //       setTokenList(uniqueTokens);
-  //       if (searchText) {
-  //         checkfilter(searchText, kols.tickers, uniqueTokens);
-  //       }
-
-  //       localStorage.setItem("kolsList", JSON.stringify(kols.tickers));
-  //       localStorage.setItem("tokenList", JSON.stringify(uniqueTokens));
-  //     };
-  //     fetchApi();
-  //   }
-  // }, [searchText]);
 
   useEffect(() => {
     setFilteredKols([])
@@ -132,24 +110,6 @@ export default function Home() {
         setLoading(false);
       }
     }, 800)
-
-  // const checkfilter = useDebounce(
-  //   (text: string, kolList: string[], tokenList: TokenList[]) => {
-  //     const kolsFiltered = kolList.filter((item) =>
-  //       item.toLowerCase().includes(text.toLowerCase())
-  //     ).slice(0, 10);
-  //     const tokensFiltered = tokenList.filter(
-  //       (item) =>
-  //         item.name.toLowerCase().includes(text.toLowerCase()) ||
-  //         item.address.toLowerCase().includes(text.toLowerCase())
-  //     ).slice(0, 10);
-
-  //     setTimeout(() => {
-  //       setLoading(false);
-  //       setFilteredKols(kolsFiltered);
-  //       setFilteredTokens(tokensFiltered);
-  //     }, 500);
-  //   }, 500)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -246,7 +206,7 @@ export default function Home() {
                             {filteredTokens.length > 0 ? (
                               filteredTokens.map((item, index) => {
                                 return (
-                                  <Link style={{ color: "inherit" }} to={`/token/${item.name}`} key={index}>
+                                  <Link style={{ color: "inherit" }} to={`/token/${item.name}/${item.address}`} key={index}>
                                     <Flex alignItems={"center"} gap={4} cursor={"pointer"}>
                                       <Flex position={"relative"}>
                                         <Avatar src={item.url} size={{ base: "sm", md: "md" }} name={item.name}></Avatar>
@@ -350,9 +310,45 @@ export default function Home() {
             pb={10}
           >
             <Flex w="full" h={{ base: "4", md: "45" }} mb={5} flexDirection={{ base: "column", md: "row" }}>
-              <Box display={"flex"} alignItems={"center"} w={{ base: "100%", md: "35%" }} mb={{ base: 4, md: 0 }} px={{ base: 4, md: 4 }}>
-                <Text fontSize={{ base: "xl", md: "3xl" }} fontWeight={"bold"}>Top KOLs</Text>
-                <Text display={{ base: "xl", md: "none" }} fontSize={{ base: "xl", md: "3xl" }} >&nbsp;& Calling</Text>
+              <Box display={"flex"} alignItems={"center"} w={{ base: "100%", md: "35%" }} mb={{ base: 4, md: 0 }} px={{ base: 4, md: 4 }} gap={4}>
+                <Flex>
+                  {/* <NativeSelect.Root size="xl">
+                    <NativeSelect.Field 
+                      borderColor="transparent"   
+                      as="select"
+                      style={{
+                        border: 'none',
+                        outline: 'none'
+                      }}
+                      fontSize={{ base: "lg", md: "2xl" }}  
+                      _focus={{
+                        borderColor: 'transparent',
+                        boxShadow: 'none'
+                      }}>
+                      <option value="1" >Top Kols</option>
+                      <option value="2" >Top Address</option>
+                    </NativeSelect.Field>
+                    <NativeSelect.Indicator />
+                  </NativeSelect.Root> */}
+                  <Text fontSize={{ base: "lg", md: "3xl" }} fontWeight={"bold"}>Top {tab}</Text>
+                  <Text display={{ base: "xl", md: "none" }} fontSize={{ base: "lg", md: "3xl" }} >&nbsp;& Calling</Text>
+                </Flex>
+                {/* <NativeSelect.Root size="sm" w="30%" variant="outline">
+                  <NativeSelect.Field>
+                    <option value="1">Kol</option>
+                    <option value="2">Address</option>
+                  </NativeSelect.Field>
+                  <NativeSelect.Indicator />
+                </NativeSelect.Root> */}
+                {/* <Tabs.Root variant="enclosed" w="40%" fitted defaultValue={"Kols"} size={"sm"} onValueChange={(details) => {
+                  setTab(details.value as "Kols" | "Address")
+                }}>
+                  <Tabs.List>
+                    <Tabs.Trigger value="Kols">Kol</Tabs.Trigger>
+                    <Tabs.Trigger value="Address">Address</Tabs.Trigger>
+                  </Tabs.List>
+                </Tabs.Root> */}
+
               </Box>
               <Flex w={{ base: "100%", md: "65%" }} alignItems={"center"} display={{ base: "none", md: "flex" }} px={{ base: 4, md: 4 }}>
                 <Text fontSize={{ base: "2xl", md: "3xl" }} mr={2}>Calling</Text>

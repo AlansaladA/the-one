@@ -13,14 +13,14 @@ function App() {
 
   return (
     <StoreProvider store={store}>
-      <PrivyProvider appId="cm5xpkij608f1opr0y5cc8uhf"
-        config={privyConfig}>
+      {/* <PrivyProvider appId="cm5xpkij608f1opr0y5cc8uhf"
+        config={privyConfig}> */}
         <ChakraProvider value={system}>
           <ColorModeProvider forcedTheme='dark'>
             <RouterProvider router={router} />
           </ColorModeProvider>
         </ChakraProvider>
-      </PrivyProvider>
+      {/* </PrivyProvider> */}
     </StoreProvider>
   )
 }

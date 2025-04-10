@@ -54,8 +54,6 @@ request.interceptors.response.use(
     return res
   },
   async (error) => {
-    console.log(error,'error');
-    // 处理403错误，重新获取token
     if (error.response?.status === 403 && error.response?.data?.error === "Token has expired") {
       const config = error.config;
       

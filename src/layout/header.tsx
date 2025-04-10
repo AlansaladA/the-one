@@ -19,6 +19,9 @@ import { useInterval } from "@/hooks/useInterval";
 import { fetchLogin } from "@/api";
 import useUser from '@/hooks/useUser';
 import { Storage } from '@/utils/storage';
+import { useBreakpointValue } from "@chakra-ui/react";
+import { FaBars } from "react-icons/fa";
+
 const socialLinks = [
   {
     url: 'https://x.com/the1aiagent',
@@ -33,12 +36,14 @@ const socialLinks = [
     icon: <FaTelegramPlane color="#fff" />,
   }
 ]
+
 export default function Header() {
   const [balanceloading, setBalanceloading] = useState(false)
   const { address, balance, isLogined, login, logout, updateTokenBalance } = useWallet()
   const { getTokenBalance } = useSolana()
   const {  updateTokenLevel } = useUser();
   const navigate = useNavigate()
+  const isMobile = useBreakpointValue({ base: true, md: false });
 
   const fetchBalance = useCallback(async () => {
     try {
@@ -84,15 +89,38 @@ export default function Header() {
   return <Flex justifyContent={"space-between"} px='8' height={{ base: '60px', md: '80px' }} alignItems={"center"}>
     <Image cursor={'pointer'} src={Logo} height={{ base: "30px", md: "44px" }} onClick={() => navigate('/')} />
     <Flex alignItems={'center'} gap={2}>
-      {socialLinks.map((link, index) => (
-        <Button
-          key={index}
-          bgColor="transparent"
-          onClick={() => window.open(link.url, '_blank')}
-        >
-          {link.icon}
-        </Button>
-      ))}
+      {isMobile ? (
+        <MenuRoot size={"sm"}>
+          <MenuTrigger asChild >
+            <Button bgColor="transparent" size={"sm"} >
+              <FaBars color="#fff" />
+            </Button>
+          </MenuTrigger>
+          <MenuContent>
+            {socialLinks.map((link, index) => (
+              <MenuItem 
+                key={index} 
+                value={link.url} 
+                onClick={() => window.open(link.url, '_blank')}
+              >
+                <Flex alignItems="center" gap={2}>
+                  {link.icon}
+                </Flex>
+              </MenuItem>
+            ))}
+          </MenuContent>
+        </MenuRoot>
+      ) : (
+        socialLinks.map((link, index) => (
+          <Button
+            key={index}
+            bgColor="transparent"
+            onClick={() => window.open(link.url, '_blank')}
+          >
+            {link.icon}
+          </Button>
+        ))
+      )}
       <Box>
         {
           isLogined && address ? <Flex alignItems={"center"} gap={4}>

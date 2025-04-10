@@ -145,7 +145,7 @@ const RelationChart = forwardRef<RelationChartRef, {
         return [{
           name: `empty-${timePoint.time}`,
           x: timePoint.time,
-          y: undefined,
+          y: 0,
           relation: [],
           // 添加其他必需的 CustomNode 属性
           created_at: new Date(timePoint.time).toISOString(),

@@ -6,7 +6,7 @@ import Ticker from "@/pages/ticker"
 import Kol from "@/pages/kol"
 import NotFound from "@/pages/404"
 import ErrorBoundary from "@/pages/error"
-import { kolLoader, tickerLoader } from "./loader"
+// import { kolLoader, tickerLoader } from "./loader"
 import Loading from "@/components/loading"
 import { Fragment } from "react/jsx-runtime"
 const router = createBrowserRouter([
@@ -23,7 +23,7 @@ const router = createBrowserRouter([
         path: "token", 
         children: [
           {
-            path: ":ticker",
+            path: ":ticker/:ca",
             Component: Ticker,
             loader: ({ params }) => { 
               if (!params.ticker) {
@@ -44,7 +44,7 @@ const router = createBrowserRouter([
           {
             path: ":kol",
             Component: Kol,
-            loader: kolLoader,
+            // loader: kolLoader,
             hydrateFallbackElement: <Loading />,
           },
         ],

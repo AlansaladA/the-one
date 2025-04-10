@@ -10,7 +10,7 @@ import {
 } from "@chakra-ui/react";
 import dayjs from "dayjs";
 import { useNavigate } from 'react-router'
-import { Tweet, TickerData, TokenLevel, AddressInfo, AddressRate } from "@/utils/types";
+import { Tweet, TickerData, TokenLevel } from "@/utils/types";
 import { Button } from "@/components/ui/button"
 import * as echarts from 'echarts';
 import ReactECharts from 'echarts-for-react';
@@ -22,11 +22,10 @@ import SearchImg from "@/assets/search1.svg";
 // import tweetImg from "@/assets/tweet.png"
 import { FaSearchPlus } from "react-icons/fa";
 import { FaLock } from "react-icons/fa";
-import { ReactIcon } from "../icon";
+// import { ReactIcon } from "../icon";
 import useUser from "@/hooks/useUser";
 import RelationAddress from "../relationAddress";
-import { getAddressRate } from "@/api"
-import { useLoaderData, useParams } from "react-router";
+
 
 const mockData = {
   tweets: [
@@ -127,11 +126,7 @@ export default function TokenEChart({
   const relationChartRef = useRef<RelationChartRef>(null);
   const navigate = useNavigate()
   const [followerRange, setFollowerRange] = useState<string[]>(["10k-50k", "50k+"]);
-  const { ca } = useParams()
-  const addressRateRef = useRef<AddressRate | null>(null);
 
-  // 添加新的 state 来追踪当前选中的地址数据
-  const [selectedAddressData, setSelectedAddressData] = useState<AddressRate | null>(null);
 
   const getFollowerRange = (followersCount: number): string => {
     if (followersCount < 5000) return "0-5k";
@@ -154,16 +149,13 @@ export default function TokenEChart({
 
     // 创建一个包含价格时间点和推文时间点的数组 
     const allTimePoints = [...initialData.priceData.map(point => point.time),
-    ...filteredTweets.map(tweet => new Date(tweet.created_at).getTime()),
-    ...initialData.addressInfo.map(info => new Date(info.utc_time).getTime())
+    ...filteredTweets.map(tweet => new Date(tweet.created_at).getTime())
     ]
 
     // 按时间排序并去重
     const uniqueTimePoints = Array.from(new Set(
       allTimePoints.map(time => time)
     )).sort((a, b) => a - b);
-
-
     // 创建一个 Map 来存储推文时间和推文的对应关系
     const tweetTimeMap = new Map<number, Tweet[]>();
     filteredTweets.forEach(tweet => {
@@ -174,18 +166,6 @@ export default function TokenEChart({
         tweetTimeMap.set(time, [tweet]);
       }
     });
-
-    // 创建一个 Map 来存储推文时间和addressInfo的对应关系
-    const addressInfoTimeMap = new Map<number, AddressInfo[]>();
-    initialData.addressInfo.forEach(info => {
-      const time = new Date(info.utc_time).getTime();
-      if (addressInfoTimeMap.has(time)) {
-        addressInfoTimeMap.get(time)!.push(info);
-      } else {
-        addressInfoTimeMap.set(time, [info]);
-      }
-    });
-
 
 
     // 遍历所有时间点，进行插值
@@ -199,21 +179,18 @@ export default function TokenEChart({
 
       // 检查这个时间点是否有对应的推文
       const tweets = tweetTimeMap.get(time);
-      // 检查这个时间点是否有对应的addressInfo
-      const addressInfo = addressInfoTimeMap.get(time);
       return ({
         time,
         price: nearestPricePoint.price,
         tweets: tweets || [],
-        addressInfo: addressInfo || []
       });
     });
-    console.log(markers, "markers11");
+
     return markers;
   }, [followerRange, initialData.tweets, initialData.priceData]);
 
 
-
+  
 
   const markerRange = useMemo(() => {
     console.log(tweetMarkers, "tweetMarkers");
@@ -291,94 +268,6 @@ export default function TokenEChart({
     };
   };
 
-  const getTransactionColor = (tokenChange: number) => {
-    if (tokenChange > 0) {
-      // 买入渐变 - 从浅绿到深绿
-      return new echarts.graphic.LinearGradient(0, 1, 0, 0, [{
-        offset: 0,
-        color: '#fff' // 浅绿色
-      }, {
-        offset: 1,
-        color: '#2F855A' // 深绿色
-      }]);
-    } else {
-      // 卖出渐变 - 从浅红到深红
-      return new echarts.graphic.LinearGradient(0, 1, 0, 0, [{
-        offset: 0,  
-        color: '#fff' // 浅红色
-      }, {
-        offset: 1,
-        color: '#C53030' // 深红色
-      }]);
-    }
-  };
-
-
-
-  const handleAddressClick = async (addressInfo: AddressInfo[]) => {
-    if (!ca) return;
-  
-    // 重置之前的数据
-    // setSelectedAddressData(null);
-  
-    try {
-      let res = await getAddressRate(addressInfo[0].acc_holder, ca, addressInfo[0].signature);
-      // setSelectedAddressData(res as AddressRate);
-    } catch (error) {
-      console.error('Failed to fetch address rate:', error);
-    }
-  };
-
-  useEffect(() => {
-    const chart = echartRef.current?.getEchartsInstance();
-    if (chart) {
-      const handleClick = async (params: any) => {
-        addressRateRef.current = null; 
-        if (params.componentSubType === 'custom' && params.componentIndex === 2) {
-          const marker = params.data[2];
-          if (marker && marker.addressInfo) {
-            console.log("hhhhhhh");
-            
-            // 不要立即重置，而是保持当前状态直到新数据到达
-            
-            
-            if (!ca) return;
-            
-            try {
-              // 直接更新 ref 而不是状态，避免立即触发重渲染
-              const res = await getAddressRate(marker.addressInfo[0].acc_holder, ca, marker.addressInfo[0].signature);
-              addressRateRef.current = res as AddressRate;
-              
-              // 使用 setTimeout 推迟状态更新，让 tooltip 有时间显示
-              setTimeout(() => {
-                addressRateRef.current = null;
-                // setSelectedAddressData(res as AddressRate);
-              }, 100);
-              
-              // 强制 tooltip 重新渲染
-              chart.dispatchAction({
-                type: 'showTip',
-                seriesIndex: 2,
-                dataIndex: params.dataIndex
-              });
-            } catch (error) {
-              console.error('Failed to fetch address rate:', error);
-            }
-          }
-        }
-      };
-
-      chart.on('click', handleClick as any);
-      
-      // 添加清理函数
-      return () => {
-        chart.off('click', handleClick);
-      };
-    }
-  }, [ca]);
-
-
-
   const getChartOption = useCallback(() => {
     // 获取容器宽度
     const containerWidth = echartRef.current?.getEchartsInstance().getWidth() || window.innerWidth;
@@ -410,12 +299,12 @@ export default function TokenEChart({
         source: tweetMarkers.map(marker => [marker.time, marker.price, marker])
       },
       // // 优化性能的配置
-      progressive: 1000,  // 渐进式渲染，每帧渲染的数据点数量
-      progressiveThreshold: 10000,  // 超过这个数量开启渐进式渲染
+      progressive: 500,  // 渐进式渲染，每帧渲染的数据点数量
+      progressiveThreshold: 3000,  // 超过这个数量开启渐进式渲染
 
       // 优化交互性能
       animation: false,  // 关闭动画可以提升性能
-      throttle: 200,    // 设置节流阈值
+      throttle: 100,    // 设置节流阈值
 
       // 优化图片加载
       imageCache: true,  // 开启图片缓存
@@ -425,71 +314,15 @@ export default function TokenEChart({
         enterable: true,
         confine: true,
         position: function (point) {
-          return [point[0] - 10, point[1] + 10];
+          // 将tooltip位置调整到更靠近鼠标的位置
+          return [point[0] - 10, point[1] + 10]; // 向左偏移10像素,向下偏移10像素
         },
         formatter: function (params: any) {
+
+
           const marker = params.data[2];
           if (!marker) return '';
 
-          if (params.componentSubType === 'custom' && params.componentIndex === 2) {
-            return `
-              <div style="padding: 16px 16px 0px 8px; max-width: 500px; height: 190px; overflow-y: auto;">
-                ${marker.addressInfo.map((address: AddressInfo) => `
-                  <div style="
-                    margin-bottom: 15px;
-                    border-bottom: 1px solid #2D2D4F;
-                    color: white;
-                    display: flex;
-                    gap: 10px;
-                    align-items:start;
-                  ">
-                  <div style="min-width:30px;min-height:30px;background-color:${parseFloat(address.token_change) > 0 ? "green" : "red"};border-radius:50%;"></div>
-                  <div style="display: flex;flex-direction: column;justify-content:space-between;flex=1;align-items:start;width:100%">
-                     <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                       <span style="color: white;">${address.acc_holder}</span>
-                     </div>
-                     ${addressRateRef.current ? `
-                     <div style="display: flex; justify-content: space-between; margin-bottom: 4px;width:100%">
-                       <span style="color: #A0AEC0;">Win Rate</span>
-                       <span>50%</span>
-                     </div>
-                     <div style="display: flex; justify-content: space-between;width:100%">
-                       <span style="color: #A0AEC0;">Investment</span>
-                       <span style="color: white;">${parseFloat(addressRateRef.current.total_investment).toFixed(2)}sol</span>
-                     </div>
-                     <div style="display: flex; justify-content: space-between;width:100%">
-                       <span style="color: #A0AEC0;">Average Holding Time</span>
-                       <span style="color: white;">${addressRateRef.current.weighted_avg_holding_time_days} days</span>
-                     </div>
-                     <div style="display: flex; justify-content: space-between;width:100%">
-                       <span style="color: #A0AEC0;">Account Brought (20min)</span>
-                       <span style="color: white;">${addressRateRef.current.new_users_count}</span>
-                     </div>
-                     <div style="display: flex; justify-content: space-between;width:100%">
-                       <span style="color: #A0AEC0;">Hash</span>
-                      <span style="color: white;"></span>
-                     </div>
-                     <div style="display: flex; justify-content: space-between; margin: 6px 0;width:100%">
-                         <div style="display: flex;flex-direction: column;flex-wrap: wrap;width:100%">
-                             <span style="color: #A0AEC0;">Price Impact（5min,20min）</span>
-                             <span>${addressRateRef.current.price_change_5min} ${addressRateRef.current.price_change_20min}</span>
-                         </div>
-                      <div style="display: flex;flex-direction: column;flex-wrap: wrap;width:100%">
-                             <span style="color: #A0AEC0;">Inflow Impact（5min,20min）</span>
-                             <span>${addressRateRef.current.total_buy_5min} ${addressRateRef.current.total_buy_20min}</span>
-                         </div>
-                     </div>
-                     `: ` <div style="display: flex; justify-content: center; align-items: center; height: 100px;">
-                       <span style="color: #A0AEC0;">Loading data...</span>
-                     </div>`}
-                    </div>
-                  </div>
-                `).join('')}
-              </div>
-            `;
-          }
-
-          // 原有的tweet提示保持不变
           const tooltipId = `tooltip-${Date.now()}`;
           setTimeout(() => {
             marker.tweets.forEach((tweet: Tweet, index: number) => {
@@ -618,7 +451,6 @@ export default function TokenEChart({
         },
         backgroundColor: 'rgba(45, 45, 79, 0.95)',
         borderWidth: 0,
-        triggerOn: 'click',
         extraCssText: 'box-shadow: 0 0 10px rgba(0,0,0,0.3); border-radius: 8px;'
       },
       grid: {
@@ -635,9 +467,6 @@ export default function TokenEChart({
         borderColor: 'transparent',
         backgroundColor: 'rgba(47, 69, 84, 0.3)',
         fillerColor: 'rgba(167,183,204,0.2)',
-        // zoomLock: true, // 防止意外的缩放
-        moveOnMouseMove: false,
-
         handleStyle: {
           color: '#8884d8',
           cursor: 'pointer',
@@ -650,8 +479,6 @@ export default function TokenEChart({
           left: "5%",
           right: "10%"
         }),
-        throttle: 100, // 增加节流值
-        filterMode: 'filter', // 使用过滤模式而不是采样模式
         brushSelect: false,
         startValue: markerRange[0],
         endValue: markerRange[1],
@@ -732,59 +559,51 @@ export default function TokenEChart({
             ]);
 
             const marker = tweetMarkers[params.dataIndex];
+
             if (!marker || !point) return null;
 
-            const VERTICAL_OFFSET = 30;
             const avatars = marker.tweets.slice(0, 5);
             const children: any[] = [];
 
-            // 添加虚线连接
-            if (avatars.length > 0) {
-              children.push({
-                type: 'line',
-                shape: {
-                  x1: point[0],
-                  y1: point[1],
-                  x2: point[0],
-                  y2: point[1] - VERTICAL_OFFSET
-                },
-                style: {
-                  stroke: '#ffffff',
-                  lineWidth: 1,
-                  lineDash: [4, 4]  // 设置虚线样式
-                }
-              });
-            }
-
             // 渲染头像组
             avatars.forEach((tweet, index) => {
+
+              // const img = document.createElement('img')
+              // img.src = tweet.profile_image_url
+              // img.onerror = () => {
+              //   img.src = CUSTOM_AVATAR
+              // }
               children.push({
                 type: 'group',
                 children: [
                   {
+                    // 修改触发区域的大小和位置
                     type: 'circle',
                     shape: {
                       cx: point[0] + (index * 15) - (avatars.length * 7.5) + 10,
-                      cy: point[1] - VERTICAL_OFFSET, // 添加向上偏移
-                      r: 12
+                      cy: point[1],
+                      r: 12  // 增加触发区域半径
                     },
                     style: {
                       fill: 'transparent',
                       cursor: 'pointer'
                     },
+                    // 添加鼠标事件
                     emphasis: {
                       style: {
                         fill: 'rgba(255,255,255,0.1)'
                       }
                     },
-                    silent: false
+                    silent: false  // 确保事件可以被触发
                   },
                   {
+                    // 原来的头像渲染
                     type: 'image',
                     style: {
                       image: tweet.profile_image_url,
+                      // image: img,
                       x: point[0] + (index * 15) - (avatars.length * 7.5),
-                      y: point[1] - 10 - VERTICAL_OFFSET, // 添加向上偏移
+                      y: point[1] - 10,
                       width: 20,
                       height: 20
                     },
@@ -792,11 +611,11 @@ export default function TokenEChart({
                       type: 'circle',
                       shape: {
                         cx: point[0] + (index * 15) - (avatars.length * 7.5) + 10,
-                        cy: point[1] - VERTICAL_OFFSET, // 添加向上偏移
+                        cy: point[1],
                         r: 10
                       }
                     },
-                    silent: false
+                    silent: false  // 确保事件可以被触发
                   }]
               });
             });
@@ -809,7 +628,7 @@ export default function TokenEChart({
                   type: 'circle',
                   shape: {
                     cx: point[0] + (5 * 15) - (avatars.length * 7.5) + 10,
-                    cy: point[1] - VERTICAL_OFFSET, // 添加向上偏移
+                    cy: point[1],
                     r: 10
                   },
                   style: {
@@ -820,7 +639,7 @@ export default function TokenEChart({
                   style: {
                     text: `+${marker.tweets.length - 5}`,
                     x: point[0] + (5 * 15) - (avatars.length * 7.5) + 10,
-                    y: point[1] - VERTICAL_OFFSET, // 添加向上偏移
+                    y: point[1],
                     textAlign: 'center',
                     textVerticalAlign: 'middle',
                     fill: '#ffffff',
@@ -833,167 +652,25 @@ export default function TokenEChart({
             return {
               type: 'group',
               children: children,
-              silent: false
-            };
-          },
-          tooltip: {
-            show: true
-          },
-          // 添加动画节流
-          animation: false,
-          progressive: 200,
-        },
-        {
-          type: 'custom',
-          renderItem: (params, api) => {
-            const point = api.coord([
-              api.value(0),
-              api.value(1)
-            ]);
-
-            const marker = tweetMarkers[params.dataIndex];
-            if (!marker || !point) return null;
-
-            const VERTICAL_OFFSET = -30;    // 向下偏移基准线
-            const BASE_RADIUS = 4;          // 最小半径
-            const MAX_RADIUS = 10;          // 最大半径
-
-            // 计算圆的半径
-            const getRadius = (tokenChange: string) => {
-              // 获取所有 token_change 的绝对值并展平成一维数组
-              const allChanges = tweetMarkers.flatMap(marker =>
-                marker.addressInfo.map(info => Math.abs(parseFloat(info.token_change)))
-              );
-
-              const maxChange = Math.max(...allChanges);
-              const relativeSize = Math.abs(parseFloat(tokenChange)) / maxChange;
-
-              // console.log((MAX_RADIUS - BASE_RADIUS) * relativeSize + BASE_RADIUS);
-              return (MAX_RADIUS - BASE_RADIUS) * relativeSize + BASE_RADIUS;
-            };
-
-            const groupedAddresses = _.groupBy(marker.addressInfo, (address) =>
-              dayjs(address.utc_time).format('YYYY-MM-DD HH:mm')
-            );
-
-            const children: any[] = [];
-
-            Object.entries(groupedAddresses).forEach(([time, addresses], groupIndex) => {
-              if (addresses && addresses.length > 0) {
-                children.push({
-                  type: 'group',
-                  children: [
-                    {
-                      type: 'line',
-                      shape: {
-                        x1: point[0],
-                        y1: point[1],
-                        x2: point[0],
-                        y2: point[1] - VERTICAL_OFFSET
-                      },
-                      style: {
-                        stroke: '#ffffff',
-                        lineWidth: 1,
-                        lineDash: [4, 4]
-                      }
-                    }
-                  ]
-                });
-              }
-
-              addresses.slice(0, 5).forEach((address, index) => {
-                const radius = getRadius(address.token_change);
-
-                children.push({
-                  type: 'group',
-                  children: [
-                    // 外部圆环
-                    {
-                      type: 'circle',
-                      shape: {
-                        cx: point[0],
-                        cy: point[1] - VERTICAL_OFFSET + (index * 25),
-                        r: radius
-                      },
-                      style: {
-                        fill: 'transparent',
-                        stroke: '#fff',
-                        lineWidth: 1
-                      }
-                    },
-                    // 修改内部填充圆的配置
-                    {
-                      type: 'circle',
-                      shape: {
-                        cx: point[0],
-                        cy: point[1] - VERTICAL_OFFSET + (index * 25),
-                        r: radius
-                      },
-                      style: {
-                        fill: getTransactionColor(parseFloat(address.token_change)),
-                        cursor: 'pointer'
-                      },
-                      emphasis: {
-                        style: {
-                          opacity: 0.8
-                        }
-                      }
-                    }
-                  ],
-                  silent: false
-                });
-              });
-
-              if (addresses.length > 5) {
-                children.push({
-                  type: 'group',
-                  children: [{
-                    type: 'circle',
-                    shape: {
-                      cx: point[0],
-                      cy: point[1] - VERTICAL_OFFSET + (5 * 25),
-                      r: BASE_RADIUS  // 使用基础半径
-                    },
-                    style: {
-                      fill: '#3F3F46'
-                    }
-                  }, {
-                    type: 'text',
-                    style: {
-                      text: `+${addresses.length - 5}`,
-                      x: point[0],
-                      y: point[1] - VERTICAL_OFFSET + (5 * 25),
-                      textAlign: 'center',
-                      textVerticalAlign: 'middle',
-                      fill: '#ffffff',
-                      fontSize: 10
-                    }
-                  }]
-                });
-              }
-            });
-
-            return {
-              type: 'group',
-              children: children,
-              silent: false
+              silent: false  // 确保整个组都可以触发事件
             };
           },
           tooltip: {
             show: true,
-          },
-          silent: false
+            trigger: 'item',
+            enterable: true,
+            confine: true,
+            position: function (point) {
+              return [point[0], point[1] + 20];
+            }
+          }
         }
       ]
     };
   }, [tweetMarkers])
 
-
-
   const zoomFunc = useCallback((params: any) => {
-    window.requestAnimationFrame(() => {
-      relationChartRef.current?.setRange([params.start, params.end]);
-    })
+    relationChartRef.current?.setRange([params.start, params.end]);
   }, [tweetMarkers])
 
   const handleZoom = _.debounce(zoomFunc, 500)
@@ -1112,8 +789,8 @@ export default function TokenEChart({
           <RelationAddress defaultRange={[0, 100]}
             tweets={mockData.tweets}
             relation={mockData.relation}
-          // ref={relationChartRef} 
-          />
+            // ref={relationChartRef} 
+            />
         </Flex>
       </Flex>
     </Flex>

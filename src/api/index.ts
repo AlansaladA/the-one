@@ -126,6 +126,24 @@ export const getTweetOne = async (tickerName: string, address: string) => {
   })
 }
 
+export const getAddressInfo = async (address: string) => {
+  return await request<{
+    ticker_name: string
+    transactions: Array<{
+      acc_holder: string
+      currency: string
+      price: string
+      signature: string
+      signature_type:string,
+      token_change:string,
+      transaction_time:string,
+    }>
+  }>({
+    url: `/get-ticker-address-advanced-db?ticker_address=${address}`,
+    method: "get",
+  })
+}
+
 export const getTweetBasic = async (tickerName: string) => {
   return await request<{
     ticker_name: string
@@ -305,6 +323,24 @@ export const getTokenRate = async (kolName: string) => {
     }>
   }>({
     url: `/get-kol-asset-with-history?kol_name=${kolName}`,
+    method: "get",
+  })
+}
+
+
+export const getAddressRate = async (acc_holder: string, address: string, signature: string) => {
+  return await request<{
+    acc_holder: string,
+    new_users_count: number,
+    price_change_20min:string,
+    price_change_5min:string,
+    target:string,
+    total_buy_20min:string,
+    total_buy_5min:string,
+    total_investment: string,
+    weighted_avg_holding_time_days:number
+  }>({
+    url: `/get-address-info?acc_holder=${acc_holder}&target=${address}&signature=${signature}`,
     method: "get",
   })
 }

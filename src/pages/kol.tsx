@@ -25,7 +25,7 @@ import KolGraph from "@/views/kol/graph";
 import { preloadImages } from "@/utils";
 
 export default function Kol() {
-  const { kol } = useLoaderData<KolData>()
+  const { kol } = useParams()
   const [followTokens, setFollowTokens] = useState<FollowTokens[]>();
   const [graphData, setGraphData] = useState<KolGraphData>({
     data: [],
@@ -81,6 +81,7 @@ export default function Kol() {
   const getFollowToken = async () => {
     try {
       // setLoading(true);
+      if (!kol) return;
       const res = await getFollowTime(kol);
       setFollowTokens(res.tweets);
 
@@ -386,7 +387,7 @@ export default function Kol() {
       </Flex>
 
       {/* Right Section */}
-      <KolGraph kol={kol} graphData={graphData} loading={loadship} />
+      <KolGraph kol={kol || ""} graphData={graphData} loading={loadship} />
     </Flex>
   </VStack>
 }

@@ -78,6 +78,7 @@ export type TickerData = {
     data: Record<string, string[]>
     position: string
   }[]
+  addressInfo: AddressInfo[]
 }
 
 export type KolData = {
@@ -101,4 +102,45 @@ export type KolGraphData = {
 export enum TokenLevel {
   BASIC = "basic",
   ADVANCED = "advanced"
+}
+
+export type AddressInfo = {
+  acc_holder: string
+  currency: string
+  price: string
+  signature: string
+  signature_type:string,
+  token_change:string,
+  utc_time:string,
+}
+
+export type AddressRate = {
+  new_users_count: number,
+  price_change_20min:string,
+  price_change_5min:string,
+  target:string,
+  total_buy_20min:string,
+  total_buy_5min:string,
+  total_investment:string,
+  weighted_avg_holding_time_days:number
+}
+
+
+export type TweetData = {
+  created_at:string,
+  profile_image_url:string,
+  screen_name:string,
+  token_contract_address:string,
+  token_name:string,
+  user:string,
+}
+
+export type AddressData = {
+  token_contract_address:string,
+  token_name:string,
+  acc_holder:string,
+  price:number,
+  token_change:number,
+  signature:string,
+  created_at:string,
 }
