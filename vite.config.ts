@@ -2,6 +2,8 @@ import { defineConfig, loadEnv } from "vite"
 import react from "@vitejs/plugin-react"
 import tsconfigPaths from "vite-tsconfig-paths"
 import { nodePolyfills } from "vite-plugin-node-polyfills"
+import autoprefixer from 'autoprefixer'
+import tailwindcss from 'tailwindcss'
 // https://vite.dev/config/
 
 const htmlPlugin = (id: string) => {
@@ -27,7 +29,7 @@ const htmlPlugin = (id: string) => {
     },
   ]
 }
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode}) => {
   // 加载环境变量
   const env = loadEnv(mode, process.cwd())
   return {
@@ -37,6 +39,14 @@ export default defineConfig(({ mode }) => {
       tsconfigPaths(),
       htmlPlugin(env.VITE_GTAG_ID || ""),
     ],
+    css: {
+      postcss: {
+        plugins: [
+          tailwindcss(),
+          autoprefixer(),
+        ],
+      },
+    },
     server: {
       host: true, // 监听所有地址，包括局域网和公网
       port: 3000, // 指定端口号，可以根据需要修改

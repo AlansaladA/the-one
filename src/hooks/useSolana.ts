@@ -6,6 +6,7 @@ import {
   getMint,
 } from "@solana/spl-token"
 import { TOKEN_DECIMALS } from "@/lib/consts"
+
 function useSolana() {
   const connection = new Connection(
     "https://ancient-small-liquid.solana-mainnet.quiknode.pro/26deb9b7822ea39cad4c4c72f0980651a924c955",
@@ -34,6 +35,7 @@ function useSolana() {
       tokenKey, // Token
       walletAddress // Wallet Address
     )
+    console.log(tokenAccountKey, 'tokenAccountKey');
     // 获取 Token Account 信息
     const accountInfo = await getAccount(connection, tokenAccountKey)
     const readableBalance =
