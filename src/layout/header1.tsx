@@ -19,18 +19,21 @@ import { fetchLogin } from "@/api";;
 import { Storage } from '@/utils/storage';
 import { useBreakpointValue } from "@chakra-ui/react";
 import { FaBars } from "react-icons/fa";
-import useWallet from "@/hooks/useWallet";
+
 import useSolana from "@/hooks/useSolana";
+import useTokenLevel from "@/hooks/useUser";
+import { DialogRoot, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogBody, DialogFooter, DialogActionTrigger } from "@/components/ui/dialog";
 
-
-import {
-  useAuthModal,
-  useLogout,
-  useSignerStatus,
-  useAccount,
-  useAuthenticate,
-  useUser,
-} from "@account-kit/react";
+// import useWallet from "@/hooks/useWallet";
+// import {
+//   useAuthModal,
+//   useLogout,
+//   useSignerStatus,
+//   useAccount,
+//   useAuthenticate,
+//   useUser,
+// } from "@account-kit/react";
+import useWalletManager from "@/hooks/useWalletManager";
 
 const socialLinks = [
   {
@@ -51,52 +54,69 @@ export default function Header() {
   const navigate = useNavigate()
   const isMobile = useBreakpointValue({ base: true, md: false });
 
-  const user = useUser();
-  
-  const { openAuthModal } = useAuthModal();
-  const signerStatus = useSignerStatus();
-  const { logout } = useLogout()
 
-  const { address, balance, isLogined, login, updateTokenBalance } = useWallet()
-  const { getTokenBalance } = useSolana()
-  const [balanceloading, setBalanceloading] = useState(false)
+  // const signerStatus = useSignerStatus();
 
+  const { activeWallet, connectWallet, disconnectWallet, getAddress, getBalance, isConnected } = useWalletManager()
 
-  const fetchBalance = useCallback(async () => {
+  const [open, setOpen] = useState(false)
+
+  const { updateTokenLevel } = useTokenLevel()
+
+  useEffect(() => {
+    if (getAddress()) {
+      fetchLoginApi()
+    }
+  }, [getAddress()])
+
+  const fetchLoginApi = useCallback(async () => {
     try {
-      if (!user) return
-      setBalanceloading(true)
-      // console.log(user.address, 'user.address');
-      const balance = await getTokenBalance(user.address, import.meta.env.VITE_TOKEN_ADDRESS)
-      updateTokenBalance(parseFloat(balance))
+      if (!getAddress()) return
+      const res = await fetchLogin(getAddress() || '')
+      Storage.setToken(res.token)
+      Storage.setWalletAddress(getAddress() || '')
+      updateTokenLevel(res.token_level)
     } catch (error) {
       console.log(error);
-    } finally {
-      setBalanceloading(false)
     }
-  }, [user, getTokenBalance, updateTokenBalance])
+    }, [getAddress()])
+
+  // const fetchBalance = useCallback(async () => {
+  //   try {
+  //     if (!user) return
+  //     setBalanceloading(true)
+  //     // console.log(user.address, 'user.address');
+  //     const balance = await getTokenBalance(user.address, import.meta.env.VITE_TOKEN_ADDRESS)
+  //     updateTokenBalance(parseFloat(balance))
+  //   } catch (error) {
+  //     console.log(error);
+  //   } finally {
+  //     setBalanceloading(false)
+  //   }
+  // }, [user, getTokenBalance, updateTokenBalance])
 
   // useEffect(() => {
-  //   if (address) {
+  //   if (user) {
   //     fetchBalance()
   //     fetchLoginApi()
   //   }
-  // }, [address])
+  // }, [user])
 
   // const fetchLoginApi = useCallback(async () => {
   //   try {
-  //     if (!address) return
-  //     const res = await fetchLogin(address)
+  //     if (!user) return
+  //     const res = await fetchLogin(user.address)
   //     Storage.setToken(res.token)
-  //     Storage.setWalletAddress(address)
+  //     Storage.setWalletAddress(user.address)
   //     updateTokenLevel(res.token_level)
   //   } catch (error) {
   //     console.log(error);
   //   }
-  // }, [address])
+  // }, [user])
 
   const logoutBtn = () => {
-    logout()
+    // logout()
+    disconnectWallet()
     Storage.removeToken()
     Storage.removeWalletAddress()
     // updateTokenLevel("basic")
@@ -143,7 +163,45 @@ export default function Header() {
         ))
       )}
 
-      <Box>
+
+      <DialogRoot placement="center" open={open} >
+        <DialogTrigger asChild>
+          {isConnected ? <MenuRoot>
+            <MenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                {shortenAddress(getAddress() || '')}
+              </Button>
+            </MenuTrigger>
+            <MenuContent>
+              <MenuItem value="disconnect" onClick={logoutBtn}>Disconnect</MenuItem>
+            </MenuContent>
+          </MenuRoot> : (
+            <Button onClick={() => setOpen(true)} px={"24px"} borderRadius={"full"} borderColor={"#8181E5"} bgColor={"transparent"} variant={'solid'}
+            >
+              <Text color={"#8181E5"}> Connect</Text>
+            </Button>
+          )}
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Select Wallet</DialogTitle>
+          </DialogHeader>
+          <DialogBody>
+            <Flex gap={2} flexDirection={"column"}>
+              <Button onClick={() => { connectWallet('alchemy'); setOpen(false) }}>Alchemy</Button>
+              <Button onClick={() => { connectWallet('solana'); setOpen(false) }}>Solana</Button>
+            </Flex>
+          </DialogBody>
+          <DialogFooter>
+            <DialogActionTrigger asChild>
+              <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+            </DialogActionTrigger>
+          </DialogFooter>
+        </DialogContent>
+      </DialogRoot>
+
+
+      {/* <Box>
         {
           signerStatus.isInitializing ? (
             <Spinner size="sm" color="white" />
@@ -175,7 +233,9 @@ export default function Header() {
             </Button>
           )
         }
-      </Box>
+      </Box> */}
+
+
     </Flex>
   </Flex>
 }

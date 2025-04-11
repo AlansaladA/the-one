@@ -9,19 +9,20 @@ import { Provider as StoreProvider } from 'react-redux';
 import store from './store/index.ts';
 import { ColorModeProvider } from './components/ui/color-mode.tsx';
 
-import { AlchemyClientState } from "@account-kit/core";
+import { AlchemyClientState, cookieToInitialState } from "@account-kit/core";
 import { AlchemyAccountProvider } from "@account-kit/react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { config, queryClient } from "@/lib/consts/alchemyConfig";
-
+import Cookies from 'js-cookie';
 function App() {
+
 
   return (
     <StoreProvider store={store}>
-      <PrivyProvider appId="cm5xpkij608f1opr0y5cc8uhf"
-        config={privyConfig}>
+      <QueryClientProvider client={queryClient}>
+        <PrivyProvider appId="cm5xpkij608f1opr0y5cc8uhf"
+          config={privyConfig}>
 
-        <QueryClientProvider client={queryClient}>
           <AlchemyAccountProvider config={config} queryClient={queryClient} >
             <ChakraProvider value={system}>
               <ColorModeProvider forcedTheme='dark'>
@@ -29,10 +30,9 @@ function App() {
               </ColorModeProvider>
             </ChakraProvider>
           </AlchemyAccountProvider>
-        </QueryClientProvider>
 
-
-      </PrivyProvider>
+        </PrivyProvider>
+      </QueryClientProvider>
     </StoreProvider>
   )
 }

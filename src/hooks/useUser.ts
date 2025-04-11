@@ -1,7 +1,7 @@
 import { useStoreSelector, useStoreDispatch } from './useStore';
 import { setTokenLevel } from '@/store/user';
 
-const useUser = () => {
+const useTokenLevel = () => {
   const dispatch = useStoreDispatch();
   const { token_level } = useStoreSelector((state) => state.user);
 
@@ -15,4 +15,4 @@ const useUser = () => {
   };
 };
 
-export default useUser;
+export default useTokenLevel;
