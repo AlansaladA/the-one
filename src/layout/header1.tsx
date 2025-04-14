@@ -189,7 +189,7 @@ export default function Header() {
           <DialogBody>
             <Flex gap={2} flexDirection={"column"}>
               <Button onClick={() => { connectWallet('alchemy'); setOpen(false) }}>Alchemy</Button>
-              <Button onClick={() => { connectWallet('solana'); setOpen(false) }}>Solana</Button>
+              <Button onClick={() => { connectWallet('solana'); setOpen(false) }}>Phantom</Button>
             </Flex>
           </DialogBody>
           <DialogFooter>

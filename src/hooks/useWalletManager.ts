@@ -20,8 +20,6 @@ export default function useWalletManager() {
         await openAuthModal();
         setActiveWallet('alchemy');
       } else {
-        console.log("12323");
-        
         await login();
         setActiveWallet('solana');
       }
