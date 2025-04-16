@@ -26,7 +26,7 @@ export default function useWalletManager() {
     } catch (error) {
       console.error('Wallet connection failed:', error);
     }
-  };
+  }
 
   const disconnectWallet = async () => {
     if (activeWallet === 'alchemy') {

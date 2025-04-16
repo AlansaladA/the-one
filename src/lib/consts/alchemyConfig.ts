@@ -9,6 +9,7 @@ export const config = createConfig(
     chain: mainnet, // TODO: specify your preferred chain here and update imports from @account-kit/infra
     ssr: true, // Defers hydration of the account state to the client after the initial mount solving any inconsistencies between server and client state (read more here: https://accountkit.alchemy.com/react/ssr)
     storage: cookieStorage, // persist the account state using cookies (read more here: https://accountkit.alchemy.com/react/ssr#persisting-the-account-state)
+    
     // enablePopupOauth: true, // must be set to "true" if you plan on using popup rather than redirect in the social login flow
     // // optional config to override default session manager config
     sessionConfig: {
@@ -22,6 +23,7 @@ export const config = createConfig(
       hideSignInText: true,
       header: "Connect Wallet",
       sections: [
+        [{ type: "email" }],
         [
           {
             type: "external_wallets",

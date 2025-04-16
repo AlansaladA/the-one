@@ -23,7 +23,8 @@ import { FaBars } from "react-icons/fa";
 import useSolana from "@/hooks/useSolana";
 import useTokenLevel from "@/hooks/useUser";
 import { DialogRoot, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogBody, DialogFooter, DialogActionTrigger } from "@/components/ui/dialog";
-
+import AlchemyImg from "@/assets/alchemy.png"
+import PhantomImg from "@/assets/phantom.png"
 // import useWallet from "@/hooks/useWallet";
 // import {
 //   useAuthModal,
@@ -188,8 +189,13 @@ export default function Header() {
           </DialogHeader>
           <DialogBody>
             <Flex gap={2} flexDirection={"column"}>
-              <Button onClick={() => { connectWallet('alchemy'); setOpen(false) }}>Alchemy</Button>
-              <Button onClick={() => { connectWallet('solana'); setOpen(false) }}>Phantom</Button>
+              <Button onClick={() => { connectWallet('alchemy'); setOpen(false) }}>
+                <Image src={AlchemyImg} height={"20px"} />
+              </Button>
+              <Button onClick={() => { connectWallet('solana'); setOpen(false) }}>
+                <Image src={PhantomImg} height={"22px"} borderRadius={"full"} />
+                <Text>Phantom</Text>
+              </Button>
             </Flex>
           </DialogBody>
           <DialogFooter>
@@ -200,40 +206,6 @@ export default function Header() {
         </DialogContent>
       </DialogRoot>
 
-
-      {/* <Box>
-        {
-          signerStatus.isInitializing ? (
-            <Spinner size="sm" color="white" />
-          ) : user ? (
-            <Flex alignItems={"center"} gap={2}>
-              <Flex alignItems={"center"} gap={2}>
-                {balanceloading ?
-                  <Spinner /> : <Text>
-                    {balance}
-                  </Text>
-                }
-                <Text>THE1</Text>
-              </Flex>
-              <MenuRoot>
-                <MenuTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    {shortenAddress(user.address)}
-                  </Button>
-                </MenuTrigger>
-                <MenuContent>
-                  <MenuItem value="disconnect" onClick={logoutBtn}>Disconnect</MenuItem>
-                </MenuContent>
-              </MenuRoot>
-            </Flex>
-          ) : (
-            <Button px={"24px"} borderRadius={"full"} borderColor={"#8181E5"} bgColor={"transparent"} variant={'solid'} onClick={openAuthModal}
-            >
-              <Text color={"#8181E5"}> Connect</Text>
-            </Button>
-          )
-        }
-      </Box> */}
 
 
     </Flex>
