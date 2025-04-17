@@ -24,6 +24,7 @@ export const config = createConfig(
       header: "Connect Wallet",
       sections: [
         [{ type: "email" }],
+        [{ type: "social", authProviderId: "google", mode: "popup" }],
         [
           {
             type: "external_wallets",
