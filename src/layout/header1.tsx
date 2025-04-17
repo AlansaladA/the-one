@@ -190,7 +190,7 @@ export default function Header() {
           <DialogBody>
             <Flex gap={2} flexDirection={"column"}>
               <Button onClick={() => { connectWallet('alchemy'); setOpen(false) }}>
-                <Image src={AlchemyImg} height={"20px"} />
+                <Image src={"./images/alchemy.png"} height={"20px"} />
               </Button>
               <Button onClick={() => { connectWallet('solana'); setOpen(false) }}>
                 <Image src={PhantomImg} height={"22px"} borderRadius={"full"} />
