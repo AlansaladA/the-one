@@ -177,13 +177,13 @@ export default function Header() {
               <MenuItem value="disconnect" onClick={logoutBtn}>Disconnect</MenuItem>
             </MenuContent>
           </MenuRoot> : (
-            <Button onClick={() => setOpen(true)} px={"24px"} borderRadius={"full"} borderColor={"#8181E5"} bgColor={"transparent"} variant={'solid'}
+            <Button onClick={() => connectWallet('alchemy')} px={"24px"} borderRadius={"full"} borderColor={"#8181E5"} bgColor={"transparent"} variant={'solid'}
             >
               <Text color={"#8181E5"}> Connect</Text>
             </Button>
           )}
         </DialogTrigger>
-        <DialogContent>
+        {/* <DialogContent>
           <DialogHeader>
             <DialogTitle>Select Wallet</DialogTitle>
           </DialogHeader>
@@ -204,11 +204,8 @@ export default function Header() {
               <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
             </DialogActionTrigger>
           </DialogFooter>
-        </DialogContent>
+        </DialogContent> */}
       </DialogRoot>
-
-
-
     </Flex>
   </Flex>
 }

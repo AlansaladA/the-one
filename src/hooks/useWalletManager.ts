@@ -3,7 +3,7 @@ import { usePrivy } from "@privy-io/react-auth"
 import { useState } from "react";
 
 export default function useWalletManager() {
-  const [activeWallet, setActiveWallet] = useState<'alchemy' | 'solana' | null>(null);
+  const [activeWallet, setActiveWallet] = useState<'alchemy' | 'solana' | null>('alchemy');
    
   // Alchemy依赖
   const { openAuthModal } = useAuthModal();
