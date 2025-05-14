@@ -9,6 +9,7 @@ import ErrorBoundary from "@/pages/error"
 // import { kolLoader, tickerLoader } from "./loader"
 import Loading from "@/components/loading"
 import { Fragment } from "react/jsx-runtime"
+import LoginExtension from "@/pages/extension/login"
 const router = createBrowserRouter([
   {
     path: "/",
@@ -20,12 +21,12 @@ const router = createBrowserRouter([
         Component: Home,
       },
       {
-        path: "token", 
+        path: "token",
         children: [
           {
             path: ":ticker/:ca",
             Component: Ticker,
-            loader: ({ params }) => { 
+            loader: ({ params }) => {
               if (!params.ticker) {
                 throw new Error("Token Not Found")
               }
@@ -48,8 +49,17 @@ const router = createBrowserRouter([
             hydrateFallbackElement: <Loading />,
           },
         ],
-      },
+      }
     ],
+  },
+  {
+    path: "extensionAuth",
+    children: [
+      {
+        path: "login",
+        Component: LoginExtension,
+      }
+    ]
   },
   {
     path: "*",
