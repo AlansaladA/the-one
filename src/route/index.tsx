@@ -49,17 +49,17 @@ const router = createBrowserRouter([
             hydrateFallbackElement: <Loading />,
           },
         ],
+      },
+      {
+        path: "extensionAuth",
+        children: [
+          {
+            path: "login",
+            Component: LoginExtension,
+          }
+        ]
       }
     ],
-  },
-  {
-    path: "extensionAuth",
-    children: [
-      {
-        path: "login",
-        Component: LoginExtension,
-      }
-    ]
   },
   {
     path: "*",
