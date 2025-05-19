@@ -1,3 +1,4 @@
+"use client"
 import { usePrivy } from "@privy-io/react-auth"
 import { Button } from "@/components/ui/button"
 import { useSearchParams } from "react-router"
